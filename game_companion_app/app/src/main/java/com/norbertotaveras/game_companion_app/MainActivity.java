@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.norbertotaveras.game_companion_app.Summoner.SummonerDTO;
+
 import java.io.IOException;
 
 import okhttp3.HttpUrl;

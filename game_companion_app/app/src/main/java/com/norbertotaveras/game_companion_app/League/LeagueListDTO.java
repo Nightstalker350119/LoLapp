@@ -1,4 +1,6 @@
-package com.norbertotaveras.game_companion_app;
+package com.norbertotaveras.game_companion_app.League;
+
+import com.norbertotaveras.game_companion_app.League.LeagueItemDTO;
 
 import java.util.List;
 

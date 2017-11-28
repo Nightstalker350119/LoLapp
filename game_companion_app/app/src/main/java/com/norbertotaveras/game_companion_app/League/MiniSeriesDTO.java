@@ -1,4 +1,4 @@
-package com.norbertotaveras.game_companion_app;
+package com.norbertotaveras.game_companion_app.League;
 
 /**
  * Created by Norberto Taveras on 11/28/2017.

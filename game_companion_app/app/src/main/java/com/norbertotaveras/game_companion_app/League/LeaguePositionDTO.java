@@ -1,7 +1,7 @@
-package com.norbertotaveras.game_companion_app;
+package com.norbertotaveras.game_companion_app.League;
 
 /**
- * Created by Norberto on 11/28/2017.
+ * Created by Norberto Taveras on 11/28/2017.
  */
 
 public class LeaguePositionDTO {
