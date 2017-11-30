@@ -1,32 +1,32 @@
 package com.norbertotaveras.game_companion_app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.TextView;
 
-import com.norbertotaveras.game_companion_app.Summoner.SummonerDTO;
-
-import java.io.IOException;
-
-import okhttp3.HttpUrl;
-import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
 
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
-public class MainActivity extends AppCompatActivity {
-    Retrofit retroFit;
-    RiotGamesServices apiService;
-    static final String riotApiKey = "RGAPI-0d7654a4-d8b6-4be4-ac30-dda50f460c40";
+import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
+
+public class MainActivity
+        extends AppCompatActivity
+        implements TextView.OnEditorActionListener, View.OnKeyListener {
+    SummonerDTO summoner;
+
+    TextView title1, title2;
+    EditText search;
 
     private TextView mTextMessage;
 
@@ -54,61 +54,49 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initRiotAPI(riotApiKey);
 
-        try {
-            Call<SummonerDTO> test = apiService.getSummonersByName("NTaveras");
+        title1 = findViewById(R.id.title1);
+        title2 = findViewById(R.id.title2);
+        search = findViewById(R.id.search);
 
-            test.enqueue(new Callback<SummonerDTO>() {
-                @Override
-                public void onResponse(Call<SummonerDTO> call, retrofit2.Response<SummonerDTO> response) {
-                    SummonerDTO testBody = response.body();
-                    Log.d("riottest", String.format("accountid = %d", testBody.accountId));
-                }
+        search.setImeActionLabel("Search", EditorInfo.IME_ACTION_SEARCH);
+        search.setOnKeyListener(this);
+        search.setOnEditorActionListener(this);
 
-                @Override
-                public void onFailure(Call<SummonerDTO> call, Throwable t) {
-                    Log.e("riottest", String.format("async request failed = %s", t));
-                }
-            });
-        }
-        catch (Exception ex) {
-            Log.e("riottest", String.format("request completely failed = %s", ex));
-        }
-
-        mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
-    private void initRiotAPI(final String riotApiKey) {
-        OkHttpClient.Builder httpClient =
-                new OkHttpClient.Builder();
-        httpClient.addInterceptor(new Interceptor() {
-            @Override
-            public Response intercept(Chain chain) throws IOException {
-                Request original = chain.request();
-                HttpUrl originalHttpUrl = original.url();
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        switch (v.getId()) {
+            case R.id.search:
+                switch (actionId) {
+                    case IME_ACTION_DONE:
+                        showSearchResult();
+                        break;
+                }
+        }
+        return false;
+    }
 
-                HttpUrl url = originalHttpUrl.newBuilder()
-                        .addQueryParameter("api_key", riotApiKey)
-                        .build();
+    private void showSearchResult() {
+        String searchText = search.getText().toString();
+        Intent resultsIntent;
+        resultsIntent = new Intent(this, SummonerSearchResultsActivity.class);
+        resultsIntent.putExtra("searchText", searchText);
+        startActivity(resultsIntent);
+    }
 
-                // Request customization: add request headers
-                Request.Builder requestBuilder = original.newBuilder()
-                        .url(url);
-
-                Request request = requestBuilder.build();
-                return chain.proceed(request);
-            }
-        });
-
-        retroFit = new Retrofit.Builder()
-                .client(httpClient.build())
-                .baseUrl("https://na1.api.riotgames.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        apiService = retroFit.create(RiotGamesServices.class);
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
+        switch (v.getId()) {
+            case R.id.search:
+                if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                    showSearchResult();
+                    return true;
+                }
+        }
+        return false;
     }
 }
