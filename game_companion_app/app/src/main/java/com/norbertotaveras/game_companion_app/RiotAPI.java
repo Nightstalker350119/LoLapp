@@ -20,7 +20,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RiotAPI {
     private static RiotAPI instance;
     private static final String riotApiKey =
-            "RGAPI-0d7654a4-d8b6-4be4-ac30-dda50f460c40";
+            "RGAPI-bfb57cac-af43-4196-90cf-ee6f945e2596";
 
     private Retrofit retrofit;
     private RiotGamesService apiService;
@@ -64,7 +64,7 @@ public class RiotAPI {
 
         retrofit = new Retrofit.Builder()
                 .client(client)
-                .baseUrl("https://na1.api.riotgames.com/")
+                .baseUrl("https://kr.api.riotgames.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

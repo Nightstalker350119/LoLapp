@@ -9,13 +9,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.TabHost;
 import android.widget.TextView;
 
+import com.norbertotaveras.game_companion_app.DTO.League.LeagueItemDTO;
+import com.norbertotaveras.game_companion_app.DTO.League.LeagueListDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.RealmDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ProfileIconDataDTO;
 import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
 
 import java.io.IOException;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -34,6 +38,11 @@ public class SummonerSearchResultsActivity extends AppCompatActivity {
 
     private Handler uiThreadHandler;
 
+    private TextView levelText;
+    private TextView tierText;
+    private TextView leagueText;
+    private TextView queueText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +50,31 @@ public class SummonerSearchResultsActivity extends AppCompatActivity {
 
         summonerLevel = findViewById(R.id.level);
         profileIcon = findViewById(R.id.profile_icon);
+
+        levelText = findViewById(R.id.level);
+        tierText = findViewById(R.id.tier);
+        leagueText = findViewById(R.id.league);
+        queueText = findViewById(R.id.queue);
+
+        TabHost host;
+        host = findViewById(R.id.tab_scr);
+        host.setup();
+
+        TabHost.TabSpec spec;
+        spec = host.newTabSpec("Summary");
+        spec.setContent(R.id.tab_summary);
+        spec.setIndicator("Summary");
+        host.addTab(spec);
+
+        spec = host.newTabSpec("Champs");
+        spec.setContent(R.id.tab_champs);
+        spec.setIndicator("Champs");
+        host.addTab(spec);
+
+        spec = host.newTabSpec("Runes");
+        spec.setContent(R.id.tab_runes);
+        spec.setIndicator("Runes");
+        host.addTab(spec);
 
         apiService = RiotAPI.getInstance();
 
@@ -149,6 +183,10 @@ public class SummonerSearchResultsActivity extends AppCompatActivity {
                     uiThreadHandler.post(new Runnable() {
                         @Override
                         public void run() {
+                            profileIcon.setMinimumWidth(icon.getMinimumWidth());
+                            profileIcon.setMinimumHeight(icon.getMinimumHeight());
+                            profileIcon.setMaxWidth(icon.getIntrinsicWidth());
+                            profileIcon.setMaxHeight(icon.getIntrinsicHeight());
                             profileIcon.setImageDrawable(icon);
                         }
                     });
@@ -163,9 +201,40 @@ public class SummonerSearchResultsActivity extends AppCompatActivity {
         }
     }
 
-    private void handleGetSummonerResponse(SummonerDTO summoner) {
+    private void handleGetSummonerResponse(final SummonerDTO summoner) {
         summonerLevel.setText(String.valueOf(summoner.summonerLevel));
         profileIconId = summoner.profileIconId;
         updateProfileIcon();
+
+        Call<List<LeagueListDTO>> getLeagueListRequest = apiService.getLeagueList(summoner.id);
+
+        getLeagueListRequest.enqueue(new Callback<List<LeagueListDTO>>() {
+            @Override
+            public void onResponse(Call<List<LeagueListDTO>> call,
+                                   Response<List<LeagueListDTO>> response) {
+                handleLeagueListResponse(summoner, response.body());
+            }
+
+            @Override
+            public void onFailure(Call<List<LeagueListDTO>> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void handleLeagueListResponse(SummonerDTO summoner, List<LeagueListDTO> leagueList) {
+        for (LeagueListDTO league : leagueList) {
+            queueText.setText(league.queue);
+            tierText.setText(league.tier);
+            leagueText.setText(league.name);
+            levelText.setText(String.valueOf(summoner.summonerLevel));
+
+
+//            for (LeagueItemDTO item : league.entries) {
+//                if (item.playerOrTeamId == summoner.name) {
+//                    Log.v("gcadebug", "found them");
+//                }
+//            }
+        }
     }
 }
