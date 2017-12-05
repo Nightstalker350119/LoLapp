@@ -5,12 +5,20 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.norbertotaveras.game_companion_app.DTO.League.LeagueItemDTO;
 import com.norbertotaveras.game_companion_app.DTO.League.LeagueListDTO;
@@ -28,33 +36,34 @@ import retrofit2.Response;
 public class SummonerSearchResultsActivity extends AppCompatActivity {
     private RiotGamesService apiService;
     private String searchText;
-    private TextView summonerLevel;
     private ImageView profileIcon;
 
-    private ProfileIconDataDTO profileIconDataDTO;
     private long profileIconId;
-    private String version;
-    private boolean profileIconDone;
 
     private Handler uiThreadHandler;
 
-    private TextView levelText;
+    private TextView summonerName;
     private TextView tierText;
-    private TextView leagueText;
     private TextView queueText;
+    private TextView summonerSummary;
+    LeagueCollectionFragmentAdapter leaguePagerAdapter;
+    private ViewPager leaguePager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_summoner_search_results);
 
-        summonerLevel = findViewById(R.id.level);
+        summonerName = findViewById(R.id.summoner_name);
+        summonerSummary = findViewById(R.id.summoner_summary);
         profileIcon = findViewById(R.id.profile_icon);
+        queueText = findViewById(R.id.queue_name);
 
-        levelText = findViewById(R.id.level);
         tierText = findViewById(R.id.tier);
-        leagueText = findViewById(R.id.league);
-        queueText = findViewById(R.id.queue);
+        leaguePager = findViewById(R.id.league_pager);
+
+        leaguePagerAdapter = new LeagueCollectionFragmentAdapter(getSupportFragmentManager());
+        leaguePager.setAdapter(leaguePagerAdapter);
 
         TabHost host;
         host = findViewById(R.id.tab_scr);
@@ -108,101 +117,57 @@ public class SummonerSearchResultsActivity extends AppCompatActivity {
                     Log.e("riottest", String.format("async request failed = %s", t));
                 }
             });
-
-            Call<ProfileIconDataDTO> getProfileIconsRequest = apiService.getProfileIcons();
-
-            getProfileIconsRequest.enqueue(new Callback<ProfileIconDataDTO>() {
-                @Override
-                public void onResponse(Call<ProfileIconDataDTO> call,
-                                       Response<ProfileIconDataDTO> response) {
-                    handleGetProfileIconData(response.body());
-                }
-
-                @Override
-                public void onFailure(Call<ProfileIconDataDTO> call, Throwable t) {
-
-                }
-            });
-
-//            Call<List<String>> getVersionsRequest = apiService.getVersions();
-//
-//            getVersionsRequest.enqueue(new Callback<List<String>>() {
-//                @Override
-//                public void onResponse(Call<List<String>> call, Response<List<String>> response) {
-//                    handleGetVersionsRequest(response.body());
-//                }
-//
-//                @Override
-//                public void onFailure(Call<List<String>> call, Throwable t) {
-//
-//                }
-//            });
-
-            Call<RealmDTO> getRealmsRequest = apiService.getRealms();
-
-            getRealmsRequest.enqueue(new Callback<RealmDTO>() {
-                @Override
-                public void onResponse(Call<RealmDTO> call, Response<RealmDTO> response) {
-                    handleGetRealmsRequest(response.body());
-                }
-
-                @Override
-                public void onFailure(Call<RealmDTO> call, Throwable t) {
-
-                }
-            });
         }
         catch (Exception ex) {
             Log.e("riottest", String.format("request completely failed = %s", ex));
         }
     }
 
-    private void handleGetRealmsRequest(RealmDTO realmDTO) {
-        version = realmDTO.v;
-        updateProfileIcon();
-    }
-
 //    private void handleGetVersionsRequest(List<String> versions) {
 //
 //    }
 
-    private void handleGetProfileIconData(ProfileIconDataDTO iconDataDto) {
-        profileIconDataDTO = iconDataDto;
-        updateProfileIcon();
-    }
-
     // Needs profileIconData, versionData
     private void updateProfileIcon() {
-        if (!profileIconDone && profileIconId != 0 && version != null) {
-            RiotAPI.fetchProfileIcon(version, profileIconId, new okhttp3.Callback() {
-                @Override
-                public void onResponse(okhttp3.Call call,
-                                       okhttp3.Response response) throws IOException {
-                    final Drawable icon = Drawable.createFromStream(
-                            response.body().byteStream(), null);
-                    uiThreadHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            profileIcon.setMinimumWidth(icon.getMinimumWidth());
-                            profileIcon.setMinimumHeight(icon.getMinimumHeight());
-                            profileIcon.setMaxWidth(icon.getIntrinsicWidth());
-                            profileIcon.setMaxHeight(icon.getIntrinsicHeight());
-                            profileIcon.setImageDrawable(icon);
-                        }
-                    });
-                }
+        RiotAPI.fetchProfileIcon(profileIconId, new okhttp3.Callback() {
+            @Override
+            public void onResponse(okhttp3.Call call,
+                                   okhttp3.Response response) throws IOException {
+                final Drawable icon = Drawable.createFromStream(
+                        response.body().byteStream(), null);
+                uiThreadHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        profileIcon.setMinimumWidth(icon.getMinimumWidth());
+                        profileIcon.setMinimumHeight(icon.getMinimumHeight());
+                        profileIcon.setMaxWidth(icon.getIntrinsicWidth());
+                        profileIcon.setMaxHeight(icon.getIntrinsicHeight());
+                        profileIcon.setImageDrawable(icon);
+                    }
+                });
+            }
 
-                @Override
-                public void onFailure(okhttp3.Call call, IOException e) {
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
 
-                }
-            });
-            profileIconDone = true;
-        }
+            }
+        });
     }
 
     private void handleGetSummonerResponse(final SummonerDTO summoner) {
-        summonerLevel.setText(String.valueOf(summoner.summonerLevel));
+        if (summoner == null) {
+            UIHelper.showToast(this,
+                    String.format("Summoner \"%s\" not found", searchText), Toast.LENGTH_SHORT);
+            finish();
+            return;
+        }
+
+        summonerName.setText(summoner.name);
+
+        String summary = String.valueOf("Level " + String.valueOf(summoner.summonerLevel) +
+            " | ");
+        summonerSummary.setText(summary);
+
         profileIconId = summoner.profileIconId;
         updateProfileIcon();
 
@@ -223,18 +188,37 @@ public class SummonerSearchResultsActivity extends AppCompatActivity {
     }
 
     private void handleLeagueListResponse(SummonerDTO summoner, List<LeagueListDTO> leagueList) {
-        for (LeagueListDTO league : leagueList) {
-            queueText.setText(league.queue);
-            tierText.setText(league.tier);
-            leagueText.setText(league.name);
-            levelText.setText(String.valueOf(summoner.summonerLevel));
+        leaguePagerAdapter.setLeagueList(leagueList);
+        leaguePagerAdapter.notifyDataSetChanged();
+    }
 
+    private static class LeagueCollectionFragmentAdapter extends FragmentStatePagerAdapter {
+        List<LeagueListDTO> leagueList;
 
-//            for (LeagueItemDTO item : league.entries) {
-//                if (item.playerOrTeamId == summoner.name) {
-//                    Log.v("gcadebug", "found them");
-//                }
-//            }
+        LeagueCollectionFragmentAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        public void setLeagueList(List<LeagueListDTO> list) {
+            leagueList = list;
+            Log.v("wtf", String.format("added list with %d items", list.size()));
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            if (leagueList == null)
+                return null;
+
+            Fragment fragment = new LeagueCollectionFragment();
+            Bundle args = new Bundle();
+            args.putSerializable(LeagueCollectionFragment.ARG_LEAGUELIST, leagueList.get(position));
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        @Override
+        public int getCount() {
+            return leagueList != null ? leagueList.size() : 0;
         }
     }
 }

@@ -19,6 +19,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
+import static android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH;
 
 public class MainActivity
         extends AppCompatActivity
@@ -60,7 +61,7 @@ public class MainActivity
         search = findViewById(R.id.search);
 
         search.setImeActionLabel("Search", EditorInfo.IME_ACTION_SEARCH);
-        search.setOnKeyListener(this);
+        //search.setOnKeyListener(this);
         search.setOnEditorActionListener(this);
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
@@ -72,9 +73,12 @@ public class MainActivity
         switch (v.getId()) {
             case R.id.search:
                 switch (actionId) {
-                    case IME_ACTION_DONE:
+                    case IME_ACTION_SEARCH:
                         showSearchResult();
                         break;
+                    default:
+                        Log.v("wtf", "onEditorAction key " + String.valueOf(event));
+                        return onKey(v, event.getKeyCode(), event);
                 }
         }
         return false;
@@ -92,7 +96,8 @@ public class MainActivity
     public boolean onKey(View v, int keyCode, KeyEvent event) {
         switch (v.getId()) {
             case R.id.search:
-                if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER &&
+                        event.getAction() == KeyEvent.ACTION_DOWN) {
                     showSearchResult();
                     return true;
                 }
