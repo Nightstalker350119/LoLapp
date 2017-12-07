@@ -21,7 +21,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".DTO.Summoner.SummonerSearchResult" />
-        <activity android:name=".SummonerSearchResultsActivity"></activity>
+        <activity android:name=".SummonerSearchResultsActivity" />
+        <activity
+            android:name=".ChampionsActivity"
+            android:label="@string/title_activity_champions"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

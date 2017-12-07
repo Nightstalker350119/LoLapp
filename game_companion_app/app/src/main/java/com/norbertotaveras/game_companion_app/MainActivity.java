@@ -46,6 +46,8 @@ public class MainActivity
                     return true;
                 case R.id.navigation_dashboard:
                     mTextMessage.setText(R.string.title_dashboard);
+                    Intent ChampionsIntent = new Intent(MainActivity.this, ChampionsActivity.class);
+                    startActivity(ChampionsIntent);
                     return true;
                 case R.id.navigation_notifications:
                     mTextMessage.setText(R.string.title_notifications);
