@@ -1,6 +1,7 @@
 package com.norbertotaveras.game_companion_app;
 
 import com.norbertotaveras.game_companion_app.DTO.League.LeagueListDTO;
+import com.norbertotaveras.game_companion_app.DTO.League.LeaguePositionDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.RealmDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionListDTO;
@@ -44,4 +45,7 @@ public interface RiotGamesService {
 
     @GET("/lol/league/v3/leagues/by-summoner/{id}")
     Call<List<LeagueListDTO>> getLeagueList(@Path("id") long id);
+
+    @GET("/lol/league/v3/positions/by-summoner/{id}")
+    Call<List<LeaguePositionDTO>> getLeaguePositions(@Path("id") long id);
 }

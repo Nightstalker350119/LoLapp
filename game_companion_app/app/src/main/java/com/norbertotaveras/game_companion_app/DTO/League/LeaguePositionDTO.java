@@ -5,6 +5,7 @@ package com.norbertotaveras.game_companion_app.DTO.League;
  */
 
 public class LeaguePositionDTO {
+    public String queueType;
     public String rank;
     public String playerOrTeamName;
     public String playerOrTeamId;

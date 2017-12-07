@@ -12,22 +12,20 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.norbertotaveras.game_companion_app.DTO.League.LeagueItemDTO;
 import com.norbertotaveras.game_companion_app.DTO.League.LeagueListDTO;
-import com.norbertotaveras.game_companion_app.DTO.StaticData.RealmDTO;
-import com.norbertotaveras.game_companion_app.DTO.StaticData.ProfileIconDataDTO;
+import com.norbertotaveras.game_companion_app.DTO.League.LeaguePositionDTO;
 import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -48,6 +46,11 @@ public class SummonerSearchResultsActivity extends AppCompatActivity {
     private TextView summonerSummary;
     LeagueCollectionFragmentAdapter leaguePagerAdapter;
     private ViewPager leaguePager;
+    private final LeagueInfo leagueInfo;
+
+    public SummonerSearchResultsActivity() {
+        leagueInfo = new LeagueInfo();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,13 +174,16 @@ public class SummonerSearchResultsActivity extends AppCompatActivity {
         profileIconId = summoner.profileIconId;
         updateProfileIcon();
 
-        Call<List<LeagueListDTO>> getLeagueListRequest = apiService.getLeagueList(summoner.id);
+        final Call<List<LeagueListDTO>> getLeagueListRequest =
+                apiService.getLeagueList(summoner.id);
+
+        leagueInfo.setSummoner(summoner);
 
         getLeagueListRequest.enqueue(new Callback<List<LeagueListDTO>>() {
             @Override
             public void onResponse(Call<List<LeagueListDTO>> call,
                                    Response<List<LeagueListDTO>> response) {
-                handleLeagueListResponse(summoner, response.body());
+                leagueInfo.setLeagueList(response.body());
             }
 
             @Override
@@ -185,40 +191,86 @@ public class SummonerSearchResultsActivity extends AppCompatActivity {
 
             }
         });
-    }
 
-    private void handleLeagueListResponse(SummonerDTO summoner, List<LeagueListDTO> leagueList) {
-        leaguePagerAdapter.setLeagueList(leagueList);
-        leaguePagerAdapter.notifyDataSetChanged();
+        final Call<List<LeaguePositionDTO>> getLeaguePositionRequest =
+                apiService.getLeaguePositions(summoner.id);
+
+        getLeaguePositionRequest.enqueue(new Callback<List<LeaguePositionDTO>>() {
+            @Override
+            public void onResponse(Call<List<LeaguePositionDTO>> call,
+                                   Response<List<LeaguePositionDTO>> response) {
+                leagueInfo.setLeaguePositionDTO(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<List<LeaguePositionDTO>> call, Throwable t) {
+
+            }
+        });
     }
 
     private static class LeagueCollectionFragmentAdapter extends FragmentStatePagerAdapter {
-        List<LeagueListDTO> leagueList;
+        LeagueInfo leagueInfo;
 
         LeagueCollectionFragmentAdapter(FragmentManager fm) {
             super(fm);
         }
 
-        public void setLeagueList(List<LeagueListDTO> list) {
-            leagueList = list;
-            Log.v("wtf", String.format("added list with %d items", list.size()));
+        public void setLeagueInfo(LeagueInfo info) {
+            leagueInfo = info;
         }
 
         @Override
         public Fragment getItem(int position) {
-            if (leagueList == null)
+            if (leagueInfo == null)
                 return null;
 
             Fragment fragment = new LeagueCollectionFragment();
             Bundle args = new Bundle();
-            args.putSerializable(LeagueCollectionFragment.ARG_LEAGUELIST, leagueList.get(position));
+            args.putSerializable(LeagueCollectionFragment.ARG_LEAGUE_INFO, leagueInfo);
+            args.putInt(LeagueCollectionFragment.ARG_POSITION, position);
             fragment.setArguments(args);
             return fragment;
         }
 
         @Override
         public int getCount() {
-            return leagueList != null ? leagueList.size() : 0;
+            return leagueInfo != null ? leagueInfo.leagueList.size() : 0;
+        }
+    }
+
+    private void updateLeagueList(LeagueInfo info) {
+        leaguePagerAdapter.setLeagueInfo(info);
+        leaguePagerAdapter.notifyDataSetChanged();
+    }
+
+    public class LeagueInfo implements Serializable {
+        SummonerDTO summoner;
+        List<LeagueListDTO> leagueList;
+
+        // Hash table keyed on queueType
+        Map<String, LeaguePositionDTO> leaguePositions;
+
+        public void setSummoner(SummonerDTO summoner) {
+            this.summoner = summoner;
+            checkDone();
+        }
+
+        public void setLeagueList(List<LeagueListDTO> leagueList) {
+            this.leagueList = leagueList;
+            checkDone();
+        }
+
+        public void setLeaguePositionDTO(List<LeaguePositionDTO> leaguePositions) {
+            this.leaguePositions = new HashMap<>();
+            for (LeaguePositionDTO item : leaguePositions)
+                this.leaguePositions.put(item.queueType, item);
+            checkDone();
+        }
+
+        public void checkDone() {
+            if (summoner != null && leagueList != null && leaguePositions != null)
+                updateLeagueList(this);
         }
     }
 }
