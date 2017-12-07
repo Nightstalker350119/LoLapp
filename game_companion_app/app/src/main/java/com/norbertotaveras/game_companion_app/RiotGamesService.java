@@ -34,18 +34,23 @@ public interface RiotGamesService {
     @GET("/lol/static-data/v3/champions")
     Call<List<ChampionListDTO>> getChampionList();
 
+    // Retrieve current patch version.
     @GET("/lol/static-data/v3/versions")
     Call<List<String>> getVersions();
 
+    // Retrieve account profile icons.
     @GET("/lol/static-data/v3/profile-icons")
     Call<ProfileIconDataDTO> getProfileIcons();
 
+    // Retrieve realms.
     @GET("/lol/static-data/v3/realms")
     Call<RealmDTO> getRealms();
 
+    // Retrieve Leagues by Summoner ID
     @GET("/lol/league/v3/leagues/by-summoner/{id}")
     Call<List<LeagueListDTO>> getLeagueList(@Path("id") long id);
 
+    // Retrieve League Positions by Summoner ID.
     @GET("/lol/league/v3/positions/by-summoner/{id}")
     Call<List<LeaguePositionDTO>> getLeaguePositions(@Path("id") long id);
 }

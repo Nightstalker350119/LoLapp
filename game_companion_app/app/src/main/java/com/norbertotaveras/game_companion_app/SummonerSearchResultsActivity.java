@@ -31,6 +31,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Created by Norberto Taveras on 11/28/2017.
+ */
+
 public class SummonerSearchResultsActivity extends AppCompatActivity {
     private RiotGamesService apiService;
     private String searchText;

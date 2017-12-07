@@ -15,6 +15,10 @@ import com.norbertotaveras.game_companion_app.DTO.League.LeagueItemDTO;
 import com.norbertotaveras.game_companion_app.DTO.League.LeagueListDTO;
 import com.norbertotaveras.game_companion_app.DTO.League.LeaguePositionDTO;
 
+/**
+ * Created by Norberto Taveras on 12/2/2017.
+ */
+
 
 /**
  * A simple {@link Fragment} subclass.

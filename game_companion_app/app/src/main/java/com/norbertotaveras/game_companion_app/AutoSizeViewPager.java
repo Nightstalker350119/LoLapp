@@ -6,7 +6,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 /**
- * Created by Manuel on 12/7/2017.
+ * Created by Norberto Taveras on 12/7/2017.
  */
 
 public class AutoSizeViewPager extends ViewPager {
