@@ -32,7 +32,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RiotAPI {
     private static RiotAPI instance;
     private static final String riotApiKey =
-            "RGAPI-db9add31-15ea-425d-a6a3-1c6390bc2e80";
+            "RGAPI-468cf58b-0219-4946-a7bb-755c9385cfab";
     private static final String rootEndpoint =
             "https://na1.api.riotgames.com/";
 
