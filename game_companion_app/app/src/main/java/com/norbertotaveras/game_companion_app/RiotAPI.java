@@ -1,17 +1,26 @@
 package com.norbertotaveras.game_companion_app;
 
+import android.provider.Telephony;
+import android.util.Log;
+
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ProfileIconDataDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ProfileIconDetailsDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.RealmDTO;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -23,7 +32,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RiotAPI {
     private static RiotAPI instance;
     private static final String riotApiKey =
-            "RGAPI-27658634-39cb-442d-920f-3086b0a6717e";
+            "RGAPI-db9add31-15ea-425d-a6a3-1c6390bc2e80";
     private static final String rootEndpoint =
             "https://na1.api.riotgames.com/";
 
@@ -39,6 +48,14 @@ public class RiotAPI {
     private final Object pendingRealmLock;
     private final ArrayList<AsyncCallback<RealmDTO>> pendingRealmRequests;
 
+    private final Timer rateLimitTimer;
+    long lastRateLimitRequest;
+    ArrayList<Long> rateLimitHistory;
+    int rateLimitPerSecond;
+    int rateLimitLongTermSeconds;
+    int rateLimitLongTermLimit;
+    Object rateLimitLock;
+
     public static RiotGamesService getInstance() {
         if (instance == null) {
             instance = new RiotAPI();
@@ -52,6 +69,15 @@ public class RiotAPI {
         pendingRealmLock = new Object();
         pendingProfileIconRequests = new ArrayList<>();
         pendingRealmRequests = new ArrayList<>();
+        rateLimitTimer = new Timer();
+        lastRateLimitRequest = 0;
+        rateLimitHistory = new ArrayList<>();
+        // 20 requests every 1 seconds
+        // 100 requests every 2 minutes
+        rateLimitPerSecond = 20;
+        rateLimitLongTermSeconds = 120;
+        rateLimitLongTermLimit = 100;
+        rateLimitLock = new Object();
     }
 
     public static void releaseInstance() {
@@ -114,31 +140,31 @@ public class RiotAPI {
     }
 
     private void initialRequests() {
-        retrofit2.Call<ProfileIconDataDTO> getProfileIconsRequest = apiService.getProfileIcons();
+        Call<ProfileIconDataDTO> getProfileIconsRequest = apiService.getProfileIcons();
 
-        getProfileIconsRequest.enqueue(new Callback<ProfileIconDataDTO>() {
+        RiotAPI.rateLimitRequest(getProfileIconsRequest, new Callback<ProfileIconDataDTO>() {
             @Override
-            public void onResponse(retrofit2.Call<ProfileIconDataDTO> call,
+            public void onResponse(Call<ProfileIconDataDTO> call,
                                    retrofit2.Response<ProfileIconDataDTO> response) {
                 handleGetProfileIconData(response.body());
             }
 
             @Override
-            public void onFailure(retrofit2.Call<ProfileIconDataDTO> call, Throwable t) {
+            public void onFailure(Call<ProfileIconDataDTO> call, Throwable t) {
 
             }
         });
 
-        retrofit2.Call<RealmDTO> getRealmsRequest = apiService.getRealms();
+        Call<RealmDTO> getRealmsRequest = apiService.getRealms();
 
-        getRealmsRequest.enqueue(new Callback<RealmDTO>() {
+        RiotAPI.rateLimitRequest(getRealmsRequest, new Callback<RealmDTO>() {
             @Override
-            public void onResponse(retrofit2.Call<RealmDTO> call, retrofit2.Response<RealmDTO> response) {
+            public void onResponse(Call<RealmDTO> call, retrofit2.Response<RealmDTO> response) {
                 handleGetRealmsRequest(response.body());
             }
 
             @Override
-            public void onFailure(retrofit2.Call<RealmDTO> call, Throwable t) {
+            public void onFailure(Call<RealmDTO> call, Throwable t) {
 
             }
         });
@@ -177,6 +203,75 @@ public class RiotAPI {
             for (AsyncCallback<ProfileIconDataDTO> callback : pendingProfileIconRequests)
                 callback.invoke(profileIconData);
             pendingProfileIconRequests.clear();
+        }
+    }
+
+    // Returns how many milliseconds to wait before issuing another request
+    // Returns 0 when we should issue a new request immediately
+    private long rateLimit(long now) {
+        // Calculate the timestamp which is so old we need to throw it away
+        long expired = now - rateLimitLongTermSeconds * 1000;
+
+        // Discard entries further back than long term limit
+        int i, e;
+        for (i = 0, e = rateLimitHistory.size();
+             i < e && rateLimitHistory.get(i) < expired; ++i);
+        rateLimitHistory.subList(0, i).clear();
+
+        // Nothing in history, start request immediately
+        if (rateLimitHistory.isEmpty())
+            return 0;
+
+        long oldestEntry = rateLimitHistory.get(0);
+
+        // If we are at the long term limit...
+        if (rateLimitHistory.size() >= rateLimitLongTermLimit) {
+            // ...calculate how long to wait based on oldest history entry
+            return oldestEntry + rateLimitLongTermLimit * 1000 - now;
+        }
+
+        // If there aren't enough history entries to hit the short term limit,
+        // then start the request immediately
+        if (rateLimitHistory.size() < rateLimitPerSecond)
+            return 0;
+
+        return rateLimitHistory.get(rateLimitHistory.size() - rateLimitPerSecond) + 1000 - now;
+    }
+
+    public static <T> void rateLimitRequest(final Call<T> call, final Callback<T> callback) {
+        synchronized (instance.rateLimitLock) {
+            instance.rateLimitRequestLocked(call, callback);
+        }
+    }
+
+    private <T> void rateLimitRequestLocked(final Call<T> call, final Callback<T> callback) {
+        long now = new Date().getTime();
+
+        long delay = rateLimit(now);
+
+        if (delay <= 0) {
+            Log.v("RateLimiter", "running request immediately");
+            rateLimitHistory.add(now);
+            call.enqueue(callback);
+        } else {
+            Log.v("RateLimiter", "running request after " + String.valueOf(delay) + "ms");
+            rateLimitHistory.add(now + delay);
+            rateLimitTimer.schedule(new RateLimitedTask<>(call, callback), delay);
+        }
+    }
+
+    private class RateLimitedTask<T> extends TimerTask {
+        Call<T> call;
+        Callback<T> callback;
+
+        public RateLimitedTask(Call<T> call, Callback<T> callback) {
+            this.call = call;
+            this.callback = callback;
+        }
+
+        @Override
+        public void run() {
+            call.enqueue(callback);
         }
     }
 

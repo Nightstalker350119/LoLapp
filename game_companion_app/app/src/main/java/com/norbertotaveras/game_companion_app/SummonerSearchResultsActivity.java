@@ -19,13 +19,20 @@ import android.widget.Toast;
 
 import com.norbertotaveras.game_companion_app.DTO.League.LeagueListDTO;
 import com.norbertotaveras.game_companion_app.DTO.League.LeaguePositionDTO;
+import com.norbertotaveras.game_companion_app.DTO.Match.MatchDTO;
+import com.norbertotaveras.game_companion_app.DTO.Match.MatchEventDTO;
+import com.norbertotaveras.game_companion_app.DTO.Match.MatchReferenceDTO;
+import com.norbertotaveras.game_companion_app.DTO.Match.MatchlistDTO;
 import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -112,7 +119,7 @@ public class SummonerSearchResultsActivity extends AppCompatActivity {
         try {
             Call<SummonerDTO> getSummonerRequest = apiService.getSummonersByName(searchText);
 
-            getSummonerRequest.enqueue(new Callback<SummonerDTO>() {
+            RiotAPI.rateLimitRequest(getSummonerRequest, new Callback<SummonerDTO>() {
                 @Override
                 public void onResponse(Call<SummonerDTO> call,
                                        retrofit2.Response<SummonerDTO> response) {
@@ -178,12 +185,12 @@ public class SummonerSearchResultsActivity extends AppCompatActivity {
         profileIconId = summoner.profileIconId;
         updateProfileIcon();
 
+        leagueInfo.setSummoner(summoner);
+
         final Call<List<LeagueListDTO>> getLeagueListRequest =
                 apiService.getLeagueList(summoner.id);
 
-        leagueInfo.setSummoner(summoner);
-
-        getLeagueListRequest.enqueue(new Callback<List<LeagueListDTO>>() {
+        RiotAPI.rateLimitRequest(getLeagueListRequest, new Callback<List<LeagueListDTO>>() {
             @Override
             public void onResponse(Call<List<LeagueListDTO>> call,
                                    Response<List<LeagueListDTO>> response) {
@@ -199,7 +206,7 @@ public class SummonerSearchResultsActivity extends AppCompatActivity {
         final Call<List<LeaguePositionDTO>> getLeaguePositionRequest =
                 apiService.getLeaguePositions(summoner.id);
 
-        getLeaguePositionRequest.enqueue(new Callback<List<LeaguePositionDTO>>() {
+        RiotAPI.rateLimitRequest(getLeaguePositionRequest, new Callback<List<LeaguePositionDTO>>() {
             @Override
             public void onResponse(Call<List<LeaguePositionDTO>> call,
                                    Response<List<LeaguePositionDTO>> response) {
@@ -211,6 +218,68 @@ public class SummonerSearchResultsActivity extends AppCompatActivity {
 
             }
         });
+
+        getMatchList(summoner);
+    }
+
+    private void getMatchList(SummonerDTO summoner) {
+        final ConcurrentHashMap<Long, MatchDTO> matchResults =
+                new ConcurrentHashMap<>(20);
+        final ArrayList<Long> matchIds = new ArrayList<>(20);
+
+        final Call<MatchlistDTO> getMatchlistRequest = apiService.getMatchList(
+                summoner.accountId, 0, 20);
+
+        RiotAPI.rateLimitRequest(getMatchlistRequest, new Callback<MatchlistDTO>() {
+            @Override
+            public void onResponse(Call<MatchlistDTO> call, Response<MatchlistDTO> response) {
+                MatchlistDTO matchList = response.body();
+
+                Log.v("MatchList", "Requesting " +
+                        String.valueOf(matchList.matches.size()));
+
+                for (MatchReferenceDTO match : matchList.matches) {
+                    matchIds.add(match.gameId);
+                }
+
+                for (MatchReferenceDTO match : matchList.matches) {
+                    Log.v("MatchList", "Requesting match id=" +
+                            String.valueOf(match.gameId));
+
+                    Call<MatchDTO> matchRequest = apiService.getMatch(match.gameId);
+
+                    RiotAPI.rateLimitRequest(matchRequest, new Callback<MatchDTO>() {
+                        @Override
+                        public void onResponse(Call<MatchDTO> call, Response<MatchDTO> response) {
+                            MatchDTO match = response.body();
+
+                            matchResults.put(match.gameId, match);
+
+                            if (matchResults.size() == matchIds.size())
+                                handleMatchList(matchIds, matchResults);
+
+                            Log.v("MatchList", "Got match id=" +
+                                    String.valueOf(match.gameId));
+                        }
+
+                        @Override
+                        public void onFailure(Call<MatchDTO> call, Throwable t) {
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MatchlistDTO> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void handleMatchList(ArrayList<Long> matchIds,
+                                 ConcurrentHashMap<Long, MatchDTO> matchResults) {
+
     }
 
     private static class LeagueCollectionFragmentAdapter extends FragmentStatePagerAdapter {

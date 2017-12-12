@@ -33,8 +33,6 @@ public class MainActivity
     TextView title1, title2;
     EditText search;
 
-    private TextView mTextMessage;
-
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -42,15 +40,12 @@ public class MainActivity
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
+                    showHomeResult();
                     return true;
                 case R.id.navigation_dashboard:
-                    mTextMessage.setText(R.string.title_dashboard);
-                    Intent ChampionsIntent = new Intent(MainActivity.this, ChampionsActivity.class);
-                    startActivity(ChampionsIntent);
+                    showChampionResult();
                     return true;
                 case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
                     return true;
             }
             return false;
@@ -96,6 +91,20 @@ public class MainActivity
         resultsIntent = new Intent(this, SummonerSearchResultsActivity.class);
         resultsIntent.putExtra("searchText", searchText);
         startActivity(resultsIntent);
+    }
+
+    private void showChampionResult()
+    {
+        Intent championIntent;
+        championIntent = new Intent(this, ChampionsActivity.class);
+        startActivity(championIntent);
+    }
+
+    private void showHomeResult()
+    {
+        Intent homeIntent;
+        homeIntent = new Intent(this, MainActivity.class);
+        startActivity(homeIntent);
     }
 
     @Override

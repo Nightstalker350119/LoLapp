@@ -2,7 +2,7 @@
     <string name="app_name">game_companion_app</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Champions</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_notifications">More</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

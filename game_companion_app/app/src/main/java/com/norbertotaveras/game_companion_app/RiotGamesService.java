@@ -2,6 +2,8 @@ package com.norbertotaveras.game_companion_app;
 
 import com.norbertotaveras.game_companion_app.DTO.League.LeagueListDTO;
 import com.norbertotaveras.game_companion_app.DTO.League.LeaguePositionDTO;
+import com.norbertotaveras.game_companion_app.DTO.Match.MatchDTO;
+import com.norbertotaveras.game_companion_app.DTO.Match.MatchlistDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.RealmDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionListDTO;
@@ -13,6 +15,7 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 /**
  * Created by Norberto Taveras on 11/28/2017.
@@ -53,4 +56,12 @@ public interface RiotGamesService {
     // Retrieve League Positions by Summoner ID.
     @GET("/lol/league/v3/positions/by-summoner/{id}")
     Call<List<LeaguePositionDTO>> getLeaguePositions(@Path("id") long id);
+
+    @GET("/lol/match/v3/matchlists/by-account/{id}")
+    Call<MatchlistDTO> getMatchList(@Path("id") long accountId,
+                                    @Query("startIndex") long startIndex,
+                                    @Query("endIndex") long endIndex);
+
+    @GET("/lol/match/v3/matches/{matchId}")
+    Call<MatchDTO> getMatch(@Path("matchId") long id);
 }
