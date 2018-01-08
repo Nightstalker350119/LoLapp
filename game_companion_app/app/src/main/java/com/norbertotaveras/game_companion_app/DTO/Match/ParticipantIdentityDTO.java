@@ -6,5 +6,5 @@ package com.norbertotaveras.game_companion_app.DTO.Match;
 
 public class ParticipantIdentityDTO {
     public PlayerDTO player;
-    public int partipantId;
+    public int participantId;
 }

@@ -67,6 +67,9 @@ public class MainActivity
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        // Start fetching icon data and stuff while the user types their search
+        RiotAPI.getInstance();
     }
 
     @Override

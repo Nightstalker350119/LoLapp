@@ -34,11 +34,6 @@ public class LeagueCollectionFragment extends Fragment {
     private SummonerSearchResultsActivity.LeagueInfo leagueInfo;
     int position;
 
-    private TextView queueName;
-    private ImageView tierIcon;
-    private TextView tier;
-    private TextView winLoss;
-
     public LeagueCollectionFragment() {
         // Required empty public constructor
     }
@@ -80,6 +75,11 @@ public class LeagueCollectionFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_league_collection,
                 container, false);
+
+        TextView queueName;
+        ImageView tierIcon;
+        TextView tier;
+        TextView winLoss;
 
         queueName = view.findViewById(R.id.queue_name);
         tierIcon = view.findViewById(R.id.tier_icon);

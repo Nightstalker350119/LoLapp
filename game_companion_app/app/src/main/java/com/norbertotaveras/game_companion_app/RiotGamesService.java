@@ -8,6 +8,7 @@ import com.norbertotaveras.game_companion_app.DTO.StaticData.RealmDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionListDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ProfileIconDataDTO;
+import com.norbertotaveras.game_companion_app.DTO.StaticData.SummonerSpellListDTO;
 import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
 
 import java.util.List;
@@ -25,17 +26,17 @@ public interface RiotGamesService {
     @GET("/lol/summoner/v3/summoners/by-name/{name}")
     Call<SummonerDTO> getSummonersByName(@Path("name") String name);
 
-    // Retrieve all Champions
+    // Retrieve all Champions.
     @GET("/lol/platform/v3/champions")
     Call<List<ChampionDTO>> getChampions();
 
-    // Retrieve a champion by ID
+    // Retrieve a champion by ID.
     @GET("/lol/platform/v3/champions/{id}")
     Call<List<ChampionDTO>> getChampionById(@Path("id") long id);
 
-    // Retrieves champion list
+    // Retrieves champion list.
     @GET("/lol/static-data/v3/champions")
-    Call<List<ChampionListDTO>> getChampionList();
+    Call<ChampionListDTO> getChampionList();
 
     // Retrieve current patch version.
     @GET("/lol/static-data/v3/versions")
@@ -49,7 +50,7 @@ public interface RiotGamesService {
     @GET("/lol/static-data/v3/realms")
     Call<RealmDTO> getRealms();
 
-    // Retrieve Leagues by Summoner ID
+    // Retrieve Leagues by Summoner ID.
     @GET("/lol/league/v3/leagues/by-summoner/{id}")
     Call<List<LeagueListDTO>> getLeagueList(@Path("id") long id);
 
@@ -57,11 +58,17 @@ public interface RiotGamesService {
     @GET("/lol/league/v3/positions/by-summoner/{id}")
     Call<List<LeaguePositionDTO>> getLeaguePositions(@Path("id") long id);
 
+    // Get matchlist for game played on given account ID and filtered using given filter parameters.
     @GET("/lol/match/v3/matchlists/by-account/{id}")
     Call<MatchlistDTO> getMatchList(@Path("id") long accountId,
                                     @Query("startIndex") long startIndex,
                                     @Query("endIndex") long endIndex);
 
+    // Get match by match ID.
     @GET("/lol/match/v3/matches/{matchId}")
     Call<MatchDTO> getMatch(@Path("matchId") long id);
+
+    // Retrieve Summoner Spell List.
+    @GET("/lol/static-data/v3/summoner-spells")
+    Call<SummonerSpellListDTO> getSummonerSpellList(@Query("tags") String tags);
 }

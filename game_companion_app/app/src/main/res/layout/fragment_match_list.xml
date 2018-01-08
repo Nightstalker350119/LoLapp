@@ -1,0 +1,103 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/game_mode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:text="Game mode" />
+                <TextView
+                    android:id="@+id/game_ago"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="X minutes ago"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end">
+                <TextView
+                    android:id="@+id/game_duration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Duration" />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <ImageView
+                android:id="@+id/champion_icon"
+                android:layout_width="48dp"
+                android:layout_height="48dp" />
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:gravity="center_vertical">
+                <LinearLayout
+                    android:layout_width="48dp"
+                    android:layout_height="24dp">
+                    <ImageView
+                        android:id="@+id/spell0"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp" />
+                    <ImageView
+                        android:id="@+id/spell1"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="48dp"
+                    android:layout_height="24dp">
+                    <ImageView
+                        android:id="@+id/spell2"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp" />
+                    <ImageView
+                        android:id="@+id/spell3"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/kda"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="K / D / A"
+                    android:layout_marginTop="8dp"/>
+                <TextView
+                    android:id="@+id/kda_ratio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="X:X" />
+                <TextView
+                    android:id="@+id/special_kills"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="specialkills"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

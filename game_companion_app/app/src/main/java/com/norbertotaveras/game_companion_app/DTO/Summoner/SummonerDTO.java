@@ -1,10 +1,12 @@
 package com.norbertotaveras.game_companion_app.DTO.Summoner;
 
+import java.io.Serializable;
+
 /**
  * Created by Norberto Taveras on 11/28/2017.
  */
 
-public class SummonerDTO {
+public class SummonerDTO implements Serializable {
     /* This class represents a summoner */
     public int profileIconId; // ID of the summoner icon associated with the summoner.
     public String name; // Summoner name.

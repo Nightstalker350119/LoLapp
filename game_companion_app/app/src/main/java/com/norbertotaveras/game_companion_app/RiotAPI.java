@@ -1,19 +1,31 @@
 package com.norbertotaveras.game_companion_app;
 
+import android.graphics.drawable.Drawable;
+import android.provider.ContactsContract;
 import android.provider.Telephony;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionDTO;
+import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionListDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ProfileIconDataDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ProfileIconDetailsDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.RealmDTO;
+import com.norbertotaveras.game_companion_app.DTO.StaticData.SummonerSpellListDTO;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
@@ -32,7 +44,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RiotAPI {
     private static RiotAPI instance;
     private static final String riotApiKey =
-            "RGAPI-80866b8c-2d38-4e9f-996f-193755e2479a";
+            "RGAPI-feb20962-a035-43f1-99b7-53f7bfc85e77";
     private static final String rootEndpoint =
             "https://na1.api.riotgames.com/";
 
@@ -40,21 +52,20 @@ public class RiotAPI {
     private RiotGamesService apiService;
     private OkHttpClient client;
 
-    private ProfileIconDataDTO profileIconData;
-    private RealmDTO realmData;
-
-    private final Object pendingProfileIconLock;
-    private final ArrayList<AsyncCallback<ProfileIconDataDTO>> pendingProfileIconRequests;
-    private final Object pendingRealmLock;
-    private final ArrayList<AsyncCallback<RealmDTO>> pendingRealmRequests;
+    private DeferredRequest<ProfileIconDataDTO> deferredProfileIconData;
+    private DeferredRequest<RealmDTO> deferredRealm;
+    private DeferredRequest<SummonerSpellListDTO> deferredSpellList;
+    private DeferredRequest<ChampionListDTO> deferredChampionList;
 
     private final Timer rateLimitTimer;
-    long lastRateLimitRequest;
-    ArrayList<Long> rateLimitHistory;
-    int rateLimitPerSecond;
-    int rateLimitLongTermSeconds;
-    int rateLimitLongTermLimit;
-    Object rateLimitLock;
+    private final ArrayList<Long> rateLimitHistory;
+    private final int rateLimitPerSecond;
+    private final int rateLimitLongTermSeconds;
+    private final int rateLimitLongTermLimit;
+    private final Object rateLimitLock;
+
+    final HashMap<String, DeferredDrawable> drawableCache;
+    final Object drawableCacheLock;
 
     public static RiotGamesService getInstance() {
         if (instance == null) {
@@ -65,19 +76,17 @@ public class RiotAPI {
     }
 
     RiotAPI() {
-        pendingProfileIconLock = new Object();
-        pendingRealmLock = new Object();
-        pendingProfileIconRequests = new ArrayList<>();
-        pendingRealmRequests = new ArrayList<>();
         rateLimitTimer = new Timer();
-        lastRateLimitRequest = 0;
         rateLimitHistory = new ArrayList<>();
         // 20 requests every 1 seconds
         // 100 requests every 2 minutes
-        rateLimitPerSecond = 20;
-        rateLimitLongTermSeconds = 120;
-        rateLimitLongTermLimit = 100;
+        rateLimitPerSecond = 19;
+        rateLimitLongTermSeconds = 121;
+        rateLimitLongTermLimit = 99;
         rateLimitLock = new Object();
+
+        drawableCache = new HashMap<>();
+        drawableCacheLock = new Object();
     }
 
     public static void releaseInstance() {
@@ -119,91 +128,75 @@ public class RiotAPI {
         initialRequests();
     }
 
-    private void fetchBinaryUrl(String url, final okhttp3.Callback callback) {
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        client.newCall(request).enqueue(callback);
+    private static okhttp3.Call fetchUrlCall(String url) {
+        Request request = new Request.Builder().url(url).build();
+        return instance.client.newCall(request);
     }
 
-    public static void fetchProfileIcon(final long id, final okhttp3.Callback callback) {
+    public static void fetchBinaryUrl(String url, final okhttp3.Callback callback) {
+        okhttp3.Call call = fetchUrlCall(url);
+        call.enqueue(callback);
+    }
+
+    public static void drawableFromUrl(String url, final AsyncCallback<Drawable> callback) {
+        synchronized (instance.drawableCacheLock) {
+            DeferredDrawable request = instance.drawableCache.get(url);
+
+            if (request == null)
+                request = new DeferredDrawable(fetchUrlCall(url));
+
+            instance.drawableCache.put(url, request);
+            request.getData(callback);
+        }
+
+        fetchBinaryUrl(url, new okhttp3.Callback() {
+            @Override
+            public void onResponse(okhttp3.Call call, Response response) throws IOException {
+                Drawable drawable = Drawable.createFromStream(
+                        response.body().byteStream(), null);
+                callback.invoke(drawable);
+            }
+
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
+                callback.invoke(null);
+            }
+        });
+    }
+
+    public static void fetchProfileIcon(final long id, final AsyncCallback<Drawable> callback) {
         instance.getProfileIconData(new AsyncCallback<ProfileIconDataDTO>() {
             @Override
             public void invoke(ProfileIconDataDTO iconData) {
-                String url = String.format(
-                        "http://ddragon.leagueoflegends.com/cdn/%s/img/profileicon/%d.png",
-                        iconData.version, id);
-                instance.fetchBinaryUrl(url, callback);
+            String url = String.format(
+                    "http://ddragon.leagueoflegends.com/cdn/%s/img/profileicon/%d.png",
+                    iconData.version, id);
+            drawableFromUrl(url, callback);
             }
         });
     }
 
     private void initialRequests() {
-        Call<ProfileIconDataDTO> getProfileIconsRequest = apiService.getProfileIcons();
-
-        RiotAPI.rateLimitRequest(getProfileIconsRequest, new Callback<ProfileIconDataDTO>() {
-            @Override
-            public void onResponse(Call<ProfileIconDataDTO> call,
-                                   retrofit2.Response<ProfileIconDataDTO> response) {
-                handleGetProfileIconData(response.body());
-            }
-
-            @Override
-            public void onFailure(Call<ProfileIconDataDTO> call, Throwable t) {
-
-            }
-        });
-
-        Call<RealmDTO> getRealmsRequest = apiService.getRealms();
-
-        RiotAPI.rateLimitRequest(getRealmsRequest, new Callback<RealmDTO>() {
-            @Override
-            public void onResponse(Call<RealmDTO> call, retrofit2.Response<RealmDTO> response) {
-                handleGetRealmsRequest(response.body());
-            }
-
-            @Override
-            public void onFailure(Call<RealmDTO> call, Throwable t) {
-
-            }
-        });
+        deferredProfileIconData = new DeferredRequest<>(apiService.getProfileIcons());
+        deferredRealm = new DeferredRequest<>(apiService.getRealms());
+        deferredSpellList = new DeferredRequest<>(apiService.getSummonerSpellList("image"));
+        deferredChampionList = new DeferredRequest<>(apiService.getChampionList());
     }
 
-    private void handleGetRealmsRequest(RealmDTO realmDTO) {
-        synchronized (pendingRealmLock) {
-            realmData = realmDTO;
-            for (AsyncCallback<RealmDTO> callback : pendingRealmRequests)
-                callback.invoke(realmData);
-            pendingRealmRequests.clear();
-        }
+    public void getRealms(AsyncCallback<RealmDTO> callback) {
+        deferredRealm.getData(callback);
     }
 
-    public void getRealmData(AsyncCallback<RealmDTO> callback) {
-        synchronized (pendingRealmLock) {
-            if (realmData != null)
-                callback.invoke(realmData);
-            else
-                pendingRealmRequests.add(callback);
-        }
+    public static void getProfileIconData(AsyncCallback<ProfileIconDataDTO> callback) {
+        instance.deferredProfileIconData.getData(callback);
     }
 
-    public void getProfileIconData(AsyncCallback<ProfileIconDataDTO> callback) {
-        synchronized (pendingProfileIconLock) {
-            if (profileIconData != null)
-                callback.invoke(profileIconData);
-            else
-                pendingProfileIconRequests.add(callback);
-        }
+    public static void getSpellList(AsyncCallback<SummonerSpellListDTO> callback) {
+        instance.deferredSpellList.getData(callback);
     }
 
-    private void handleGetProfileIconData(ProfileIconDataDTO iconDataDto) {
-        synchronized (pendingProfileIconLock) {
-            profileIconData = iconDataDto;
-            for (AsyncCallback<ProfileIconDataDTO> callback : pendingProfileIconRequests)
-                callback.invoke(profileIconData);
-            pendingProfileIconRequests.clear();
-        }
+    public static void getChampionList(AsyncCallback<ChampionListDTO> callback) {
+        instance.deferredChampionList.getData(callback);
     }
 
     // Returns how many milliseconds to wait before issuing another request
@@ -249,15 +242,59 @@ public class RiotAPI {
 
         long delay = rateLimit(now);
 
+        final Callback<T> wrapper = new Callback<T>() {
+            @Override
+            public void onResponse(Call<T> call, retrofit2.Response<T> response) {
+                // We hit rate limit unexpectedly, reschedule
+                if (response.code() == 429) {
+                    Log.w("RateLimiter", "Unexpected 429 error, rescheduling...");
+                    rateLimitRequest(call.clone(), callback);
+                } else {
+                    callback.onResponse(call, response);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<T> call, Throwable t) {
+                callback.onFailure(call, t);
+            }
+        };
+
         if (delay <= 0) {
             Log.v("RateLimiter", "running request immediately");
             rateLimitHistory.add(now);
-            call.enqueue(callback);
+            //rateLimitTimer.schedule(new RateLimitedTask<>(call, wrapper), 1);
+            call.enqueue(wrapper);
         } else {
             Log.v("RateLimiter", "running request after " + String.valueOf(delay) + "ms");
             rateLimitHistory.add(now + delay);
-            rateLimitTimer.schedule(new RateLimitedTask<>(call, callback), delay);
+            rateLimitTimer.schedule(new RateLimitedTask<>(call, wrapper), delay);
         }
+    }
+
+    public static void fetchChampionIcon(
+            final long championId, final AsyncCallback<Drawable> callback) {
+        getChampionList(new RiotAPI.AsyncCallback<ChampionListDTO>() {
+            @Override
+            public void invoke(ChampionListDTO list) {
+                ChampionDTO playerChampion = null;
+                for (Map.Entry<String, ChampionDTO> champion : list.data.entrySet()) {
+                    if (champion.getValue().id == championId) {
+                        playerChampion = champion.getValue();
+                        break;
+                    }
+                }
+
+                // Sanity check
+                if (playerChampion == null)
+                    return;
+
+                String url = String.format("http://ddragon.leagueoflegends.com/" +
+                        "cdn/%s/img/champion/%s.png", list.version, playerChampion.name);
+
+                drawableFromUrl(url, callback);
+            }
+        });
     }
 
     private class RateLimitedTask<T> extends TimerTask {
@@ -272,6 +309,79 @@ public class RiotAPI {
         @Override
         public void run() {
             call.enqueue(callback);
+        }
+    }
+
+    public static class DeferredRequest<T> {
+        private Object pendingRequestLock;
+        private ArrayList<AsyncCallback<T>> pendingRequests;
+        private T data;
+
+        public DeferredRequest(Call<T> call) {
+            pendingRequestLock = new Object();
+            pendingRequests = new ArrayList<>();
+
+            RiotAPI.rateLimitRequest(call, new Callback<T>() {
+                @Override
+                public void onResponse(Call<T> call, retrofit2.Response<T> response) {
+                    handleResponse(response.body());
+                }
+
+                @Override
+                public void onFailure(Call<T> call, Throwable t) {
+
+                }
+            });
+        }
+
+        public DeferredRequest(okhttp3.Call call) {
+            pendingRequestLock = new Object();
+            pendingRequests = new ArrayList<>();
+
+            call.enqueue(new okhttp3.Callback() {
+                @Override
+                public void onResponse(okhttp3.Call call, Response response) throws IOException {
+                    transformResponse(response);
+                }
+
+                @Override
+                public void onFailure(okhttp3.Call call, IOException e) {
+
+                }
+            });
+        }
+
+        public void getData(AsyncCallback<T> callback) {
+            synchronized (pendingRequestLock) {
+                if (data != null)
+                    callback.invoke(data);
+                else
+                    pendingRequests.add(callback);
+            }
+        }
+
+        protected T transformResponse(Response response) {
+            throw new UnsupportedOperationException();
+        }
+
+        private void handleResponse(T response) {
+            synchronized (pendingRequestLock) {
+                data = response;
+                for (AsyncCallback<T> callback : pendingRequests)
+                    callback.invoke(data);
+                pendingRequests.clear();
+            }
+        }
+    }
+
+    public static class DeferredDrawable extends DeferredRequest<Drawable> {
+        DeferredDrawable(okhttp3.Call call) {
+            super(call);
+        }
+
+        @Override
+        protected Drawable transformResponse(Response response) {
+            return Drawable.createFromStream(response.body().byteStream(), null);
         }
     }
 
