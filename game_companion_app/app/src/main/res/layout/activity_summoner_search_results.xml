@@ -7,7 +7,6 @@
     android:orientation="vertical"
     tools:context="com.norbertotaveras.game_companion_app.SummonerSearchResultsActivity">
     <LinearLayout
-        android:id="@+id/header_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -29,12 +28,12 @@
                 android:id="@+id/summoner_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Champion"/>
+                android:text="@string/champion"/>
             <TextView
                 android:id="@+id/summoner_summary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Blah blah blah"/>
+                android:text="@string/blah_blah_blah"/>
         </LinearLayout>
     </LinearLayout>
     <LinearLayout
@@ -66,38 +65,48 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
                     </com.norbertotaveras.game_companion_app.AutoSizeViewPager>
-
                     <HorizontalScrollView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:layout_constraintTop_toBottomOf="@id/league_pager">
+                        app:layout_constraintTop_toBottomOf="parent">
                         <LinearLayout
                             android:layout_width="510dp"
                             android:layout_height="wrap_content">
                             <Button
+                                android:id="@+id/game_filter_total"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Total"
+                                android:text="@string/total"
                                 android:textAllCaps="false"/>
                             <Button
+                                android:id="@+id/game_filter_ranked_solo"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Ranked Solo"
+                                android:text="@string/ranked_solo"
                                 android:textAllCaps="false"/>
                             <Button
+                                android:id="@+id/game_filter_ranked_flex"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Ranked Flex"
+                                android:text="@string/ranked_flex"
                                 android:textAllCaps="false"/>
                             <Button
+                                android:id="@+id/game_filter_draft_blind"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Normal (Draft, Blind)"
+                                android:text="@string/normal_draft_blind"
                                 android:textAllCaps="false"/>
                             <Button
+                                android:id="@+id/game_filter_aram"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="ARAM"
+                                android:text="@string/aram"
+                                android:textAllCaps="false"/>
+                            <Button
+                                android:id="@+id/game_filter_event"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/event"
                                 android:textAllCaps="false"/>
                         </LinearLayout>
                     </HorizontalScrollView>
@@ -105,18 +114,33 @@
                     <ListView
                         android:id="@+id/match_list"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"></ListView>
+                        android:layout_height="wrap_content"/>
 
-                    <LinearLayout
+                    <android.support.constraint.ConstraintLayout
+                        android:id="@+id/match_list_no_results"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="16dp"
+                        android:visibility="gone">
+                        <TextView
+                            android:id="@+id/match_list_no_results_icon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            android:textSize="24dp"
+                            android:text=" &#x26a0; "/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="X"/>
-                    </LinearLayout>
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/match_list_no_results_icon"
+                            android:textSize="12dp"
+                            android:text=" There are no results "/>
+                    </android.support.constraint.ConstraintLayout>
                 </LinearLayout>
-
 
                 <android.support.constraint.ConstraintLayout
                     android:id="@+id/tab_champs"
@@ -124,13 +148,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="56dp"
                     android:orientation="vertical">
-                    android:id="@+id/tab_champs"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="B"/>
+                        android:text="@string/b"/>
                 </android.support.constraint.ConstraintLayout>
 
 
@@ -143,7 +164,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="C"/>
+                        android:text="@string/c"/>
                 </android.support.constraint.ConstraintLayout>
             </FrameLayout>
         </TabHost>

@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.norbertotaveras.game_companion_app.DTO.League.LeagueItemDTO;
 import com.norbertotaveras.game_companion_app.DTO.League.LeagueListDTO;
 import com.norbertotaveras.game_companion_app.DTO.League.LeaguePositionDTO;
 
@@ -32,7 +31,7 @@ public class LeagueCollectionFragment extends Fragment {
     public static final String ARG_POSITION = "position";
 
     private SummonerSearchResultsActivity.LeagueInfo leagueInfo;
-    int position;
+    private int position;
 
     public LeagueCollectionFragment() {
         // Required empty public constructor
@@ -85,12 +84,13 @@ public class LeagueCollectionFragment extends Fragment {
         tierIcon = view.findViewById(R.id.tier_icon);
         tier = view.findViewById(R.id.tier);
 
-        LeagueListDTO currentLeague = leagueInfo.leagueList.get(position);
-        queueName.setText(beautifyQueueName(currentLeague.queue));
-        tierIcon.setImageResource(tierNameToResourceId(currentLeague.tier));
+        LeaguePositionDTO currentLeague = leagueInfo.leaguePositions.get(
+                leagueInfo.leaguePositions.keySet().toArray()[position]);
+        queueName.setText(RiotAPI.beautifyQueueName(currentLeague.queueType));
+        tierIcon.setImageResource(RiotAPI.tierNameToResourceId(currentLeague.tier));
 
-        LeaguePositionDTO leaguePosition = leagueInfo.leaguePositions.get(currentLeague.queue);
-        tier.setText(beautifyTierName(currentLeague.tier) +
+        LeaguePositionDTO leaguePosition = leagueInfo.leaguePositions.get(currentLeague.queueType);
+        tier.setText(RiotAPI.beautifyTierName(currentLeague.tier) +
                 " (" + String.valueOf(leaguePosition.leaguePoints) +"LP)");
 
         winLoss = view.findViewById(R.id.win_loss);
@@ -112,50 +112,5 @@ public class LeagueCollectionFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-    }
-
-    private int tierNameToResourceId(String tierName) {
-        switch (tierName) {
-            case "SILVER": return R.drawable.silver;
-            case "CHALLENGER": return R.drawable.challenger;
-            case "DIAMOND": return R.drawable.diamond;
-            case "GOLD": return R.drawable.gold;
-            case "MASTER": return R.drawable.master;
-            case "PLATINUM": return R.drawable.platinum;
-            case "PROVISIONAL": return R.drawable.provisional;
-            case "BRONZE": return R.drawable.bronze;
-            default: return android.R.color.transparent;
-        }
-    }
-
-    private String beautifyQueueName(String queueName) {
-        queueName = transformQueueName(queueName);
-        queueName = titleCaseFromUnderscores(queueName);
-        queueName = queueName.replaceFirst("(\\d+)x(\\d+)$", "$1:$2");
-        return queueName;
-    }
-
-    private String transformQueueName(String queueName) {
-        queueName = queueName.replaceFirst("_SR$", "_5x5");
-        queueName = queueName.replaceFirst("_TT$", "_3x3");
-        return queueName;
-    }
-
-    private String beautifyTierName(String tierName) {
-        return titleCaseFromUnderscores(tierName);
-    }
-
-    private String titleCaseFromUnderscores(String input) {
-        String[] parts = input.split("_");
-        StringBuilder sb = new StringBuilder(input.length() * 2);
-
-        for (int i = 0; i < parts.length; ++i) {
-            sb.append(parts[i].substring(0, 1).toUpperCase());
-            sb.append(parts[i].substring(1).toLowerCase());
-            if (i + 1 < parts.length)
-                sb.append(' ');
-        }
-
-        return sb.toString();
     }
 }

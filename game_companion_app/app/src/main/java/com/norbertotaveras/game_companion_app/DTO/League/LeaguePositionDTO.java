@@ -5,16 +5,19 @@ package com.norbertotaveras.game_companion_app.DTO.League;
  */
 
 public class LeaguePositionDTO {
-    public String queueType;
     public String rank;
-    public String playerOrTeamName;
-    public String playerOrTeamId;
+    public String queueType;
     public boolean hotStreak;
-    public boolean veteran;
-    public boolean freshBlood;
-    public boolean inactive;
-    public int wins;
-    public int leaguePoints;
-    public int losses;
     public MiniSeriesDTO miniSeries;
+    public int wins;
+    public boolean veteran;
+    public int losses;
+    public boolean freshBlood;
+    public String leagueId;
+    public String playerOrTeamName;
+    public boolean inactive;
+    public String playerOrTeamId;
+    public String leagueName;
+    public String tier;
+    public int leaguePoints;
 }

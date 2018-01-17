@@ -1,60 +1,75 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/game_mode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:text="Game mode" />
-                <TextView
-                    android:id="@+id/game_ago"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="X minutes ago"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="end">
-                <TextView
-                    android:id="@+id/game_duration"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Duration" />
-            </LinearLayout>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            app:layout_constraintStart_toStartOf="parent">
+            <TextView
+                android:id="@+id/game_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="Game mode"
+                android:textColor="#FF000000"/>
+            <TextView
+                android:id="@+id/game_ago"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="X minutes ago"
+                android:textColor="#FF000000"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent">
+            <TextView
+                android:id="@+id/game_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Duration"
+                android:textColor="#FF000000" />
+            <TextView
+                android:id="@+id/game_outcome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:text="Victory"/>
+        </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
             <ImageView
                 android:id="@+id/champion_icon"
                 android:layout_width="48dp"
                 android:layout_height="48dp" />
             <LinearLayout
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:gravity="center_vertical">
                 <LinearLayout
-                    android:layout_width="48dp"
-                    android:layout_height="24dp">
+                    android:layout_width="24dp"
+                    android:layout_height="48dp"
+                    android:orientation="vertical">
                     <ImageView
                         android:id="@+id/spell0"
                         android:layout_width="24dp"
@@ -65,20 +80,21 @@
                         android:layout_height="24dp" />
                 </LinearLayout>
                 <LinearLayout
-                    android:layout_width="48dp"
-                    android:layout_height="24dp">
+                    android:layout_width="24dp"
+                    android:layout_height="48dp"
+                    android:orientation="vertical">
                     <ImageView
-                        android:id="@+id/spell2"
+                        android:id="@+id/rune0"
                         android:layout_width="24dp"
                         android:layout_height="24dp" />
                     <ImageView
-                        android:id="@+id/spell3"
+                        android:id="@+id/rune1"
                         android:layout_width="24dp"
                         android:layout_height="24dp" />
                 </LinearLayout>
             </LinearLayout>
             <LinearLayout
-                android:layout_width="150dp"
+                android:layout_width="140dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
                 <TextView
@@ -86,18 +102,110 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:text="K / D / A"
-                    android:layout_marginTop="8dp"/>
+                    android:layout_marginTop="8dp"
+                    android:textColor="#FF000000"/>
                 <TextView
                     android:id="@+id/kda_ratio"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="X:X" />
+                    android:text="X:X"
+                    android:textColor="#FF000000" />
                 <TextView
                     android:id="@+id/special_kills"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="specialkills"/>
+                    android:text="specialkills"
+                    android:textColor="#FF000000"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_vertical">
+                <TextView
+                    android:id="@+id/level"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="XXX"
+                    android:textColor="#FF000000"/>
+                <TextView
+                    android:id="@+id/minion_kills"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="YYX"
+                    android:textColor="#FF000000"/>
+                <TextView
+                    android:id="@+id/participation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ZZ"
+                    android:textColor="#FF000000"/>
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-</FrameLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <ImageView
+                    android:id="@+id/items0"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_margin="2dp" />
+                <ImageView
+                    android:id="@+id/items1"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_margin="2dp" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <ImageView
+                    android:id="@+id/items2"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_margin="2dp" />
+                <ImageView
+                    android:id="@+id/items3"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_margin="2dp" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <ImageView
+                    android:id="@+id/items4"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_margin="2dp" />
+                <ImageView
+                    android:id="@+id/items5"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_margin="2dp"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical">
+                <ImageView
+                    android:id="@+id/items6"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_margin="2dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
+</LinearLayout>
