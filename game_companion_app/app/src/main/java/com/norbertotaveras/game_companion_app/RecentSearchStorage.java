@@ -35,9 +35,9 @@ class RecentSearchStorage {
         }
     }
 
-    public static void add(Context context, Long summonerId) {
+    public static List<Long> add(Context context, Long summonerId, boolean toFront) {
         synchronized (syncLock) {
-            addLocked(context, summonerId);
+            return addLocked(context, summonerId, toFront);
         }
     }
 
@@ -115,18 +115,34 @@ class RecentSearchStorage {
         return succeeded;
     }
 
-    private static void addLocked(Context context, Long summonerId) {
+    private static List<Long> addLocked(Context context, Long summonerId, boolean toFront) {
         List<Long> ids = loadLocked(context);
-        if (ids.indexOf(summonerId) < 0)
+
+        // Add it to the list, and move it to the end if it exists
+        // Most recent searches are at the end of the list
+        int index = ids.indexOf(summonerId);
+
+        if (index >= 0)
+            ids.remove(index);
+
+        if (!toFront)
             ids.add(summonerId);
+        else
+            ids.add(0, summonerId);
+
         storeLocked(context, ids);
+
+        return ids;
     }
 
     private static void removeLocked(Context context, Long summonerId) {
         List<Long> ids = loadLocked(context);
+
         int index = ids.indexOf(summonerId);
+
         if (index >= 0)
             ids.remove(index);
+
         storeLocked(context, ids);
     }
 }

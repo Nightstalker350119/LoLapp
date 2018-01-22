@@ -1,0 +1,7 @@
+<resources>
+    <declare-styleable name="BorderedRect">
+        <attr name="dashPattern" format="string" />
+        <attr name="lineColor" format="color" />
+        <attr name="lineWidth" format="integer" />
+    </declare-styleable>
+</resources>

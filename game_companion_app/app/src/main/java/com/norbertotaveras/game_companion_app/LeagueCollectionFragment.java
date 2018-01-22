@@ -90,16 +90,22 @@ public class LeagueCollectionFragment extends Fragment {
         tierIcon.setImageResource(RiotAPI.tierNameToResourceId(currentLeague.tier));
 
         LeaguePositionDTO leaguePosition = leagueInfo.leaguePositions.get(currentLeague.queueType);
-        tier.setText(RiotAPI.beautifyTierName(currentLeague.tier) +
-                " (" + String.valueOf(leaguePosition.leaguePoints) +"LP)");
+
+        String tierText = getResources().getString(R.string.tier_text,
+                RiotAPI.beautifyTierName(currentLeague.tier),
+                currentLeague.rank, leaguePosition.leaguePoints);
+
+        tier.setText(tierText);
 
         winLoss = view.findViewById(R.id.win_loss);
         int games = leaguePosition.wins + leaguePosition.losses;
         int winPercent = leaguePosition.losses != 0
             ? 100 * leaguePosition.wins / games
             : 0;
-        winLoss.setText(String.format("%dW %dL %d%%",
-                leaguePosition.wins, leaguePosition.losses, winPercent));
+
+        String winLossText = getResources().getString(R.string.win_loss,
+                leaguePosition.wins, leaguePosition.losses, winPercent);
+        winLoss.setText(winLossText);
 
         return view;
     }

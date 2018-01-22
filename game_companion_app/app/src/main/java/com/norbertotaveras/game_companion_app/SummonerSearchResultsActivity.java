@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -42,6 +40,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -53,7 +52,10 @@ import retrofit2.Response;
 
 public class SummonerSearchResultsActivity extends AppCompatActivity implements View.OnClickListener, AbsListView.OnScrollListener {
     private RiotGamesService apiService;
-    private String searchText;
+
+    private String searchName;
+    private long searchAccountId;
+
     private ImageView profileIcon;
 
     private long profileIconId;
@@ -61,7 +63,6 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
     private Handler uiThreadHandler;
 
     private TextView summonerName;
-    private TextView tierText;
     private TextView queueText;
     private TextView summonerSummary;
     LeagueCollectionFragmentAdapter leaguePagerAdapter;
@@ -109,7 +110,6 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
         profileIcon = findViewById(R.id.profile_icon);
         queueText = findViewById(R.id.queue_name);
 
-        tierText = findViewById(R.id.tier);
         leaguePager = findViewById(R.id.league_pager);
 
         leaguePagerAdapter = new LeagueCollectionFragmentAdapter(getSupportFragmentManager());
@@ -161,7 +161,8 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
         apiService = RiotAPI.getInstance(getApplicationContext());
 
         Intent intent = getIntent();
-        searchText = intent.getStringExtra("searchText");
+        searchName = intent.getStringExtra("searchName");
+        searchAccountId = intent.getLongExtra("searchAccountId", 0);
 
         uiThreadHandler = UIHelper.createRunnableLooper();
 
@@ -171,7 +172,13 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
     }
 
     private void search() {
-        deferredSummoner = new RiotAPI.DeferredRequest<>(apiService.getSummonerByName(searchText));
+        if (searchName != null) {
+            deferredSummoner = new RiotAPI.DeferredRequest<>(
+                    apiService.getSummonerByName(searchName));
+        } else {
+            deferredSummoner = new RiotAPI.DeferredRequest<>(
+                    apiService.getSummonerByAccountId(searchAccountId));
+        }
 
         deferredSummoner.getData(new RiotAPI.AsyncCallback<SummonerDTO>() {
             @Override
@@ -203,13 +210,13 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
     private void handleGetSummonerResponse(final SummonerDTO summoner) {
         if (summoner == null) {
             UIHelper.showToast(this,
-                    String.format(Locale.US, "Summoner \"%s\" not found", searchText),
+                    String.format(Locale.US, "Summoner \"%s\" not found", searchName),
                     Toast.LENGTH_SHORT);
             finish();
             return;
         }
 
-        RecentSearchStorage.add(this, summoner.accountId);
+        RecentSearchStorage.add(this, summoner.accountId, false);
 
         summonerName.setText(summoner.name);
 
@@ -223,7 +230,7 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
         leagueInfo.setSummoner(summoner);
 
         final Call<List<LeaguePositionDTO>> getLeaguePositionRequest =
-                apiService.getLeaguePositions(summoner.id);
+                apiService.getLeaguePositionsBySummonerId(summoner.id);
 
         RiotAPI.rateLimitRequest(getLeaguePositionRequest, new Callback<List<LeaguePositionDTO>>() {
             @Override
@@ -234,7 +241,7 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
 
             @Override
             public void onFailure(Call<List<LeaguePositionDTO>> call, Throwable t) {
-                Log.e("RiotAPI", "getLeaguePositions failed");
+                Log.e("RiotAPI", "getLeaguePositionsBySummonerId failed");
             }
         });
 
@@ -264,13 +271,15 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
             public void onResponse(Call<MatchlistDTO> call, Response<MatchlistDTO> response) {
                 MatchlistDTO matchList = response.body();
 
-                Log.v("MatchList", "Requesting " +
-                        String.valueOf(matchList.matches.size()));
-
-                if (matchList.matches.isEmpty()) {
+                if (matchList == null || matchList.matches.isEmpty()) {
+                    // Call appendResults to invoke the logic that shows the "no results" element
+                    matchListAdapter.appendResults(beginIndex);
                     matchListAtEnd = true;
                     return;
                 }
+
+                Log.v("MatchList", "Requesting " +
+                        String.valueOf(matchList.matches.size()));
 
                 for (MatchReferenceDTO match : matchList.matches)
                     matchIds.add(match.gameId);
@@ -431,9 +440,12 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
         private MatchDTO[] matches;
         final LayoutInflater inflater;
 
+        AtomicInteger uniqueId;
+
         public MatchListAdapter() {
             inflater = getLayoutInflater();
             allMatches = new ArrayList<>(matchBatchSize);
+            uniqueId = new AtomicInteger(0);
         }
 
         public void reset() {
@@ -541,11 +553,19 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
         }
 
         @Override
-        public View getView(int i, View view, ViewGroup viewGroup) {
-            if (view == null)
-                view = inflater.inflate(R.layout.fragment_match_list, viewGroup, false);
+        public View getView(final int position, View recycledView, ViewGroup viewGroup) {
+            if (recycledView == null) {
+                recycledView = inflater.inflate(R.layout.fragment_match_list,
+                        viewGroup, false);
+            }
 
-            Log.v("LeagueInfoList", "Formatting list item " + String.valueOf(i));
+            final View view = recycledView;
+
+            // Assign a unique identifier to this row to handle racing responses on recycled views
+            final int rowId = uniqueId.getAndIncrement();
+            view.setTag(rowId);
+
+            Log.v("LeagueInfoList", "Formatting list item " + String.valueOf(position));
 
             final ImageView championIcon = view.findViewById(R.id.champion_icon);
             final ImageView[] spellIcons = new ImageView[] {
@@ -579,7 +599,7 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
 
             final TextView gameOutcome = view.findViewById(R.id.game_outcome);
 
-            final MatchDTO match = matches[i];
+            final MatchDTO match = matches[position];
 
             long timeSince = new Date().getTime() - match.gameCreation;
 
@@ -633,12 +653,30 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
 
             gameDuration.setText(formatMinSec(match.gameDuration));
 
-            final View tempView = view;
+            // Avoid flash of old content
+            kda.setText("");
+            gameOutcome.setText("");
+            championIcon.setImageDrawable(null);
+            for (int i = 0; i < spellIcons.length; ++i)
+                spellIcons[i].setImageDrawable(null);
+            for (int i = 0; i < runeIcons.length; ++i)
+                runeIcons[i].setImageDrawable(null);
+            for (int i = 0; i < itemIcons.length; ++i)
+                itemIcons[i].setImageDrawable(null);
+            participation.setText("");
+            minionKills.setText("");
+            level.setText("");
+            kdaRatio.setText("");
+            specialKills.setText("");
 
             deferredSummoner.getData(new RiotAPI.AsyncCallback<SummonerDTO>()
             {
                 @Override
                 public void invoke(SummonerDTO summoner) {
+                    // See if we're populating a recycled view too late
+                    if ((int)view.getTag() != rowId)
+                        return;
+
                     ParticipantIdentityDTO summonerIdentity = null;
 
                     for (ParticipantIdentityDTO participantIdentity : match.participantIdentities) {
@@ -666,6 +704,10 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
                         uiThreadHandler.post(new Runnable() {
                             @Override
                             public void run() {
+                                // See if we're populating a recycled view too late
+                                if ((int)view.getTag() != rowId)
+                                    return;
+
                                 kda.setText(kdaText);
                             }
                         });
@@ -674,9 +716,13 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
                     uiThreadHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            tempView.setBackgroundColor(participant.stats.win
+                            // See if we're populating a recycled view too late
+                            if ((int)view.getTag() != rowId)
+                                return;
+
+                            view.setBackgroundColor(participant.stats.win
                                     ? 0xffa3cfec : 0xffe2b6b3);
-                            tempView.setBackgroundTintMode(PorterDuff.Mode.ADD);
+                            view.setBackgroundTintMode(PorterDuff.Mode.ADD);
 
                             gameOutcome.setText(participant.stats.win
                                     ? "Victory" : "Defeat");
@@ -690,9 +736,17 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
                     {
                         @Override
                         public void invoke(final Drawable item) {
+                            // See if we're populating a recycled view too late
+                            if ((int)view.getTag() != rowId)
+                                return;
+
                             uiThreadHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
+                                    // See if we're populating a recycled view too late
+                                    if ((int)view.getTag() != rowId)
+                                        return;
+
                                     championIcon.setImageDrawable(item);
                                 }
                             });
@@ -705,9 +759,17 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
                         RiotAPI.fetchSpellIcon(id, new RiotAPI.AsyncCallback<Drawable>() {
                             @Override
                             public void invoke(final Drawable item) {
+                                // See if we're populating a recycled view too late
+                                if ((int)view.getTag() != rowId)
+                                    return;
+
                                 uiThreadHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
+                                        // See if we're populating a recycled view too late
+                                        if ((int)view.getTag() != rowId)
+                                            return;
+
                                         spellIcons[tempI].setImageDrawable(item);
                                     }
                                 });
@@ -718,24 +780,25 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
                     for (int i = 0; i < 2; ++i) {
                         final int tempI = i;
 
-                        if (participant.runes == null || participant.runes.size() <= i) {
-                            uiThreadHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    runeIcons[tempI].setImageDrawable(null);
-                                }
-                            });
+                        if (participant.runes == null || participant.runes.size() <= i)
                             continue;
-                        }
 
                         long id = participant.runes.get(i).runeId;
                         RiotAPI.fetchRuneIcon(id, new RiotAPI.AsyncCallback<Drawable>() {
                             @Override
                             public void invoke(final Drawable item) {
+                                // See if we're populating a recycled view too late
+                                if ((int)view.getTag() != rowId)
+                                    return;
+
                                 uiThreadHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        spellIcons[tempI].setImageDrawable(item);
+                                        // See if we're populating a recycled view too late
+                                        if ((int)view.getTag() != rowId)
+                                            return;
+
+                                        runeIcons[tempI].setImageDrawable(item);
                                     }
                                 });
                             }
@@ -756,22 +819,23 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
                         final int tempI = i;
                         long id = itemIds[i];
 
-                        if (id == 0) {
-                            uiThreadHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    itemIcons[tempI].setImageDrawable(null);
-                                }
-                            });
+                        if (id == 0)
                             continue;
-                        }
 
                         RiotAPI.fetchItemIcon(id, new RiotAPI.AsyncCallback<Drawable>() {
                             @Override
                             public void invoke(final Drawable item) {
+                                // See if we're populating a recycled view too late
+                                if ((int)view.getTag() != rowId)
+                                    return;
+
                                 uiThreadHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
+                                        // See if we're populating a recycled view too late
+                                        if ((int)view.getTag() != rowId)
+                                            return;
+
                                         itemIcons[tempI].setImageDrawable(item);
                                     }
                                 });
@@ -797,6 +861,10 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
                     uiThreadHandler.post(new Runnable() {
                         @Override
                         public void run() {
+                            // See if we're populating a recycled view too late
+                            if ((int)view.getTag() != rowId)
+                                return;
+
                             participation.setText(killsPlusAssists > 0
                                     ? String.valueOf(100 * participant.stats.kills / killsPlusAssists)
                                     : "-");
@@ -814,6 +882,7 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
 
                     int deaths = participant.stats.deaths;
 
+                    final String kdaText;
                     if (deaths > 0) {
                         int kdaRatioGcd = gcd((int)killsPlusAssists, deaths);
                         final double numer = kdaRatioGcd != 0
@@ -821,20 +890,21 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
                         final double denom = kdaRatioGcd != 0
                                 ? (double)deaths / kdaRatioGcd : deaths;
 
-                        uiThreadHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                kdaRatio.setText(simpleDouble(numer) + ":" + simpleDouble(denom));
-                            }
-                        });
+                        kdaText = simpleDouble(numer) + ":" + simpleDouble(denom);
                     } else {
-                        uiThreadHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                kdaRatio.setText("Perfect");
-                            }
-                        });
+                        kdaText = "Perfect";
                     }
+
+                    uiThreadHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            // See if we're populating a recycled view too late
+                            if ((int)view.getTag() != rowId)
+                                return;
+
+                            kdaRatio.setText(kdaText);
+                        }
+                    });
 
                     String specialKillsText = null;
 
@@ -850,6 +920,9 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
                     uiThreadHandler.post(new Runnable() {
                         @Override
                         public void run() {
+                            // See if we're populating a recycled view too late
+                            if ((int)view.getTag() != rowId)
+                                return;
 
                             if (specialKillsTextTemp != null) {
                                 specialKills.setText(specialKillsTextTemp);
@@ -863,7 +936,7 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
             });
 
             Log.v("LeagueInfoList",
-                    "Formatting list item " + String.valueOf(i) + " done");
+                    "Formatting list item " + String.valueOf(position) + " done");
 
             return view;
         }
