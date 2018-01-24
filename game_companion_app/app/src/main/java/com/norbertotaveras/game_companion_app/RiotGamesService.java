@@ -53,7 +53,7 @@ public interface RiotGamesService {
     Call<SummonerDTO> getSummonerByName(@Path("name") String name);
 
     @GET("/lol/summoner/v3/summoners/by-account/{id}")
-    Call<SummonerDTO> getSummonerById(@Path("id") Long id);
+    Call<SummonerDTO> getSummonerByAccountId(@Path("id") Long id);
 
     //
     // Champions
@@ -71,7 +71,7 @@ public interface RiotGamesService {
 
     // Retrieve League Positions by Summoner ID.
     @GET("/lol/league/v3/positions/by-summoner/{id}")
-    Call<List<LeaguePositionDTO>> getLeaguePositions(@Path("id") long id);
+    Call<List<LeaguePositionDTO>> getLeaguePositionsBySummonerId(@Path("id") long id);
 
     //
     // Matches
