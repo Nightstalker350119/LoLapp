@@ -1,4 +1,4 @@
-package com.example.logan.recyclerview;
+package com.norbertotaveras.game_companion_app;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,10 +8,10 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainChampions extends AppCompatActivity {
 
     private static final String TAG = "ChampionsWinRate";
-    
+
     private ArrayList<String> mNames = new ArrayList<>();
     private ArrayList<String> mImageUrls = new ArrayList<>();
     private ArrayList<String> mWinRates = new ArrayList<>(); //Needs api calls, use placeholders atm
@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_champions);
         Log.d(TAG, "onCreate: starting.");
 
         initImageBitmaps();

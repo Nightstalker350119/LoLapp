@@ -26,12 +26,17 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     private ArrayList<String> mImageNames = new ArrayList<>();
     private ArrayList<String> mImages = new ArrayList<>();
+    private ArrayList<String> mWinRates = new ArrayList<>(); //Needs api calls, use placeholders atm
+    private ArrayList<String> mChampionPosition = new ArrayList<>(); //
     private Context mContext;
 
-    public RecyclerViewAdapter(Context mContext, ArrayList<String> mImageNames, ArrayList<String> mImages) {
+    public RecyclerViewAdapter(Context mContext, ArrayList<String> mImageNames, ArrayList<String> mImages, ArrayList<String> mWinRates, ArrayList<String> mChampionPosition) {
         this.mImageNames = mImageNames;
         this.mImages = mImages;
+        this.mWinRates = mWinRates;
+        this.mChampionPosition = mChampionPosition;
         this.mContext = mContext;
+
     }
 
     @Override
@@ -50,6 +55,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 .into(holder.image);
 
         holder.imageName.setText(mImageNames.get(position));
+        holder.winRate.setText(mWinRates.get(position));
+        holder.champPosition.setText(mChampionPosition.get(position));
 
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,12 +77,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         CircleImageView image;
         TextView imageName;
+        TextView winRate;
+        TextView champPosition;
         RelativeLayout parentLayout;
 
         public ViewHolder(View itemView) {
             super(itemView);
             image = itemView.findViewById(R.id.image);
             imageName = itemView.findViewById(R.id.imagename);
+            winRate = itemView.findViewById(R.id.winrate);
+            champPosition = itemView.findViewById(R.id.position);
             parentLayout = itemView.findViewById(R.id.parent_layout);
         }
     }
