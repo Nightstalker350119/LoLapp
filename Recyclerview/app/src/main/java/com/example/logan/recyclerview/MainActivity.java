@@ -1,42 +1,31 @@
-package com.norbertotaveras.game_companion_app;
+package com.example.logan.recyclerview;
 
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
-/**
- * Created by Emanuel on 12/7/2017.
- */
-
-public class ChampionsWinRate extends Fragment {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "ChampionsWinRate";
-
+    
     private ArrayList<String> mNames = new ArrayList<>();
     private ArrayList<String> mImageUrls = new ArrayList<>();
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
 
-        Log.d(TAG, "onCreateView: started");
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Log.d(TAG, "onCreate: starting.");
 
         initImageBitmaps();
-
-        View rootView = inflater.inflate(R.layout.fragment_championswinrate, container, false);
-        return rootView;
-
-
-
     }
-    
+
+
     private void initImageBitmaps(){
         Log.d(TAG, "initImageBitmaps: preparing bitmaps.");
         mImageUrls.add("http://opgg-static.akamaized.net/images/lol/champion/Tryndamere.png?image=w_140&v=1");
@@ -47,6 +36,15 @@ public class ChampionsWinRate extends Fragment {
 
         mImageUrls.add("http://www.behindthevoiceactors.com/_img/chars/jax-league-of-legends-4.27.jpg");
         mNames.add("Jax");
+
+        mImageUrls.add("http://ddragon.leagueoflegends.com/cdn/7.24.2/img/champion/Rammus.png");
+        mNames.add("Rammus");
+
+        mImageUrls.add("https://www.mobafire.com/images/avatars/kayn-classic.png");
+        mNames.add("Kayn");
+
+        mImageUrls.add("https://www.mobafire.com/images/avatars/jhin-classic.png");
+        mNames.add("Jhin");
 
         initRecyclerView();
     }
@@ -59,4 +57,3 @@ public class ChampionsWinRate extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 }
-
