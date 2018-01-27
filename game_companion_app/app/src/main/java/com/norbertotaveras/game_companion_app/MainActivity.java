@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.norbertotaveras.game_companion_app.DTO.League.LeaguePositionDTO;
 import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
 
@@ -47,6 +49,9 @@ public class MainActivity
         implements TextView.OnEditorActionListener, OnRecentSearchClickListener,
         AdapterView.OnItemClickListener {
     SummonerDTO summoner;
+
+    FirebaseAuth auth;
+    Menu optionsMenu;
 
     private TextView title1;
     private TextView title2;
@@ -82,6 +87,8 @@ public class MainActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        auth = FirebaseAuth.getInstance();
+
         title1 = findViewById(R.id.title1);
         title2 = findViewById(R.id.title2);
         search = findViewById(R.id.search);
@@ -108,7 +115,49 @@ public class MainActivity
     public void onResume() {
         super.onResume();
 
+        updateOptionsMenu();
+
         recentSearchesAdapter.refresh(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.auth_menu, menu);
+        optionsMenu = menu;
+
+        updateOptionsMenu();
+
+        return true;
+    }
+
+    private void updateOptionsMenu() {
+        if (auth == null || optionsMenu == null)
+            return;
+
+        boolean signedIn = (auth.getCurrentUser() != null);
+
+        MenuItem signInItem = optionsMenu.findItem(R.id.sign_in);
+        signInItem.setEnabled(!signedIn);
+
+        MenuItem signOutItem = optionsMenu.findItem(R.id.sign_out);
+        signOutItem.setEnabled(signedIn);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sign_in:
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
+                return true;
+
+            case R.id.sign_out:
+                auth.signOut();
+                updateOptionsMenu();
+                return true;
+        }
+
+        return false;
     }
 
     private String handleEditorAction(TextView view, int actionId, KeyEvent event) {
@@ -118,7 +167,7 @@ public class MainActivity
                 return view.getText().toString();
 
             default:
-                if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
+                if (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
                         event.getAction() == KeyEvent.ACTION_DOWN) {
                     return view.getText().toString();
                 }
