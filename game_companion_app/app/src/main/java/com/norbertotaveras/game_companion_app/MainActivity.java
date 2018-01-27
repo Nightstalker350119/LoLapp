@@ -215,7 +215,7 @@ public class MainActivity
     private void showChampionResult()
     {
         Intent championIntent;
-        championIntent = new Intent(this, ChampionsActivity.class);
+        championIntent = new Intent(this, MainChampions.class);
         startActivity(championIntent);
     }
 
