@@ -86,6 +86,7 @@ public class MainActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setTitle("Home");
 
         auth = FirebaseAuth.getInstance();
 

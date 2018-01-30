@@ -7,8 +7,14 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.norbertotaveras.game_companion_app.DTO.Match.MatchDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionListDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ProfileIconDataDTO;
@@ -44,9 +50,11 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RiotAPI {
     private static RiotAPI instance;
-    private static final String riotApiKey = "RGAPI-7d949fe4-1f9c-4a3b-a4d7-d965800c2bfb";
+    private static final String riotApiKey = "RGAPI-0895afa4-ab9e-48c6-a746-733e48468b79";
     private static final String rootEndpoint = "https://na1.api.riotgames.com/";
     private static final String staticCdn = "http://ddragon.leagueoflegends.com/cdn";
+    private static FirebaseDatabase firebase;
+    private static DatabaseReference firebaseDB;
 
     private Retrofit retrofit;
     private RiotGamesService apiService;
@@ -76,6 +84,8 @@ public class RiotAPI {
         rateLimiter = new RateLimiter(20, 120, 100);
         drawableCache = new HashMap<>();
         drawableCacheLock = new Object();
+        firebase = FirebaseDatabase.getInstance();
+        firebaseDB = firebase.getReference();
         this.context = context;
     }
 
@@ -494,6 +504,44 @@ public class RiotAPI {
 
     public static <T> void cachedRequest(Call<T> call, AsyncCallback<T> callback) {
         requestCache.request(call, callback);
+    }
+
+    public static void getCachedMatch(final Long gameId, final AsyncCallback<MatchDTO> callback) {
+        final String gameIdStr = String.valueOf(gameId);
+        DatabaseReference dbMatch = firebaseDB.child("match").child(gameIdStr);
+        dbMatch.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // Cache hit
+                    Log.v("RiotFirebaseCache", "Cache hit for match id=" + gameIdStr);
+                    MatchDTO match = dataSnapshot.getValue(MatchDTO.class);
+
+                    callback.invoke(match);
+                } else {
+                    Log.v("RiotFirebaseCache", "Cache miss for match id=" + gameIdStr);
+                    Call<MatchDTO> matchRequest = instance.apiService.getMatch(gameId);
+
+                    cachedRequest(matchRequest, new AsyncCallback<MatchDTO>() {
+                        @Override
+                        public void invoke(MatchDTO match) {
+                            // Make callback ASAP
+                            callback.invoke(match);
+
+                            // Insert it into Firebase
+                            Map<String, Object> ins = new HashMap<>();
+                            ins.put("/match/" + gameIdStr, match);
+                            firebaseDB.updateChildren(ins);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public static class RequestCache {

@@ -3,7 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:layout_marginLeft="4dp"
+    android:layout_marginRight="4dp">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -27,6 +29,13 @@
                 android:layout_height="wrap_content"
                 android:text="X minutes ago"
                 android:textColor="#FF000000"/>
+            <TextView
+                android:id="@+id/game_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:textColor="#555555"
+                android:text="#nnnn"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
@@ -57,7 +66,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
-            <ImageView
+            <com.norbertotaveras.game_companion_app.RoundImageView
                 android:id="@+id/champion_icon"
                 android:layout_width="48dp"
                 android:layout_height="48dp" />

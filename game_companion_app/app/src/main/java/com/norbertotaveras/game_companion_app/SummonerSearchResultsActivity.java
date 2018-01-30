@@ -1,6 +1,7 @@
 package com.norbertotaveras.game_companion_app;
 
 import android.content.Intent;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -9,9 +10,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +23,7 @@ import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -62,12 +67,15 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
 
     private Handler uiThreadHandler;
 
+    Point displaySize;
+    private NestedParentView scrollParent;
+
     private TextView summonerName;
     private TextView queueText;
     private TextView summonerSummary;
     LeagueCollectionFragmentAdapter leaguePagerAdapter;
     private ViewPager leaguePager;
-    private ListView matchList;
+    private NestedListView matchList;
     private ConstraintLayout matchListNoResults;
     private MatchListAdapter matchListAdapter;
 
@@ -95,6 +103,7 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
     // The order of this must match filterQueueIds!
     private Button[] filterButtons;
     private long currentFilter;
+    private boolean initializing;
 
     public SummonerSearchResultsActivity() {
         leagueInfo = new LeagueInfo();
@@ -104,6 +113,10 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_summoner_search_results);
+
+        displaySize = getDisplaySize();
+        scrollParent = findViewById(R.id.nested_scroll_parent);
+        scrollParent.setNestedScrollingEnabled(true);
 
         summonerName = findViewById(R.id.summoner_name);
         summonerSummary = findViewById(R.id.summoner_summary);
@@ -134,9 +147,14 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
         matchList.setAdapter(matchListAdapter);
         matchListAtEnd = false;
 
-        for (int i = 0; i < filterButtons.length; ++i) {
+        initializing = true;
+
+        matchList.setNestedScrollingEnabled(true);
+        matchList.setScrollParent(scrollParent);
+        setMatchListHeight(displaySize.y - 375);
+
+        for (int i = 0; i < filterButtons.length; ++i)
             filterButtons[i].setOnClickListener(this);
-        }
 
         TabHost host;
         host = findViewById(R.id.tab_scr);
@@ -169,6 +187,19 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
         search();
 
         matchList.setOnScrollListener(this);
+    }
+
+    private void setMatchListHeight(int height) {
+        ViewGroup.LayoutParams layoutParams = matchList.getLayoutParams();
+        layoutParams.height = height;
+        matchList.setLayoutParams(layoutParams);
+    }
+
+    private Point getDisplaySize() {
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        return size;
     }
 
     private void search() {
@@ -288,27 +319,24 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
                     Log.v("MatchList", "Requesting match id=" +
                             String.valueOf(match.gameId));
 
-                    Call<MatchDTO> matchRequest = apiService.getMatch(match.gameId);
-
-                    RiotAPI.rateLimitRequest(matchRequest, new Callback<MatchDTO>() {
+                    RiotAPI.getCachedMatch(match.gameId, new RiotAPI.AsyncCallback<MatchDTO>() {
                         @Override
-                        public void onResponse(Call<MatchDTO> call, Response<MatchDTO> response) {
-                            MatchDTO match = response.body();
-
+                        public void invoke(MatchDTO match) {
                             assert(match != null);
                             matchResults.put(match.gameId, match);
 
-                            if (matchResults.size() == matchIds.size())
+                            if (matchResults.size() == matchIds.size()) {
                                 matchListAdapter.appendResults(beginIndex);
+
+                                if (initializing) {
+                                    initializing = false;
+                                    scrollParent.scrollTo(0, 0);
+                                }
+                            }
 
                             Log.v("MatchList", "Got matches " +
                                     String.valueOf(matchResults.size()) + " id=" +
                                     String.valueOf(match.gameId));
-                        }
-
-                        @Override
-                        public void onFailure(Call<MatchDTO> call, Throwable t) {
-                            Log.e("MatchList", "Failed to get match: " + t.toString());
                         }
                     });
                 }
@@ -592,6 +620,7 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
             final TextView gameType = view.findViewById(R.id.game_mode);
             final TextView gameDuration = view.findViewById(R.id.game_duration);
             final TextView gameAgo = view.findViewById(R.id.game_ago);
+            final TextView gameId = view.findViewById(R.id.game_id);
 
             final TextView level = view.findViewById(R.id.level);
             final TextView minionKills = view.findViewById(R.id.minion_kills);
@@ -604,6 +633,9 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
             long timeSince = new Date().getTime() - match.gameCreation;
 
             gameAgo.setText(formatTimeDiff(timeSince) + " ago");
+            gameId.setText("#" + String.valueOf(match.gameId));
+
+            final boolean isRemake = match.gameDuration < 300;
 
             String gameModeText;
 
@@ -720,13 +752,19 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
                             if ((int)view.getTag() != rowId)
                                 return;
 
-                            view.setBackgroundColor(participant.stats.win
+                            view.setBackgroundColor(isRemake
+                                    ? 0xffb6b6b6
+                                    : participant.stats.win
                                     ? 0xffa3cfec : 0xffe2b6b3);
                             view.setBackgroundTintMode(PorterDuff.Mode.ADD);
 
-                            gameOutcome.setText(participant.stats.win
+                            gameOutcome.setText(isRemake
+                                    ? "Remake"
+                                    : participant.stats.win
                                     ? "Victory" : "Defeat");
-                            gameOutcome.setTextColor(participant.stats.win
+                            gameOutcome.setTextColor(isRemake
+                                    ? 0xff000000
+                                    : participant.stats.win
                                     ? 0xff1a78ae : 0xffc6443e);
                         }
                     });
