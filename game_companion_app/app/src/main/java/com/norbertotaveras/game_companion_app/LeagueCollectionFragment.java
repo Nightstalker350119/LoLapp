@@ -87,7 +87,8 @@ public class LeagueCollectionFragment extends Fragment {
         LeaguePositionDTO currentLeague = leagueInfo.leaguePositions.get(
                 leagueInfo.leaguePositions.keySet().toArray()[position]);
         queueName.setText(RiotAPI.beautifyQueueName(currentLeague.queueType));
-        tierIcon.setImageResource(RiotAPI.tierNameToResourceId(currentLeague.tier));
+        tierIcon.setImageResource(RiotAPI.tierNameToResourceId(
+                currentLeague.tier, currentLeague.rank));
 
         LeaguePositionDTO leaguePosition = leagueInfo.leaguePositions.get(currentLeague.queueType);
 

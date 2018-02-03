@@ -9,22 +9,18 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Layout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +34,7 @@ import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantIdentityDTO;
 import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -55,27 +52,33 @@ import retrofit2.Response;
  * Created by Norberto Taveras on 11/28/2017.
  */
 
-public class SummonerSearchResultsActivity extends AppCompatActivity implements View.OnClickListener, AbsListView.OnScrollListener {
+public class SummonerSearchResultsActivity
+        extends AppCompatActivity implements View.OnScrollChangeListener {
     private RiotGamesService apiService;
 
     private String searchName;
     private long searchAccountId;
 
     private ImageView profileIcon;
-
+    private ImageView tierIcon;
     private long profileIconId;
 
     private Handler uiThreadHandler;
 
     Point displaySize;
-    private NestedParentView scrollParent;
+    private ScrollView scrollParent;
 
     private TextView summonerName;
+    private TextView rank;
+    private TextView leaguePoints;
+    private TextView winLoss;
     private TextView queueText;
     private TextView summonerSummary;
-    LeagueCollectionFragmentAdapter leaguePagerAdapter;
-    private ViewPager leaguePager;
-    private NestedListView matchList;
+
+    //private LeagueCollectionFragmentAdapter leaguePagerAdapter;
+    //private ViewPager leaguePager;
+    private LinearLayoutManager matchListLayoutManager;
+    private RecyclerView matchList;
     private ConstraintLayout matchListNoResults;
     private MatchListAdapter matchListAdapter;
 
@@ -101,9 +104,9 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
     };
 
     // The order of this must match filterQueueIds!
-    private Button[] filterButtons;
     private long currentFilter;
     private boolean initializing;
+    private boolean gettingMatches;
 
     public SummonerSearchResultsActivity() {
         leagueInfo = new LeagueInfo();
@@ -118,43 +121,37 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
         scrollParent = findViewById(R.id.nested_scroll_parent);
         scrollParent.setNestedScrollingEnabled(true);
 
+        rank = findViewById(R.id.rank_0);
+        leaguePoints = findViewById(R.id.league_points_0);
+        winLoss = findViewById(R.id.win_loss);
+
         summonerName = findViewById(R.id.summoner_name);
         summonerSummary = findViewById(R.id.summoner_summary);
         profileIcon = findViewById(R.id.profile_icon);
+        tierIcon = findViewById(R.id.tier_icon_0);
         queueText = findViewById(R.id.queue_name);
 
-        leaguePager = findViewById(R.id.league_pager);
-
-        leaguePagerAdapter = new LeagueCollectionFragmentAdapter(getSupportFragmentManager());
-        leaguePager.setAdapter(leaguePagerAdapter);
-
-        filterButtons = new Button[] {
-                findViewById(R.id.game_filter_total),
-                findViewById(R.id.game_filter_ranked_solo),
-                findViewById(R.id.game_filter_ranked_flex),
-                findViewById(R.id.game_filter_draft_blind),
-                findViewById(R.id.game_filter_aram),
-                findViewById(R.id.game_filter_event)
-        };
         currentFilter = -1;
 
         matchIds = new ArrayList<>(matchBatchSize);
         matchResults = new ConcurrentHashMap<>(matchBatchSize);
 
+        matchListLayoutManager = new LinearLayoutManager(this);
+
         matchList = findViewById(R.id.match_list);
-        matchListNoResults = findViewById(R.id.match_list_no_results);
+        matchList.setLayoutManager(matchListLayoutManager);
         matchListAdapter = new MatchListAdapter();
         matchList.setAdapter(matchListAdapter);
+        matchList.setHasFixedSize(true);
+        matchList.setOnScrollChangeListener(this);
+
+        matchListNoResults = findViewById(R.id.no_results);
         matchListAtEnd = false;
 
         initializing = true;
 
         matchList.setNestedScrollingEnabled(true);
-        matchList.setScrollParent(scrollParent);
         setMatchListHeight(displaySize.y - 375);
-
-        for (int i = 0; i < filterButtons.length; ++i)
-            filterButtons[i].setOnClickListener(this);
 
         TabHost host;
         host = findViewById(R.id.tab_scr);
@@ -171,11 +168,6 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
         spec.setIndicator("Champs");
         host.addTab(spec);
 
-        spec = host.newTabSpec("Runes");
-        spec.setContent(R.id.tab_runes);
-        spec.setIndicator("Runes");
-        host.addTab(spec);
-
         apiService = RiotAPI.getInstance(getApplicationContext());
 
         Intent intent = getIntent();
@@ -185,8 +177,6 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
         uiThreadHandler = UIHelper.createRunnableLooper();
 
         search();
-
-        matchList.setOnScrollListener(this);
     }
 
     private void setMatchListHeight(int height) {
@@ -251,8 +241,7 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
 
         summonerName.setText(summoner.name);
 
-        String summary = String.valueOf("Level " + String.valueOf(summoner.summonerLevel) +
-            " | ");
+        String summary = String.valueOf("Level " + String.valueOf(summoner.summonerLevel));
         summonerSummary.setText(summary);
 
         profileIconId = summoner.profileIconId;
@@ -306,6 +295,10 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
                     // Call appendResults to invoke the logic that shows the "no results" element
                     matchListAdapter.appendResults(beginIndex);
                     matchListAtEnd = true;
+
+                    initializing = false;
+                    scrollParent.scrollTo(0, 0);
+
                     return;
                 }
 
@@ -327,6 +320,7 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
 
                             if (matchResults.size() == matchIds.size()) {
                                 matchListAdapter.appendResults(beginIndex);
+                                gettingMatches = false;
 
                                 if (initializing) {
                                     initializing = false;
@@ -358,50 +352,29 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
         getMoreMatches();
     }
 
-    @Override
-    public void onClick(View view) {
-        boolean isFilterClick = false;
-        for (int i = 0; i < filterButtons.length; ++i) {
-            if (view == filterButtons[i]) {
-                setMatchFilter(filterQueueIds[i]);
-                isFilterClick = true;
-            }
-        }
-        if (isFilterClick) {
-            for (int i = 0; i < filterButtons.length; ++i) {
-                if (view == filterButtons[i]) {
-                    filterButtons[i].setTextColor(0xffff0000);
-                } else {
-                    filterButtons[i].setTextColor(0xff000000);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onScrollStateChanged(AbsListView absListView, int i) {
-    }
-
-    @Override
-    public void onScroll(AbsListView absListView, int firstVisibleIndex,
-                         int visibleItemCount, int totalItemCount) {
-        if (absListView != matchList)
-            return;
-
-        int lastVisible = firstVisibleIndex + visibleItemCount;
-
-        if (lastVisible > 0 && lastVisible == currentMatchIndex) {
-            getMoreMatches();
-        }
-    }
-
     private void getMoreMatches() {
-        deferredSummoner.getData(new RiotAPI.AsyncCallback<SummonerDTO>() {
-            @Override
-            public void invoke(SummonerDTO summoner) {
-                getMatchList(summoner);
-            }
-        });
+        if (!gettingMatches) {
+            gettingMatches = true;
+            deferredSummoner.getData(new RiotAPI.AsyncCallback<SummonerDTO>() {
+                @Override
+                public void invoke(SummonerDTO summoner) {
+                    getMatchList(summoner);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onScrollChange(View view, int scrollX, int scrollY,
+                               int oldScrollX, int oldScrollY)
+    {
+        switch (view.getId()) {
+            case R.id.match_list:
+                if (!matchListAtEnd && !matchList.canScrollVertically(1)) {
+                    getMoreMatches();
+                }
+                break;
+        }
     }
 
     private static class LeagueCollectionFragmentAdapter extends FragmentStatePagerAdapter {
@@ -434,11 +407,6 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
         }
     }
 
-    private void updateLeagueList(LeagueInfo info) {
-        leaguePagerAdapter.setLeagueInfo(info);
-        leaguePagerAdapter.notifyDataSetChanged();
-    }
-
     public class LeagueInfo implements Serializable {
         SummonerDTO summoner;
 
@@ -447,208 +415,104 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
 
         public void setSummoner(SummonerDTO summoner) {
             this.summoner = summoner;
-            checkDone();
         }
 
         public void setLeaguePositionDTO(List<LeaguePositionDTO> leaguePositions) {
             this.leaguePositions = new HashMap<>();
             for (LeaguePositionDTO item : leaguePositions)
                 this.leaguePositions.put(item.queueType, item);
-            checkDone();
-        }
 
-        public void checkDone() {
-            if (summoner != null && leaguePositions != null)
-                updateLeagueList(this);
+            LeaguePositionDTO rs5v5 = this.leaguePositions.get("RANKED_SOLO_5x5");
+
+            int tierResource;
+            String tierText;
+            String lp;
+            int winPercent;
+            if (rs5v5 != null) {
+                tierResource = RiotAPI.tierNameToResourceId(rs5v5.tier, rs5v5.rank);
+
+                tierText = RiotAPI.beautifyTierName(rs5v5.tier);
+
+                lp = String.valueOf(rs5v5.leaguePoints) + " LP";
+
+                if (rs5v5.wins + rs5v5.losses > 0)
+                    winPercent = 100 * rs5v5.wins / (rs5v5.wins + rs5v5.losses);
+                else
+                    winPercent = -1;
+            } else {
+                tierResource = RiotAPI.tierNameToResourceId("PROVISIONAL", "I");
+                tierText = "Unranked";
+                lp = "0 LP";
+                winPercent = -1;
+            }
+
+            rank.setText(tierText);
+            tierIcon.setImageResource(tierResource);
+            leaguePoints.setText(lp);
+            if (winPercent >= 0) {
+                winLoss.setText(getResources().getString(R.string.win_loss,
+                        rs5v5.wins, rs5v5.losses, winPercent));
+            } else {
+                winLoss.setText(getResources().getString(R.string.win_loss,
+                        0, 0, 0));
+            }
         }
     }
 
-    private class MatchListAdapter extends BaseAdapter {
-        private ArrayList<Long> allMatches;
-        private MatchDTO[] matches;
-        final LayoutInflater inflater;
+    private class MatchListItem extends RecyclerView.ViewHolder {
+        final View view;
 
-        AtomicInteger uniqueId;
+        final ConstraintLayout summaryContainer;
 
-        public MatchListAdapter() {
-            inflater = getLayoutInflater();
-            allMatches = new ArrayList<>(matchBatchSize);
+        final ImageView championIcon;
+        final ImageView[] spellIcons;
+        final ImageView[] runeIcons;
+
+        final TextView kda;
+        final TextView kdaRatio;
+        final TextView specialKills;
+        final TextView gameType;
+        final TextView gameDuration;
+        final TextView gameDate;
+        final TextView gameId;
+
+        final AtomicInteger uniqueId;
+
+        public MatchListItem(View view) {
+            super(view);
+
+            this.view = view;
             uniqueId = new AtomicInteger(0);
+
+            summaryContainer = view.findViewById(R.id.summary_container);
+
+            championIcon = view.findViewById(R.id.champion_icon);
+
+            spellIcons = new ImageView[] {
+                    view.findViewById(R.id.spell0),
+                    view.findViewById(R.id.spell1)
+            };
+
+            runeIcons = new ImageView[] {
+                    view.findViewById(R.id.rune0),
+                    view.findViewById(R.id.rune1)
+            };
+
+            kda = view.findViewById(R.id.kda);
+            kdaRatio = view.findViewById(R.id.kda_ratio);
+            specialKills = view.findViewById(R.id.special_kills);
+            gameType = view.findViewById(R.id.game_mode);
+            gameDuration = view.findViewById(R.id.game_duration);
+            gameDate = view.findViewById(R.id.game_date);
+            gameId = view.findViewById(R.id.game_id);
         }
 
-        public void reset() {
-            allMatches.clear();
-        }
-
-        public void appendResults(int beginIndex) {
-            for (int i = beginIndex, e = matchIds.size(); i < e; ++i) {
-                long id = matchIds.get(i);
-                MatchDTO item = matchResults.get(id);
-
-                if (item == null)
-                    continue;
-
-                // Find insertion point
-                int st = 0, en = allMatches.size(), mid = 0;
-                while (st < en) {
-                    mid = st + ((en - st) >> 1);
-
-                    long cmpId = allMatches.get(mid);
-                    MatchDTO cmpItem = matchResults.get(cmpId);
-
-                    if (cmpItem.gameCreation <= item.gameCreation)
-                        en = mid;
-                    else
-                        st = mid + 1;
-                }
-
-                allMatches.add(st, id);
-            }
-
-            matches = new MatchDTO[allMatches.size()];
-            for (int i = 0, e = allMatches.size(); i < e; ++i) {
-                long id = allMatches.get(i);
-                MatchDTO item = matchResults.get(id);
-                matches[i] = item;
-            }
-
-            notifyDataSetChanged();
-
-            matchListNoResults.setVisibility(matches.length != 0 ? View.GONE : View.VISIBLE);
-        }
-
-        @Override
-        public int getCount() {
-            return matches != null ? matches.length : 0;
-        }
-
-        @Override
-        public Object getItem(int i) {
-            return matches != null ? matches[i] : null;
-        }
-
-        @Override
-        public long getItemId(int i) {
-            return matches != null ? matches[i].gameId : null;
-        }
-
-        // Find greatest common divisor using simple Euclid's algorithm
-        int gcd(int a, int b)
-        {
-            if (a == 0 || b == 0)
-                return 0;
-
-            while (a != b) {
-                if (a > b)
-                    a -= b;
-                else
-                    b -= a;
-            }
-
-            return a;
-        }
-
-        String simpleDouble(double n) {
-            if (n == Math.floor(n))
-                return String.valueOf((int)n);
-            return String.format(Locale.US, "%.2f", n);
-        }
-
-        private String formatTimeDiff(long diff) {
-            long n;
-            if (diff < 60 * 1000) {
-                n = diff / (1000);
-                return String.valueOf(n) + " second" + (n != 1 ? "s" : "");
-            } else if (diff < 60 * 60 * 1000) {
-                n = diff / (60 * 1000);
-                return String.valueOf(n) + " minute" + (n != 1 ? "s" : "");
-            } else if (diff < 24 * 60 * 60 * 1000) {
-                n = diff / (60 * 60 * 1000);
-                return String.valueOf(n) + " hour" + (n != 1 ? "s" : "");
-            } else {
-                n = diff / (24 * 60 * 60 * 1000);
-                return String.valueOf(n) + " day" + (n != 1 ? "s" : "");
-            }
-        }
-
-        private String formatMinSec(long seconds) {
-            long s = seconds % 60;
-            long m = (seconds / 60) % 60;
-            long h = (seconds / 3600);
-            if (h == 0)
-                return String.valueOf(m) + "m " + String.valueOf(s) + "s";
-            return String.valueOf(h) + "h " + String.valueOf(m) + "m " + String.valueOf(s) + "s";
-        }
-
-        @Override
-        public View getView(final int position, View recycledView, ViewGroup viewGroup) {
-            if (recycledView == null) {
-                recycledView = inflater.inflate(R.layout.fragment_match_list,
-                        viewGroup, false);
-            }
-
-            final View view = recycledView;
-
+        public void bind(final MatchDTO match) {
             // Assign a unique identifier to this row to handle racing responses on recycled views
             final int rowId = uniqueId.getAndIncrement();
             view.setTag(rowId);
 
-            Log.v("LeagueInfoList", "Formatting list item " + String.valueOf(position));
-
-            final ImageView championIcon = view.findViewById(R.id.champion_icon);
-            final ImageView[] spellIcons = new ImageView[] {
-                    view.findViewById(R.id.spell0),
-                    view.findViewById(R.id.spell1)
-            };
-            final ImageView[] runeIcons = new ImageView[] {
-                    view.findViewById(R.id.rune0),
-                    view.findViewById(R.id.rune1)
-            };
-            final ImageView[] itemIcons = new ImageView[] {
-                    view.findViewById(R.id.items0),
-                    view.findViewById(R.id.items1),
-                    view.findViewById(R.id.items2),
-                    view.findViewById(R.id.items3),
-                    view.findViewById(R.id.items4),
-                    view.findViewById(R.id.items5),
-                    view.findViewById(R.id.items6)
-            };
-
-            final TextView kda = view.findViewById(R.id.kda);
-            final TextView kdaRatio = view.findViewById(R.id.kda_ratio);
-            final TextView specialKills = view.findViewById(R.id.special_kills);
-            final TextView gameType = view.findViewById(R.id.game_mode);
-            final TextView gameDuration = view.findViewById(R.id.game_duration);
-            final TextView gameAgo = view.findViewById(R.id.game_ago);
-            final TextView gameId = view.findViewById(R.id.game_id);
-
-            final TextView level = view.findViewById(R.id.level);
-            final TextView minionKills = view.findViewById(R.id.minion_kills);
-            final TextView participation = view.findViewById(R.id.participation);
-
-            final TextView gameOutcome = view.findViewById(R.id.game_outcome);
-
-            final MatchDTO match = matches[position];
-
-            long timeSince = new Date().getTime() - match.gameCreation;
-
-            gameAgo.setText(formatTimeDiff(timeSince) + " ago");
-            gameId.setText("#" + String.valueOf(match.gameId));
-
-            final boolean isRemake = match.gameDuration < 300;
-
             String gameModeText;
-
-//            switch (match.gameMode) {
-//                case "CLASSIC":
-//                    gameModeText = "Ranked Solo";
-//                    break;
-//
-//                default:
-//                    gameModeText = match.gameMode;
-//                    break;
-//            }
-
             switch (match.queueId) {
                 case 400:
                     gameModeText = "Normal";
@@ -676,28 +540,23 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
             }
 
             gameType.setText(gameModeText);
-//            +
-//                    "\nm=" + match.gameMode +
-//                    "\nt=" + match.gameType +
-//                    "\np=" + match.platformId +
-//                    "\nq=" + match.queueId);
 
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+            Date date = new Date(match.gameCreation);
+            gameDate.setText(dateFormat.format(date));
+            gameId.setText("#" + String.valueOf(match.gameId));
+
+            final boolean isRemake = match.gameDuration < 300;
 
             gameDuration.setText(formatMinSec(match.gameDuration));
 
             // Avoid flash of old content
             kda.setText("");
-            gameOutcome.setText("");
             championIcon.setImageDrawable(null);
             for (int i = 0; i < spellIcons.length; ++i)
                 spellIcons[i].setImageDrawable(null);
             for (int i = 0; i < runeIcons.length; ++i)
                 runeIcons[i].setImageDrawable(null);
-            for (int i = 0; i < itemIcons.length; ++i)
-                itemIcons[i].setImageDrawable(null);
-            participation.setText("");
-            minionKills.setText("");
-            level.setText("");
             kdaRatio.setText("");
             specialKills.setText("");
 
@@ -729,67 +588,31 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
 
                     final ParticipantDTO participant = participantFind;
 
-                    if (participant != null) {
-                        final String kdaText = String.format(Locale.US, "%d / %d / %d",
-                                participant.stats.kills, participant.stats.deaths,
-                                participant.stats.assists);
-                        uiThreadHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                // See if we're populating a recycled view too late
-                                if ((int)view.getTag() != rowId)
-                                    return;
-
-                                kda.setText(kdaText);
-                            }
-                        });
-                    }
-
-                    uiThreadHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            // See if we're populating a recycled view too late
-                            if ((int)view.getTag() != rowId)
-                                return;
-
-                            view.setBackgroundColor(isRemake
-                                    ? 0xffb6b6b6
-                                    : participant.stats.win
-                                    ? 0xffa3cfec : 0xffe2b6b3);
-                            view.setBackgroundTintMode(PorterDuff.Mode.ADD);
-
-                            gameOutcome.setText(isRemake
-                                    ? "Remake"
-                                    : participant.stats.win
-                                    ? "Victory" : "Defeat");
-                            gameOutcome.setTextColor(isRemake
-                                    ? 0xff000000
-                                    : participant.stats.win
-                                    ? 0xff1a78ae : 0xffc6443e);
-                        }
-                    });
+                    final String kdaText = String.format(Locale.US, "%d / %d / %d",
+                            participant.stats.kills, participant.stats.deaths,
+                            participant.stats.assists);
 
                     RiotAPI.fetchChampionIcon(participant.championId,
                             new RiotAPI.AsyncCallback<Drawable>()
-                    {
-                        @Override
-                        public void invoke(final Drawable item) {
-                            // See if we're populating a recycled view too late
-                            if ((int)view.getTag() != rowId)
-                                return;
-
-                            uiThreadHandler.post(new Runnable() {
+                            {
                                 @Override
-                                public void run() {
+                                public void invoke(final Drawable item) {
                                     // See if we're populating a recycled view too late
                                     if ((int)view.getTag() != rowId)
                                         return;
 
-                                    championIcon.setImageDrawable(item);
+                                    uiThreadHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            // See if we're populating a recycled view too late
+                                            if ((int)view.getTag() != rowId)
+                                                return;
+
+                                            championIcon.setImageDrawable(item);
+                                        }
+                                    });
                                 }
                             });
-                        }
-                    });
 
                     for (int i = 0; i < 2; ++i) {
                         final int tempI = i;
@@ -843,106 +666,23 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
                         });
                     }
 
-                    long[] itemIds = {
-                            participant.stats.item0,
-                            participant.stats.item1,
-                            participant.stats.item2,
-                            participant.stats.item3,
-                            participant.stats.item4,
-                            participant.stats.item5,
-                            participant.stats.item6
-                    };
-
-                    for (int i = 0; i < 7; ++i) {
-                        final int tempI = i;
-                        long id = itemIds[i];
-
-                        if (id == 0)
-                            continue;
-
-                        RiotAPI.fetchItemIcon(id, new RiotAPI.AsyncCallback<Drawable>() {
-                            @Override
-                            public void invoke(final Drawable item) {
-                                // See if we're populating a recycled view too late
-                                if ((int)view.getTag() != rowId)
-                                    return;
-
-                                uiThreadHandler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        // See if we're populating a recycled view too late
-                                        if ((int)view.getTag() != rowId)
-                                            return;
-
-                                        itemIcons[tempI].setImageDrawable(item);
-                                    }
-                                });
-                            }
-                        });
-                    }
-
-                    long totalDamageAll = 0;
-                    long minionKillsAll = 0;
-                    for (ParticipantDTO participantScan : match.participants) {
-                        totalDamageAll += participantScan.stats.totalDamageDealtToChampions;
-                        minionKillsAll += participantScan.stats.totalMinionsKilled +
-                                participantScan.stats.neutralMinionsKilled;
-                    }
+//                    long totalDamageAll = 0;
+//                    long minionKillsAll = 0;
+//                    for (ParticipantDTO participantScan : match.participants) {
+//                        totalDamageAll += participantScan.stats.totalDamageDealtToChampions;
+//                        minionKillsAll += participantScan.stats.totalMinionsKilled +
+//                                participantScan.stats.neutralMinionsKilled;
+//                    }
 
                     final long participantMinionKills = participant.stats.totalMinionsKilled +
                             participant.stats.neutralMinionsKilled;
 
-                    final long participantPercent = 100 *
-                            participant.stats.totalDamageDealtToChampions / totalDamageAll;
-                    final long killsPlusAssists = participant.stats.kills + participant.stats.assists;
-
-                    uiThreadHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            // See if we're populating a recycled view too late
-                            if ((int)view.getTag() != rowId)
-                                return;
-
-                            participation.setText(killsPlusAssists > 0
-                                    ? String.valueOf(100 * participant.stats.kills / killsPlusAssists)
-                                    : "-");
-                            String percentJungle = participant.stats.totalMinionsKilled != 0
-                                    ? String.valueOf(100 *
-                                    (participant.stats.neutralMinionsKilledEnemyJungle +
-                                            participant.stats.neutralMinionsKilledTeamJungle) /
-                                    participant.stats.totalMinionsKilled)
-                                    : "-";
-                            minionKills.setText(String.valueOf(participantMinionKills) +
-                                    " (" + percentJungle + ") CS");
-                            level.setText("Lvl " + String.valueOf(participant.stats.champLevel));
-                        }
-                    });
-
                     int deaths = participant.stats.deaths;
 
-                    final String kdaText;
-                    if (deaths > 0) {
-                        int kdaRatioGcd = gcd((int)killsPlusAssists, deaths);
-                        final double numer = kdaRatioGcd != 0
-                                ? (double)killsPlusAssists / kdaRatioGcd : killsPlusAssists;
-                        final double denom = kdaRatioGcd != 0
-                                ? (double)deaths / kdaRatioGcd : deaths;
+                    final long killsPlusAssists = participant.stats.kills +
+                            participant.stats.assists;
 
-                        kdaText = simpleDouble(numer) + ":" + simpleDouble(denom);
-                    } else {
-                        kdaText = "Perfect";
-                    }
-
-                    uiThreadHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            // See if we're populating a recycled view too late
-                            if ((int)view.getTag() != rowId)
-                                return;
-
-                            kdaRatio.setText(kdaText);
-                        }
-                    });
+                    final String kdaRatioText = formatKdaRatio(killsPlusAssists, deaths);
 
                     String specialKillsText = null;
 
@@ -955,12 +695,29 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
                     }
 
                     final String specialKillsTextTemp = specialKillsText;
+
                     uiThreadHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             // See if we're populating a recycled view too late
                             if ((int)view.getTag() != rowId)
                                 return;
+
+                            view.setBackgroundColor(isRemake
+                                    ? 0xffb6b6b6
+                                    : participant.stats.win
+                                    ? 0xffa3cfec : 0xffe2b6b3);
+                            view.setBackgroundTintMode(PorterDuff.Mode.ADD);
+
+                            runeIcons[0].setImageResource(
+                                    RiotAPI.perkIdToResourceId(participant.stats.perk0));
+
+                            runeIcons[1].setImageResource(
+                                    RiotAPI.perkStyleIdToResourceId(
+                                            participant.stats.perkSubStyle));
+
+                            kda.setText(kdaText);
+                            kdaRatio.setText(kdaRatioText);
 
                             if (specialKillsTextTemp != null) {
                                 specialKills.setText(specialKillsTextTemp);
@@ -973,8 +730,339 @@ public class SummonerSearchResultsActivity extends AppCompatActivity implements 
                 }
             });
 
-            Log.v("LeagueInfoList",
-                    "Formatting list item " + String.valueOf(position) + " done");
+        }
+
+        private String formatTimeDiff(long diff) {
+            long n;
+            if (diff < 60 * 1000) {
+                n = diff / (1000);
+                return String.valueOf(n) + " second" + (n != 1 ? "s" : "");
+            } else if (diff < 60 * 60 * 1000) {
+                n = diff / (60 * 1000);
+                return String.valueOf(n) + " minute" + (n != 1 ? "s" : "");
+            } else if (diff < 24 * 60 * 60 * 1000) {
+                n = diff / (60 * 60 * 1000);
+                return String.valueOf(n) + " hour" + (n != 1 ? "s" : "");
+            } else {
+                n = diff / (24 * 60 * 60 * 1000);
+                return String.valueOf(n) + " day" + (n != 1 ? "s" : "");
+            }
+        }
+
+        private String formatMinSec(long seconds) {
+            long s = seconds % 60;
+            long m = (seconds / 60) % 60;
+            long h = (seconds / 3600);
+            if (h == 0)
+                return String.valueOf(m) + "m " + String.valueOf(s) + "s";
+            return String.valueOf(h) + "h " + String.valueOf(m) + "m " + String.valueOf(s) + "s";
+        }
+    }
+
+    private class MatchListAdapter extends RecyclerView.Adapter<MatchListItem> {
+        private ArrayList<Long> allMatches;
+        private MatchDTO[] matches;
+        final LayoutInflater inflater;
+
+        AtomicInteger uniqueId;
+
+        public MatchListAdapter() {
+            inflater = getLayoutInflater();
+            allMatches = new ArrayList<>(matchBatchSize);
+            uniqueId = new AtomicInteger(0);
+        }
+
+        @Override
+        public MatchListItem onCreateViewHolder(ViewGroup parent, int viewType) {
+            View holder;
+            holder = inflater.inflate(R.layout.fragment_match_list, parent, false);
+            return new MatchListItem(holder);
+        }
+
+        @Override
+        public void onBindViewHolder(MatchListItem holder, int position) {
+            holder.bind(matches[position]);
+        }
+
+        public void reset() {
+            allMatches.clear();
+        }
+
+        public void appendResults(int beginIndex) {
+            for (int i = beginIndex, e = matchIds.size(); i < e; ++i) {
+                long id = matchIds.get(i);
+                MatchDTO item = matchResults.get(id);
+
+                if (item == null)
+                    continue;
+
+                // Find insertion point
+                int st = 0, en = allMatches.size(), mid = 0;
+                while (st < en) {
+                    mid = st + ((en - st) >> 1);
+
+                    long cmpId = allMatches.get(mid);
+                    MatchDTO cmpItem = matchResults.get(cmpId);
+
+                    if (cmpItem.gameCreation <= item.gameCreation)
+                        en = mid;
+                    else
+                        st = mid + 1;
+                }
+
+                allMatches.add(st, id);
+            }
+
+            int oldLength = matches != null ? matches.length : 0;
+            matches = new MatchDTO[allMatches.size()];
+            for (int i = 0, e = allMatches.size(); i < e; ++i) {
+                long id = allMatches.get(i);
+                MatchDTO item = matchResults.get(id);
+                matches[i] = item;
+            }
+
+            notifyItemRangeInserted(oldLength, matches.length - oldLength);
+
+            matchListNoResults.setVisibility(matches.length != 0 ? View.GONE : View.VISIBLE);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return matches != null ? matches[i].gameId : null;
+        }
+
+        @Override
+        public int getItemCount() {
+            return matches != null ? matches.length : 0;
+        }
+    }
+
+    private String formatKdaRatio(long killsPlusAssists, long deaths) {
+        String kdaText;
+
+        if (deaths > 0) {
+            long kdaRatioGcd = gcd(killsPlusAssists, deaths);
+            final double numer = kdaRatioGcd != 0
+                    ? (double)killsPlusAssists / kdaRatioGcd : killsPlusAssists;
+            final double denom = kdaRatioGcd != 0
+                    ? (double)deaths / kdaRatioGcd : deaths;
+
+            kdaText = simpleDouble(numer) + ":" + simpleDouble(denom);
+        } else {
+            kdaText = "Perfect";
+        }
+
+        return kdaText;
+    }
+
+    static String simpleDouble(double n) {
+        if (n == Math.floor(n))
+            return String.valueOf((int)n);
+        return String.format(Locale.US, "%.2f", n);
+    }
+
+    // Find greatest common divisor using simple Euclid's algorithm
+    long gcd(long a, long b)
+    {
+        if (a == 0 || b == 0)
+            return 0;
+
+        while (a != b) {
+            if (a > b)
+                a -= b;
+            else
+                b -= a;
+        }
+
+        return a;
+    }
+
+    private class PlayerListAdapter extends BaseAdapter {
+        List<ParticipantIdentityDTO> identities;
+        List<ParticipantDTO> players;
+        AtomicInteger uniqueId;
+
+        public PlayerListAdapter(List<ParticipantIdentityDTO> identities,
+                                 List<ParticipantDTO> players)
+        {
+            this.identities = identities;
+            this.players = players;
+            uniqueId = new AtomicInteger(0);
+        }
+
+        @Override
+        public int getCount() {
+            return players.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return players.get(i);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return players.get(i).participantId;
+        }
+
+        @Override
+        public View getView(int position, View recycledView, ViewGroup viewGroup) {
+            if (recycledView == null) {
+                recycledView = getLayoutInflater().inflate(
+                        R.layout.fragment_match_player_list, viewGroup, false);
+            }
+
+            final View view = recycledView;
+
+            final int rowId = uniqueId.getAndIncrement();
+            view.setTag(rowId);
+
+            final ParticipantDTO participant = players.get(position);
+            final ParticipantIdentityDTO identity = identities.get(position);
+
+            final ImageView championIcon = view.findViewById(R.id.champion_icon);
+            final ImageView[] spellIcons = new ImageView[] {
+                    view.findViewById(R.id.spell0),
+                    view.findViewById(R.id.spell1)
+            };
+            final ImageView[] runeIcons = new ImageView[] {
+                    view.findViewById(R.id.rune0),
+                    view.findViewById(R.id.rune1)
+            };
+            final TextView summonerName = view.findViewById(R.id.summoner_name);
+
+            final TextView kda = view.findViewById(R.id.kda);
+            final TextView kdaRatio = view.findViewById(R.id.kda_ratio);
+            final ImageView[] items = new ImageView[] {
+                    view.findViewById(R.id.items0),
+                    view.findViewById(R.id.items1),
+                    view.findViewById(R.id.items2),
+                    view.findViewById(R.id.items3),
+                    view.findViewById(R.id.items4),
+                    view.findViewById(R.id.items5),
+                    view.findViewById(R.id.items6)
+            };
+            final TextView goldEarned = view.findViewById(R.id.gold_earned);
+
+            summonerName.setText(identity.player.summonerName);
+            final String kdaText = String.format(Locale.US, "%d / %d / %d",
+                    participant.stats.kills, participant.stats.deaths,
+                    participant.stats.assists);
+            kda.setText(kdaText);
+
+            championIcon.setImageDrawable(null);
+
+            RiotAPI.fetchChampionIcon(participant.championId,
+                    new RiotAPI.AsyncCallback<Drawable>()
+            {
+                @Override
+                public void invoke(final Drawable drawable) {
+                    if ((int)view.getTag() != rowId)
+                        return;
+
+                    uiThreadHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if ((int)view.getTag() != rowId)
+                                return;
+
+                            championIcon.setImageDrawable(drawable);
+                        }
+                    });
+                }
+            });
+
+            long[] spellIds = new long[] {
+                    participant.spell1Id,
+                    participant.spell2Id
+            };
+
+            for (int i = 0; i < spellIcons.length; ++i) {
+                spellIcons[i].setImageDrawable(null);
+
+                final int tempI = i;
+
+                RiotAPI.fetchSpellIcon(spellIds[i], new RiotAPI.AsyncCallback<Drawable>() {
+                    @Override
+                    public void invoke(final Drawable drawable) {
+                        if ((int)view.getTag() != rowId)
+                            return;
+
+                        uiThreadHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if ((int)view.getTag() != rowId)
+                                    return;
+
+                                spellIcons[tempI].setImageDrawable(drawable);
+                            }
+                        });
+                    }
+                });
+            }
+
+            long[] runeIds = new long[] {
+                    participant.runes != null ? participant.runes.get(0).runeId : 0,
+                    participant.runes != null ? participant.runes.get(1).runeId : 0
+            };
+
+            for (int i = 0; i < runeIds.length; ++i) {
+                runeIcons[i].setImageDrawable(null);
+
+                final int tempI = i;
+
+                RiotAPI.fetchRuneIcon(runeIds[i], new RiotAPI.AsyncCallback<Drawable>() {
+                    @Override
+                    public void invoke(final Drawable drawable) {
+                        if ((int)view.getTag() != rowId)
+                            return;
+
+                        uiThreadHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if ((int)view.getTag() != rowId)
+                                    return;
+
+                                runeIcons[tempI].setImageDrawable(drawable);
+                            }
+                        });
+                    }
+                });
+            }
+
+            long[] itemIds = new long[] {
+                    participant.stats.item0,
+                    participant.stats.item1,
+                    participant.stats.item2,
+                    participant.stats.item3,
+                    participant.stats.item4,
+                    participant.stats.item5,
+                    participant.stats.item6
+            };
+
+            for (int i = 0; i < itemIds.length; ++i) {
+                items[i].setImageDrawable(null);
+
+                final int tempI = i;
+
+                RiotAPI.fetchItemIcon(itemIds[i], new RiotAPI.AsyncCallback<Drawable>() {
+                    @Override
+                    public void invoke(final Drawable drawable) {
+                        if ((int)view.getTag() != rowId)
+                            return;
+
+                        uiThreadHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if ((int)view.getTag() != rowId)
+                                    return;
+
+                                items[tempI].setImageDrawable(drawable);
+                            }
+                        });
+                    }
+                });
+            }
 
             return view;
         }

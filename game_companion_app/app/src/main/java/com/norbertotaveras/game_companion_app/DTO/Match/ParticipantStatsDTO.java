@@ -78,5 +78,32 @@ public class ParticipantStatsDTO {
     public long timeCCingOthers;
     public long physicalDamageTaken;
 
+    public long perk0;
+    public long perk0Var1;
+    public long perk0Var2;
+    public long perk0Var3;
+    public long perk1;
+    public long perk1Var1;
+    public long perk1Var2;
+    public long perk1Var3;
+    public long perk2;
+    public long perk2Var1;
+    public long perk2Var2;
+    public long perk2Var3;
+    public long perk3;
+    public long perk3Var1;
+    public long perk3Var2;
+    public long perk3Var3;
+    public long perk4;
+    public long perk4Var1;
+    public long perk4Var2;
+    public long perk4Var3;
+    public long perk5;
+    public long perk5Var1;
+    public long perk5Var2;
+    public long perk5Var3;
 
+    public long perkPrimaryStyle;
+    public long perkSubStyle;
 }
+

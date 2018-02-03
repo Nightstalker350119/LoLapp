@@ -41,9 +41,9 @@ class RecentSearchStorage {
         }
     }
 
-    public static void remove(Context context, Long summonerId) {
+    public static List<Long> remove(Context context, Long summonerId) {
         synchronized (syncLock) {
-            removeLocked(context, summonerId);
+            return removeLocked(context, summonerId);
         }
     }
 
@@ -135,7 +135,7 @@ class RecentSearchStorage {
         return ids;
     }
 
-    private static void removeLocked(Context context, Long summonerId) {
+    private static List<Long> removeLocked(Context context, Long summonerId) {
         List<Long> ids = loadLocked(context);
 
         int index = ids.indexOf(summonerId);
@@ -144,5 +144,7 @@ class RecentSearchStorage {
             ids.remove(index);
 
         storeLocked(context, ids);
+
+        return ids;
     }
 }

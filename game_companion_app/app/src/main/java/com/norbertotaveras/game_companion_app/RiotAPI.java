@@ -50,7 +50,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RiotAPI {
     private static RiotAPI instance;
-    private static final String riotApiKey = "RGAPI-0895afa4-ab9e-48c6-a746-733e48468b79";
+    private static final String riotApiKey = "RGAPI-2f9be0b4-8a44-407e-9ae4-a6f8a8d5f2f7";
     private static final String rootEndpoint = "https://na1.api.riotgames.com/";
     private static final String staticCdn = "http://ddragon.leagueoflegends.com/cdn";
     private static FirebaseDatabase firebase;
@@ -332,16 +332,198 @@ public class RiotAPI {
         return sb.toString();
     }
 
-    public static int tierNameToResourceId(String tierName) {
-        switch (tierName) {
-            case "SILVER": return R.drawable.silver;
-            case "CHALLENGER": return R.drawable.challenger;
-            case "DIAMOND": return R.drawable.diamond;
-            case "GOLD": return R.drawable.gold;
-            case "MASTER": return R.drawable.master;
-            case "PLATINUM": return R.drawable.platinum;
-            case "PROVISIONAL": return R.drawable.provisional;
-            case "BRONZE": return R.drawable.bronze;
+    //  for i in $(ls); do t=${i#*_}; t=${t%.*}; echo "case $t: return R.drawable.perk_$t;" ; done
+    public static int perkIdToResourceId(long perkId) {
+        if (perkId < Integer.MIN_VALUE)
+            perkId = 0;
+        if (perkId > Integer.MAX_VALUE)
+            perkId = 0;
+        switch ((int)perkId) {
+            case 8005:
+                return R.drawable.perk_8005;
+            case 8008:
+                return R.drawable.perk_8008;
+            case 8009:
+                return R.drawable.perk_8009;
+            case 8014:
+                return R.drawable.perk_8014;
+            case 8017:
+                return R.drawable.perk_8017;
+            case 8021:
+                return R.drawable.perk_8021;
+            case 8105:
+                return R.drawable.perk_8105;
+            case 8112:
+                return R.drawable.perk_8112;
+            case 8120:
+                return R.drawable.perk_8120;
+            case 8124:
+                return R.drawable.perk_8124;
+            case 8126:
+                return R.drawable.perk_8126;
+            case 8128:
+                return R.drawable.perk_8128;
+            case 8134:
+                return R.drawable.perk_8134;
+            case 8135:
+                return R.drawable.perk_8135;
+            case 8136:
+                return R.drawable.perk_8136;
+            case 8138:
+                return R.drawable.perk_8138;
+            case 8139:
+                return R.drawable.perk_8139;
+            case 8143:
+                return R.drawable.perk_8143;
+            case 8210:
+                return R.drawable.perk_8210;
+            case 8214:
+                return R.drawable.perk_8214;
+            case 8224:
+                return R.drawable.perk_8224;
+            case 8226:
+                return R.drawable.perk_8226;
+            case 8229:
+                return R.drawable.perk_8229;
+            case 8230:
+                return R.drawable.perk_8230;
+            case 8232:
+                return R.drawable.perk_8232;
+            case 8233:
+                return R.drawable.perk_8233;
+            case 8234:
+                return R.drawable.perk_8234;
+            case 8236:
+                return R.drawable.perk_8236;
+            case 8237:
+                return R.drawable.perk_8237;
+            case 8242:
+                return R.drawable.perk_8242;
+            case 8243:
+                return R.drawable.perk_8243;
+            case 8299:
+                return R.drawable.perk_8299;
+            case 8304:
+                return R.drawable.perk_8304;
+            case 8306:
+                return R.drawable.perk_8306;
+            case 8313:
+                return R.drawable.perk_8313;
+            case 8316:
+                return R.drawable.perk_8316;
+            case 8321:
+                return R.drawable.perk_8321;
+            case 8326:
+                return R.drawable.perk_8326;
+            case 8339:
+                return R.drawable.perk_8339;
+            case 8345:
+                return R.drawable.perk_8345;
+            case 8347:
+                return R.drawable.perk_8347;
+            case 8351:
+                return R.drawable.perk_8351;
+            case 8359:
+                return R.drawable.perk_8359;
+            case 8410:
+                return R.drawable.perk_8410;
+            case 8429:
+                return R.drawable.perk_8429;
+            case 8430:
+                return R.drawable.perk_8430;
+            case 8435:
+                return R.drawable.perk_8435;
+            case 8437:
+                return R.drawable.perk_8437;
+            case 8439:
+                return R.drawable.perk_8439;
+            case 8444:
+                return R.drawable.perk_8444;
+            case 8446:
+                return R.drawable.perk_8446;
+            case 8451:
+                return R.drawable.perk_8451;
+            case 8453:
+                return R.drawable.perk_8453;
+            case 8463:
+                return R.drawable.perk_8463;
+            case 8465:
+                return R.drawable.perk_8465;
+            case 9101:
+                return R.drawable.perk_9101;
+            case 9103:
+                return R.drawable.perk_9103;
+            case 9104:
+                return R.drawable.perk_9104;
+            case 9105:
+                return R.drawable.perk_9105;
+            case 9111:
+                return R.drawable.perk_9111;
+            default:
+                return android.R.color.transparent;
+        }
+    }
+
+    //  for i in $(ls); do t=${i#*perk_style_}; t=${t%.*}; echo "case $t: return R.drawable.perk_style_$t;" ; done
+    public static int perkStyleIdToResourceId(long perkStyleId) {
+        if (perkStyleId < Integer.MIN_VALUE)
+            perkStyleId = 0;
+        if (perkStyleId > Integer.MAX_VALUE)
+            perkStyleId = 0;
+        switch ((int)perkStyleId) {
+            case 8000:
+                return R.drawable.perk_style_8000;
+            case 8100:
+                return R.drawable.perk_style_8100;
+            case 8200:
+                return R.drawable.perk_style_8200;
+            case 8300:
+                return R.drawable.perk_style_8300;
+            case 8400:
+                return R.drawable.perk_style_8400;
+            default:
+                return android.R.color.transparent;
+        }
+    }
+
+    public static int tierNameToResourceId(String tierName, String rank) {
+        //switch (tierName + rank.toLowerCase()) {
+        switch (tierName + "_" + rank) {
+            // Challenger/Master/Provisional always have rank 1
+            case "CHALLENGER_I": return R.drawable.challenger;
+            case "MASTER_I": return R.drawable.master;
+            case "PROVISIONAL_I": return R.drawable.provisional;
+
+            case "SILVER_I": return R.drawable.silver_i;
+            case "SILVER_II": return R.drawable.silver_ii;
+            case "SILVER_III": return R.drawable.silver_iii;
+            case "SILVER_IV": return R.drawable.silver_iv;
+            case "SILVER_V": return R.drawable.silver_v;
+
+            case "DIAMOND_I": return R.drawable.diamond_i;
+            case "DIAMOND_II": return R.drawable.diamond_ii;
+            case "DIAMOND_III": return R.drawable.diamond_iii;
+            case "DIAMOND_IV": return R.drawable.diamond_iv;
+            case "DIAMOND_V": return R.drawable.diamond_v;
+
+            case "GOLD_I": return R.drawable.gold_i;
+            case "GOLD_II": return R.drawable.gold_ii;
+            case "GOLD_III": return R.drawable.gold_iii;
+            case "GOLD_IV": return R.drawable.gold_iv;
+            case "GOLD_V": return R.drawable.gold_v;
+
+            case "PLATINUM_I": return R.drawable.platinum_i;
+            case "PLATINUM_II": return R.drawable.platinum_ii;
+            case "PLATINUM_III": return R.drawable.platinum_iii;
+            case "PLATINUM_IV": return R.drawable.platinum_iv;
+            case "PLATINUM_V": return R.drawable.platinum_v;
+
+            case "BRONZE_I": return R.drawable.bronze_i;
+            case "BRONZE_II": return R.drawable.bronze_ii;
+            case "BRONZE_III": return R.drawable.bronze_iii;
+            case "BRONZE_IV": return R.drawable.bronze_iv;
+            case "BRONZE_V": return R.drawable.bronze_v;
+
             default: return android.R.color.transparent;
         }
     }

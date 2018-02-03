@@ -1,48 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.norbertotaveras.game_companion_app.NestedParentView
+<ScrollView
     android:id="@+id/nested_scroll_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="wrap_content"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    tools:context="com.norbertotaveras.game_companion_app.SummonerSearchResultsActivity">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        tools:context="com.norbertotaveras.game_companion_app.SummonerSearchResultsActivity">
-        <LinearLayout
+        android:orientation="vertical">
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
-            <ImageView
-                android:id="@+id/profile_icon"
-                android:scaleType="fitCenter"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:minWidth="48dp"
-                android:minHeight="48dp"
-                android:layout_margin="4dp"
-                android:layout_gravity="center_vertical"/>
+            android:layout_marginHorizontal="8dp">
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:orientation="horizontal"
+                app:layout_constraintStart_toStartOf="parent">
+                <com.norbertotaveras.game_companion_app.RoundImageView
+                    android:id="@+id/profile_icon"
+                    android:scaleType="fitCenter"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:minWidth="48dp"
+                    android:minHeight="48dp"
+                    android:layout_margin="4dp"
+                    android:layout_gravity="center_vertical"/>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_margin="4dp"
+                    android:layout_gravity="center_vertical">
+                    <TextView
+                        android:id="@+id/summoner_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="name"
+                        android:textSize="18dp"
+                        android:textStyle="bold"
+                        android:textColor="#FF000000"/>
 
-                android:layout_margin="4dp">
-                <TextView
-                    android:id="@+id/summoner_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/champion"/>
-                <TextView
-                    android:id="@+id/summoner_summary"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/blah_blah_blah"/>
+                    <TextView
+                        android:id="@+id/summoner_summary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="level"
+                        android:textColor="#FF757575"
+                        android:textStyle="bold"/>
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent">
+                <ImageView
+                    android:id="@+id/tier_icon_0"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center_vertical"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginLeft="8dp">
+                    <TextView
+                        android:id="@+id/rank_0"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Rank"
+                        android:textColor="#FF303F9F"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/league_points_0"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="LP"/>
+
+                    <TextView
+                        android:id="@+id/win_loss"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="999"/>
+                </LinearLayout>
+            </LinearLayout>
+        </android.support.constraint.ConstraintLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -60,71 +109,26 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-
                     <LinearLayout
                         android:id="@+id/tab_summary"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="56dp"
                         android:orientation="vertical">
-                        <com.norbertotaveras.game_companion_app.AutoSizeViewPager
+
+                        <!--com.norbertotaveras.game_companion_app.AutoSizeViewPager
                             android:id="@+id/league_pager"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
-                        </com.norbertotaveras.game_companion_app.AutoSizeViewPager>
-                        <HorizontalScrollView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:layout_constraintTop_toBottomOf="parent">
-                            <LinearLayout
-                                android:layout_width="510dp"
-                                android:layout_height="wrap_content">
-                                <Button
-                                    android:id="@+id/game_filter_total"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/total"
-                                    android:textAllCaps="false"/>
-                                <Button
-                                    android:id="@+id/game_filter_ranked_solo"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/ranked_solo"
-                                    android:textAllCaps="false"/>
-                                <Button
-                                    android:id="@+id/game_filter_ranked_flex"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/ranked_flex"
-                                    android:textAllCaps="false"/>
-                                <Button
-                                    android:id="@+id/game_filter_draft_blind"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/normal_draft_blind"
-                                    android:textAllCaps="false"/>
-                                <Button
-                                    android:id="@+id/game_filter_aram"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/aram"
-                                    android:textAllCaps="false"/>
-                                <Button
-                                    android:id="@+id/game_filter_event"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/event"
-                                    android:textAllCaps="false"/>
-                            </LinearLayout>
-                        </HorizontalScrollView>
+                        </com.norbertotaveras.game_companion_app.AutoSizeViewPager-->
 
-                        <com.norbertotaveras.game_companion_app.NestedListView
+                        <android.support.v7.widget.RecyclerView
                             android:id="@+id/match_list"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"/>
 
                         <android.support.constraint.ConstraintLayout
-                            android:id="@+id/match_list_no_results"
+                            android:id="@+id/no_results"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingTop="16dp"
@@ -160,20 +164,8 @@
                             android:layout_height="wrap_content"
                             android:text="@string/b"/>
                     </android.support.constraint.ConstraintLayout>
-
-                    <android.support.constraint.ConstraintLayout
-                        android:id="@+id/tab_runes"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="56dp"
-                        android:orientation="vertical">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/c"/>
-                    </android.support.constraint.ConstraintLayout>
                 </FrameLayout>
             </TabHost>
         </LinearLayout>
     </LinearLayout>
-</com.norbertotaveras.game_companion_app.NestedParentView>
+</ScrollView>
