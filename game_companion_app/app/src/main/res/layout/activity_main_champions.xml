@@ -13,4 +13,11 @@
 
     </android.support.v7.widget.RecyclerView>
 
+    <Button
+        android:id="@+id/topButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="To the top!"
+        android:alpha="0.25"/>
+
 </android.support.constraint.ConstraintLayout>

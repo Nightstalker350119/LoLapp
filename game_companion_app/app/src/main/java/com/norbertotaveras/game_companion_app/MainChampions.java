@@ -5,12 +5,15 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import java.util.ArrayList;
 
 public class MainChampions extends AppCompatActivity {
 
     private static final String TAG = "ChampionsWinRate";
+
 
     private ArrayList<String> mNames = new ArrayList<>();
     private ArrayList<String> mImageUrls = new ArrayList<>();
@@ -23,8 +26,20 @@ public class MainChampions extends AppCompatActivity {
         setContentView(R.layout.activity_main_champions);
         Log.d(TAG, "onCreate: starting.");
 
+        final Button btnTop = (Button) findViewById(R.id.topButton);
+        btnTop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                float alpha = 0.45f;
+                RecyclerView recyclerView = findViewById(R.id.winrecyclerview);
+                recyclerView.getLayoutManager().scrollToPosition(0);
+            }
+        });
+
         initImageBitmaps();
     }
+
+
 
     private void initImageBitmaps(){
         Log.d(TAG, "initImageBitmaps: preparing bitmaps.");
@@ -113,5 +128,6 @@ public class MainChampions extends AppCompatActivity {
         RecyclerViewAdapter adapter = new RecyclerViewAdapter(this, mNames, mImageUrls, mWinRates, mChampionPosition);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        ;
     }
 }
