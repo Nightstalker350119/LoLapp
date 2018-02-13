@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.norbertotaveras.game_companion_app">
-    //Allows to make requests
+    <!-- Allows to make requests -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -21,13 +21,14 @@
             </intent-filter>
         </activity>
         <!-- activity android:name=".DTO.Summoner.SummonerSearchResult" / -->
-        <activity android:name=".SummonerSearchResultsActivity" />
+        <activity android:name=".SummonerSearchResultsActivity"
+            android:theme="@style/ScrollingActionBarTheme"/>
         <activity
             android:name=".ChampionsActivity"
             android:label="@string/title_activity_champions"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".LoginActivity"></activity>
-        <activity android:name=".MainChampions"></activity>
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".MainChampions" />
     </application>
 
 </manifest>

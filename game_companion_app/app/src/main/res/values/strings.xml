@@ -23,4 +23,7 @@
     <string name="event">Event</string>
     <string name="tier_text">%1$s %2$s (%3$dLP)</string>
     <string name="win_loss">%1$dW %2$dL %3$d%%</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
