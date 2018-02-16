@@ -1,12 +1,19 @@
 package com.norbertotaveras.game_companion_app;
 
+import android.nfc.Tag;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
+import android.widget.GridLayout;
+import android.widget.Toast;
 
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionListDTO;
@@ -25,6 +32,10 @@ public class MainChampions extends AppCompatActivity {
     private ArrayList<String> mImageUrls = new ArrayList<>();
     private ArrayList<String> mWinRates = new ArrayList<>(); //Needs api calls, use placeholders atm
     private ArrayList<String> mChampionPosition = new ArrayList<>(); //
+
+    float alpha = 1.0f;
+    private int ScrollAmount = 0;
+
     RiotGamesService apiService;
 
     @Override
@@ -34,16 +45,72 @@ public class MainChampions extends AppCompatActivity {
         Log.d(TAG, "onCreate: starting.");
 
         final Button btnTop = (Button) findViewById(R.id.topButton);
-        btnTop.setOnClickListener(new View.OnClickListener() {
+        btnTop.setEnabled(false);
+
+        final RecyclerView rView = findViewById(R.id.winrecyclerview);
+
+
+        rView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onClick(View v) {
-                float alpha = 0.45f;
-                RecyclerView recyclerView = findViewById(R.id.winrecyclerview);
-                recyclerView.getLayoutManager().scrollToPosition(0);
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                LinearLayoutManager layoutManager = ((LinearLayoutManager) rView.getLayoutManager());
+                int firstVisiblePosition = layoutManager.findFirstVisibleItemPosition();
+
+                if (firstVisiblePosition > 1) // && ScrollAmount < dy // Scroll has to be less than current y in order for us to realize it's scrolling up
+                {
+                    btnTop.setEnabled(true);
+                    buttonAnimation(btnTop);
+                    //ScrollAmount = dy;
+                    btnTop.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            RecyclerView recyclerView = findViewById(R.id.winrecyclerview);
+                            recyclerView.getLayoutManager().scrollToPosition(0);
+                            btnTop.setEnabled(false);
+                            btnTop.setAlpha(0);
+                            Log.d(TAG, "ButtonState Disabler: onClick");
+                        }
+                    });
+
+                } else {
+                    btnTop.setVisibility(View.INVISIBLE);
+                    btnTop.setEnabled(false);
+                    Log.d(TAG, "ButtonState Disabler: else");
+                }
+
             }
         });
 
         initImageBitmaps();
+
+    }
+
+
+    public void buttonAnimation(final Button button) {
+        Animation btn = new AlphaAnimation(1.00f, 0.00f);
+        btn.setDuration(3000);
+        btn.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                button.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                button.setVisibility(View.INVISIBLE);
+                button.setEnabled(false);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+         button.startAnimation(btn);
     }
 
 
