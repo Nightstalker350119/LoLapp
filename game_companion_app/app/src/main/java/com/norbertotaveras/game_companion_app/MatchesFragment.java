@@ -315,8 +315,7 @@ public class MatchesFragment
         }
 
         @Override
-        public MatchListItem onCreateViewHolder(
-                ViewGroup parent, int viewType) {
+        public MatchListItem onCreateViewHolder(ViewGroup parent, int viewType) {
             View holder;
             holder = inflater.inflate(R.layout.fragment_match_list, parent, false);
             return new MatchListItem(holder);

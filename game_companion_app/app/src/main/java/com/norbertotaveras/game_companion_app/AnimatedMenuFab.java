@@ -10,19 +10,19 @@ import com.gordonwong.materialsheetfab.AnimatedFab;
  * Created by Norberto on 2/2/2018.
  */
 
-public class SummonerSearchFilterFab
+public class AnimatedMenuFab
         extends FloatingActionButton
         implements AnimatedFab
 {
-    public SummonerSearchFilterFab(Context context) {
+    public AnimatedMenuFab(Context context) {
         super(context);
     }
 
-    public SummonerSearchFilterFab(Context context, AttributeSet attrs) {
+    public AnimatedMenuFab(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public SummonerSearchFilterFab(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AnimatedMenuFab(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 

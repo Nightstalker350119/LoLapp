@@ -50,7 +50,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RiotAPI {
     private static RiotAPI instance;
-    private static final String riotApiKey = "RGAPI-9ca1b7e9-e60e-44ad-ac41-d944b9a5aa24";
+    private static final String riotApiKey = "RGAPI-c4a32493-4c08-4a04-8988-b8ec473f5c0c";
     private static final String rootEndpoint = "https://na1.api.riotgames.com/";
     private static final String staticCdn = "http://ddragon.leagueoflegends.com/cdn";
     private static FirebaseDatabase firebase;
@@ -607,7 +607,7 @@ public class RiotAPI {
 
                 String url = null;
                 try {
-                    String championFilename = playerChampion.name.replace(" ", "");
+                    String championFilename = playerChampion.key;
                     url = String.format("%s/%s/img/champion/%s.png", staticCdn, list.version,
                             URLEncoder.encode(championFilename, "UTF-8"));
                 } catch (UnsupportedEncodingException ex) {

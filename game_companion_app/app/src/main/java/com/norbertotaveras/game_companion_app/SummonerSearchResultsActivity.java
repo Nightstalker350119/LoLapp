@@ -1,7 +1,6 @@
 package com.norbertotaveras.game_companion_app;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -24,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.gordonwong.materialsheetfab.AnimatedFab;
 import com.gordonwong.materialsheetfab.MaterialSheetFab;
 import com.norbertotaveras.game_companion_app.DTO.League.LeaguePositionDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantDTO;
@@ -47,8 +47,7 @@ import retrofit2.Response;
  */
 
 public class SummonerSearchResultsActivity
-        extends AppCompatActivity
-{
+        extends AppCompatActivity implements TabLayout.OnTabSelectedListener {
     private RiotGamesService apiService;
 
     private String searchName;
@@ -76,6 +75,9 @@ public class SummonerSearchResultsActivity
     private TextView queueText;
     private TextView summonerSummary;
 
+    private AnimatedFab summonerFab;
+    private AnimatedFab champsFab;
+
     //private LeagueCollectionFragmentAdapter leaguePagerAdapter;
     //private ViewPager leaguePager;
 
@@ -85,8 +87,11 @@ public class SummonerSearchResultsActivity
 
     private final MatchesFragment.MatchFilterMenuItem[] matchFilterMenuItems =
             MatchesFragment.getFilterMenuItems();
+    private final ChampsFragment.ChampSortMenuItem[] champSortMenuItems =
+            ChampsFragment.getSortMenuItems();
 
-    private MaterialSheetFab<SummonerSearchFilterFab> matchFilterSheet;
+    private MaterialSheetFab<AnimatedMenuFab> matchFilterSheet;
+    private MaterialSheetFab<AnimatedMenuFab> champSortSheet;
 
     private boolean initializing;
 
@@ -130,6 +135,11 @@ public class SummonerSearchResultsActivity
         tierIcon = findViewById(R.id.tier_icon_0);
         queueText = findViewById(R.id.queue_name);
 
+        summonerFab = findViewById(R.id.summoner_fab);
+        champsFab = findViewById(R.id.champs_fab);
+
+        tabLayout.addOnTabSelectedListener(this);
+
         initializing = true;
 
         apiService = RiotAPI.getInstance(getApplicationContext());
@@ -137,6 +147,9 @@ public class SummonerSearchResultsActivity
         uiThreadHandler = UIHelper.createRunnableLooper();
 
         initMatchFilterMenu();
+        initChampSortMenu();
+
+        enableFab(R.id.summoner_fab);
 
         search();
     }
@@ -197,6 +210,8 @@ public class SummonerSearchResultsActivity
 
         RecentSearchStorage.add(this, summoner.accountId, false);
 
+        champsFragment.setSummoner(summoner);
+
         summonerName.setText(summoner.name);
 
         String summary = String.valueOf("Level " + String.valueOf(summoner.summonerLevel));
@@ -226,17 +241,38 @@ public class SummonerSearchResultsActivity
         matchesFragment.getMatchList(summoner);
     }
 
-    private void initMatchFilterMenu() {
-        SummonerSearchFilterFab fab = findViewById(R.id.fab);
-        View sheetView = findViewById(R.id.fab_sheet);
+    private MaterialSheetFab<AnimatedMenuFab> initFabMenu(int fabId, int sheetId) {
+        AnimatedMenuFab fab = findViewById(fabId);
+        View sheetView = findViewById(sheetId);
         View overlay = findViewById(R.id.dim_overlay);
         final int colorPrimary = ContextCompat.getColor(this, R.color.colorPrimary);
         final int sheetColor = colorPrimary;
         final int fabColor = colorPrimary;
 
         // Initialize material sheet FAB
-        matchFilterSheet = new MaterialSheetFab<>(fab, sheetView, overlay,
+        MaterialSheetFab<AnimatedMenuFab> sheet = new MaterialSheetFab<>(fab, sheetView, overlay,
                 sheetColor, fabColor);
+
+        return sheet;
+    }
+
+    private void enableFab(int id) {
+        summonerFab.hide();
+        champsFab.hide();
+
+        switch (id) {
+            case R.id.summoner_fab:
+                summonerFab.show();
+                break;
+
+            case R.id.champs_fab:
+                champsFab.show();
+                break;
+        }
+    }
+
+    private void initMatchFilterMenu() {
+        matchFilterSheet = initFabMenu(R.id.summoner_fab, R.id.summoner_filter_sheet);
 
         for (MatchesFragment.MatchFilterMenuItem item : matchFilterMenuItems) {
             item.item = findViewById(item.id);
@@ -256,15 +292,46 @@ public class SummonerSearchResultsActivity
         updateMatchFilterMenu();
     }
 
-    @Override
-    public void onBackPressed() {
-        // Close the match filter menu on back press if it is visible
-        // otherwise, do default back behavior
-        if (matchFilterSheet.isSheetVisible()) {
-            matchFilterSheet.hideSheet();
-        } else {
-            super.onBackPressed();
+    private void initChampSortMenu() {
+        champSortSheet = initFabMenu(R.id.champs_fab, R.id.champ_sort_sheet);
+
+        for (ChampsFragment.ChampSortMenuItem item : champSortMenuItems) {
+            item.item = findViewById(item.id);
+            item.item.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    for (ChampsFragment.ChampSortMenuItem menuItem : champSortMenuItems) {
+                        if (menuItem.item == view) {
+                            setChampSort(menuItem);
+                            break;
+                        }
+                    }
+                }
+            });
         }
+    }
+
+    void setMatchFilter(final MatchesFragment.MatchFilterMenuItem filter) {
+        matchesFragment.setMatchFilter(filter);
+        uiThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                updateMatchFilterMenu();
+                matchFilterSheet.hideSheet();
+                matchesFragment.getMoreMatches();
+            }
+        });
+    }
+
+    private void setChampSort(ChampsFragment.ChampSortMenuItem menuItem) {
+        champsFragment.setSortOrder(menuItem);
+        uiThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                updateChampSortMenu();
+                champSortSheet.hideSheet();
+            }
+        });
     }
 
     private void updateMatchFilterMenu() {
@@ -280,16 +347,50 @@ public class SummonerSearchResultsActivity
         }
     }
 
-    void setMatchFilter(final MatchesFragment.MatchFilterMenuItem filter) {
-        matchesFragment.setMatchFilter(filter);
-        uiThreadHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                updateMatchFilterMenu();
-                matchFilterSheet.hideSheet();
-                matchesFragment.getMoreMatches();
+    private void updateChampSortMenu() {
+        ChampsFragment.ChampSortMenuItem currentSort = champsFragment.getCurrentSort();
+        for (ChampsFragment.ChampSortMenuItem item : champSortMenuItems) {
+            if (item != currentSort) {
+                item.item.setBackgroundColor(ContextCompat.getColor(
+                        this, R.color.colorPrimary));
+            } else {
+                item.item.setBackgroundColor(ContextCompat.getColor(
+                        this, R.color.highlight));
             }
-        });
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Close the match filter menu on back press if it is visible
+        // otherwise, do default back behavior
+        if (matchFilterSheet.isSheetVisible() || champSortSheet.isSheetVisible()) {
+            matchFilterSheet.hideSheet();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onTabSelected(TabLayout.Tab tab) {
+        int pos = tab.getPosition();
+        Fragment fragment = tabPagerAdapter.getItem(pos);
+
+        if (fragment == matchesFragment) {
+            enableFab(R.id.summoner_fab);
+        } else if (fragment == champsFragment) {
+            enableFab(R.id.champs_fab);
+        }
+    }
+
+    @Override
+    public void onTabUnselected(TabLayout.Tab tab) {
+
+    }
+
+    @Override
+    public void onTabReselected(TabLayout.Tab tab) {
+
     }
 
     private static class LeagueCollectionFragmentAdapter extends FragmentStatePagerAdapter {

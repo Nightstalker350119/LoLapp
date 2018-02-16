@@ -12,8 +12,6 @@
     <string name="action_settings">Settings</string>
     <string name="total">Total</string>
     <string name="aram">ARAM</string>
-    <string name="c">C</string>
-    <string name="b">B</string>
     <string name="x">X</string>
     <string name="normal_draft_blind">Normal (Draft, Blind)</string>
     <string name="ranked_flex">Ranked Flex</string>

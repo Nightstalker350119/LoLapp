@@ -1,5 +1,6 @@
 package com.norbertotaveras.game_companion_app.DTO.StaticData;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +13,7 @@ public class ChampionListDTO {
     public String version;
     public String type;
     public String format;
-    public Map<String, String> keys;
-    public Map<String, ChampionDTO> data;
+    public HashMap<String, String> keys;
+    public HashMap<String, ChampionDTO> data;
     public List<ChampionDTO> champions; // The collection of champion information.
 }

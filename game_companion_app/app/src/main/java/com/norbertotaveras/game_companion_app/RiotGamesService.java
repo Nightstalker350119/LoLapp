@@ -1,5 +1,6 @@
 package com.norbertotaveras.game_companion_app;
 
+import com.norbertotaveras.game_companion_app.DTO.ChampionMastery.ChampionMasteryDTO;
 import com.norbertotaveras.game_companion_app.DTO.League.LeagueListDTO;
 import com.norbertotaveras.game_companion_app.DTO.League.LeaguePositionDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.MatchDTO;
@@ -91,4 +92,10 @@ public interface RiotGamesService {
     // Get match by match ID.
     @GET("/lol/match/v3/matches/{matchId}")
     Call<MatchDTO> getMatch(@Path("matchId") long id);
+
+    //
+    // Masteries
+
+    @GET("/lol/champion-mastery/v3/champion-masteries/by-summoner/{id}")
+    Call<List<ChampionMasteryDTO>> getChampionMasteriesByAccountId(@Path("id") long accountId);
 }
