@@ -23,11 +23,11 @@
         <!-- activity android:name=".DTO.Summoner.SummonerSearchResult" / -->
         <activity android:name=".SummonerSearchResultsActivity" />
         <activity
-            android:name=".ChampionsActivity"
-            android:label="@string/title_activity_champions"
+            android:name=".ChampionPage.ChampionsActivity"
+            android:label="Champions"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".LoginActivity"></activity>
-        <activity android:name=".MainChampions"></activity>
+        <activity android:name=".ChampionPage.MainChampions"></activity>
     </application>
 
 </manifest>

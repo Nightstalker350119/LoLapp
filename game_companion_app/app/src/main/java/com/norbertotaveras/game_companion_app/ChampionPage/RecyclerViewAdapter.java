@@ -1,4 +1,4 @@
-package com.norbertotaveras.game_companion_app;
+package com.norbertotaveras.game_companion_app.ChampionPage;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.norbertotaveras.game_companion_app.R;
 
 import java.util.ArrayList;
 

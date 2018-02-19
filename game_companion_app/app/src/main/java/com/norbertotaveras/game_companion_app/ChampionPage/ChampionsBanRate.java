@@ -1,4 +1,4 @@
-package com.norbertotaveras.game_companion_app;
+package com.norbertotaveras.game_companion_app.ChampionPage;
 
 /**
  * Created by Emanuel on 12/7/2017.
@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.norbertotaveras.game_companion_app.R;
 
 
 public class ChampionsBanRate extends Fragment {
