@@ -1,5 +1,6 @@
 package com.norbertotaveras.game_companion_app.ChampionPage;
 
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -27,6 +29,9 @@ public class MainChampions extends AppCompatActivity {
 
     private static final String TAG = "ChampionsWinRate";
     private static final String BASE_URL = "api.champion.gg/v2";
+    FloatingActionButton fabPlus, fabTop, fabJun, fabMid, fabSup, fabBot, fabFilter;
+    Animation FabOpen, FabClose, FabRotateClockWise, FabRotateCounterClockWise;
+    boolean isOpen = false;
 
     private ListView listView;
     private ArrayList<String> mNames = new ArrayList<>();
@@ -41,7 +46,7 @@ public class MainChampions extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_champions);
-
+        setTitle("Codex");
 
         String x = "Need help setting up retrofit!";
 //        Retrofit retrofit = new Retrofit.Builder()
@@ -87,6 +92,63 @@ public class MainChampions extends AppCompatActivity {
         final RecyclerView rView = findViewById(R.id.winrecyclerview);
         btnTop.setEnabled(false);
 
+
+        //Sorting buttons
+        fabPlus = (FloatingActionButton) findViewById(R.id.fab_plus);
+        fabTop = (FloatingActionButton) findViewById(R.id.fab_top);
+        fabJun = (FloatingActionButton) findViewById(R.id.fab_jungle);
+        fabMid = (FloatingActionButton) findViewById(R.id.fab_middle);
+        fabSup = (FloatingActionButton) findViewById(R.id.fab_support);
+        fabBot = (FloatingActionButton) findViewById(R.id.fab_bottom);
+        fabFilter = (FloatingActionButton) findViewById(R.id.fab_filter);
+        FabOpen = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
+        FabClose = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
+        FabRotateClockWise = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_clockwise);
+        FabRotateCounterClockWise = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_counterclockwise);
+
+        fabPlus.setOnClickListener(new View.OnClickListener() { //Sorting buttons
+            @Override
+            public void onClick(View v) {
+                if(isOpen)
+                {
+                    fabTop.startAnimation(FabClose);
+                    fabJun.startAnimation(FabClose);
+                    fabMid.startAnimation(FabClose);
+                    fabSup.startAnimation(FabClose);
+                    fabBot.startAnimation(FabClose);
+                    fabFilter.startAnimation(FabClose);
+                    fabPlus.startAnimation(FabRotateCounterClockWise);
+                    fabTop.setClickable(false);
+                    fabJun.setClickable(false);
+                    fabMid.setClickable(false);
+                    fabSup.setClickable(false);
+                    fabBot.setClickable(false);
+                    fabFilter.setClickable(false);
+                    isOpen = false;
+                }
+
+                else
+                {
+                    //Animate buttons coming out of our FAB and get them working
+                    fabTop.startAnimation(FabOpen);
+                    fabJun.startAnimation(FabOpen);
+                    fabMid.startAnimation(FabOpen);
+                    fabSup.startAnimation(FabOpen);
+                    fabBot.startAnimation(FabOpen);
+                    fabFilter.startAnimation(FabOpen);
+                    fabPlus.startAnimation(FabRotateClockWise);
+                    fabTop.setClickable(true);
+                    fabJun.setClickable(true);
+                    fabMid.setClickable(true);
+                    fabSup.setClickable(true);
+                    fabBot.setClickable(true);
+                    fabFilter.setClickable(true);
+                    isOpen = true;
+                }
+            }
+        });
+
+
         rView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -94,7 +156,9 @@ public class MainChampions extends AppCompatActivity {
 
                 LinearLayoutManager layoutManager = ((LinearLayoutManager) rView.getLayoutManager());
                 int firstVisiblePosition = layoutManager.findFirstVisibleItemPosition();
-
+                btnTop.setEnabled(true);
+                btnTop.setVisibility(View.VISIBLE);
+                btnTop.setAlpha(0.50f);
                 if (firstVisiblePosition > 1) // && ScrollAmount < dy // Scroll has to be less than current y in order for us to realize it's scrolling up
                 {
                     btnTop.setEnabled(true);
@@ -103,8 +167,7 @@ public class MainChampions extends AppCompatActivity {
                     btnTop.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            RecyclerView recyclerView = findViewById(R.id.winrecyclerview);
-                            recyclerView.getLayoutManager().scrollToPosition(0);
+                            rView.getLayoutManager().scrollToPosition(0);
                             btnTop.setEnabled(false);
                             btnTop.setAlpha(0);
                             Log.d(TAG, "ButtonState Disabler: onClick");

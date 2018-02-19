@@ -116,9 +116,7 @@ public class ChampionsWinRate extends Fragment {
 
         //Call<List<ChampionDTO>> champions = apiService.getChampions();
         //Log.d(TAG, champions.toString());
-        //Best way is to call them all, but how would I sort the info gained to it's specific champion?
         //Hardcode names, pictures, and positions but leave winrates to be dynamically allocated to champs.
-        //LeagueAPI is down even for OPGG, hardcoding paths EXCEPT winrate until it works again
 
         mImageUrls.add("http://media.comicbook.com/2017/07/aatrox-0-1005633.jpg");
         mNames.add("Aatrox");
