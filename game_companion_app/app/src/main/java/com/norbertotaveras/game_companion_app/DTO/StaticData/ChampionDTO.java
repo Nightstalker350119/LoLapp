@@ -1,12 +1,13 @@
 package com.norbertotaveras.game_companion_app.DTO.StaticData;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by Norberto Taveras on 11/28/2017.
  */
 
-public class ChampionDTO {
+public class ChampionDTO implements Serializable {
     /* This class contains champion information */
     public String name; //
     public String title;

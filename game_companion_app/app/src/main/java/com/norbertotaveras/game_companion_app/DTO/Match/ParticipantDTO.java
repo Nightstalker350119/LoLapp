@@ -2,13 +2,14 @@ package com.norbertotaveras.game_companion_app.DTO.Match;
 
 import com.norbertotaveras.game_companion_app.DTO.Masteries.MasteryDTO;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by Emanuel on 11/28/2017.
  */
 
-public class ParticipantDTO {
+public class ParticipantDTO implements Serializable {
     public ParticipantStatsDTO stats;
     public int participantId;
     public List<RuneDTO> runes;

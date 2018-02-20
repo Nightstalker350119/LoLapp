@@ -1,12 +1,13 @@
 package com.norbertotaveras.game_companion_app.DTO.StaticData;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by Norberto on 12/13/2017.
  */
 
-public class SummonerSpellDTO {
+public class SummonerSpellDTO implements Serializable {
     public List<SpellVarsDTO> vars;
     public ImageDTO image;
     public String costBurn;

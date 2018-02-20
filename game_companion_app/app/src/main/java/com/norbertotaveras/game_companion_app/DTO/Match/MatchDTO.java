@@ -1,12 +1,13 @@
 package com.norbertotaveras.game_companion_app.DTO.Match;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by Emanuel on 11/28/2017.
  */
 
-public class MatchDTO {
+public class MatchDTO implements Serializable {
     public int seasonId;
     public int queueId;
     public long gameId;

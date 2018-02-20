@@ -1,12 +1,13 @@
 package com.norbertotaveras.game_companion_app.DTO.Match;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by Emanuel on 11/28/2017.
  */
 
-public class TeamStatsDTO {
+public class TeamStatsDTO implements Serializable {
     public boolean firstDragon;
     public boolean firstInhibitor;
     public List<TeamBansDTO> bans;

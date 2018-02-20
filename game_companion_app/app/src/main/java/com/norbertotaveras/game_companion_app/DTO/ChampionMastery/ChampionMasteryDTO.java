@@ -1,10 +1,12 @@
 package com.norbertotaveras.game_companion_app.DTO.ChampionMastery;
 
+import java.io.Serializable;
+
 /**
  * Created by Norberto on 2/12/2018.
  */
 
-public class ChampionMasteryDTO {
+public class ChampionMasteryDTO implements Serializable {
     public boolean chestGranted;
     public int championLevel;
     public int championPoints;

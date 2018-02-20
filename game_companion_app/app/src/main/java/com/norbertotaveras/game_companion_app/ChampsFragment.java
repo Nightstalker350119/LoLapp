@@ -19,7 +19,6 @@ import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionListDTO;
 import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -155,7 +154,7 @@ public class ChampsFragment extends Fragment {
         final ImageView icon;
         final TextView name;
         final TextView points;
-        final TextView level;
+        final ImageView level;
 
         AtomicInteger uniqueId;
 
@@ -179,7 +178,7 @@ public class ChampsFragment extends Fragment {
             icon.setImageDrawable(null);
             name.setText("");
             points.setText("");
-            level.setText("");
+            level.setImageDrawable(null);
 
             RiotAPI.fetchChampionIcon(championMastery.championId,
                     new RiotAPI.AsyncCallback<Drawable>() {
@@ -225,7 +224,8 @@ public class ChampsFragment extends Fragment {
             });
 
             points.setText(String.valueOf(championMastery.championPoints));
-            level.setText(String.valueOf(championMastery.championLevel));
+            level.setImageResource(RiotAPI.championLevelToResourceId(
+                    championMastery.championLevel));
         }
     }
 

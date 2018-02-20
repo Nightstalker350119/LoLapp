@@ -1,10 +1,12 @@
 package com.norbertotaveras.game_companion_app.DTO.League;
 
+import java.io.Serializable;
+
 /**
  * Created by Norberto Taveras on 11/28/2017.
  */
 
-public class LeaguePositionDTO {
+public class LeaguePositionDTO implements Serializable {
     public String rank;
     public String queueType;
     public boolean hotStreak;

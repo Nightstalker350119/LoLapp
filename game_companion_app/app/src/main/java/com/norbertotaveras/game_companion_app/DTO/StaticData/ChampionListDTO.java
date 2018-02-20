@@ -1,5 +1,6 @@
 package com.norbertotaveras.game_companion_app.DTO.StaticData;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +9,7 @@ import java.util.Map;
  * Created by Norberto Taveras on 11/28/2017.
  */
 
-public class ChampionListDTO {
+public class ChampionListDTO implements Serializable {
     /* This class contains champion list data */
     public String version;
     public String type;

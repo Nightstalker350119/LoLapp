@@ -1,12 +1,13 @@
 package com.norbertotaveras.game_companion_app.DTO.StaticData;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * Created by Norberto on 11/28/2017.
  */
 
-public class RealmDTO {
+public class RealmDTO implements Serializable {
     // Legacy script mode for IE6 or older.
     public String dd;
 

@@ -1,11 +1,13 @@
 package com.norbertotaveras.game_companion_app;
 
+import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -40,7 +42,7 @@ import retrofit2.Response;
  */
 public class MatchesFragment
         extends Fragment
-        implements View.OnScrollChangeListener
+        implements View.OnScrollChangeListener, MatchClickListener
 {
     private LinearLayoutManager matchListLayoutManager;
     private RecyclerView matchList;
@@ -102,6 +104,7 @@ public class MatchesFragment
         matchList.setAdapter(matchListAdapter);
         matchList.setHasFixedSize(true);
         matchList.setOnScrollChangeListener(this);
+        matchListAdapter.setMatchClickListener(this);
 
         matchListNoResults = view.findViewById(R.id.no_results);
         return view;
@@ -216,54 +219,6 @@ public class MatchesFragment
         });
     }
 
-    private static String formatMinSec(long seconds) {
-        long s = seconds % 60;
-        long m = (seconds / 60) % 60;
-        long h = (seconds / 3600);
-        if (h == 0)
-            return String.valueOf(m) + "m " + String.valueOf(s) + "s";
-        return String.valueOf(h) + "h " + String.valueOf(m) + "m " + String.valueOf(s) + "s";
-    }
-
-    private static String formatKdaRatio(long killsPlusAssists, long deaths) {
-        String kdaText;
-
-        if (deaths > 0) {
-            long kdaRatioGcd = gcd(killsPlusAssists, deaths);
-            final double numer = kdaRatioGcd != 0
-                    ? (double)killsPlusAssists / kdaRatioGcd : killsPlusAssists;
-            final double denom = kdaRatioGcd != 0
-                    ? (double)deaths / kdaRatioGcd : deaths;
-
-            kdaText = simpleDouble(numer) + ":" + simpleDouble(denom);
-        } else {
-            kdaText = "Perfect";
-        }
-
-        return kdaText;
-    }
-
-    private static String simpleDouble(double n) {
-        if (n == Math.floor(n))
-            return String.valueOf((int)n);
-        return String.format(Locale.US, "%.2f", n);
-    }
-
-    // Find greatest common divisor using simple Euclid's algorithm
-    private static long gcd(long a, long b)
-    {
-        if (a == 0 || b == 0)
-            return 0;
-
-        while (a != b) {
-            if (a > b)
-                a -= b;
-            else
-                b -= a;
-        }
-
-        return a;
-    }
     private MatchFilterMenuItem currentFilter;
 
     public void setMatchFilter(final MatchFilterMenuItem filter) {
@@ -300,13 +255,24 @@ public class MatchesFragment
         return currentFilter;
     }
 
+    @Override
+    public void matchClick(final MatchDTO match) {
+        deferredSummoner.getData(new RiotAPI.AsyncCallback<SummonerDTO>() {
+            @Override
+            public void invoke(SummonerDTO summoner) {
+                MatchDetailsActivity.start(getActivity(), summoner, match);
+            }
+        });
+    }
+
     private class MatchListAdapter 
             extends RecyclerView.Adapter<MatchListItem> {
-        private ArrayList<Long> allMatches;
+        private final ArrayList<Long> allMatches;
         private MatchDTO[] matches;
-        final LayoutInflater inflater;
+        private final LayoutInflater inflater;
 
-        AtomicInteger uniqueId;
+        private final AtomicInteger uniqueId;
+        private MatchClickListener clickListener;
 
         public MatchListAdapter() {
             inflater = getLayoutInflater();
@@ -314,11 +280,15 @@ public class MatchesFragment
             uniqueId = new AtomicInteger(0);
         }
 
+        public void setMatchClickListener(MatchClickListener listener) {
+            clickListener = listener;
+        }
+
         @Override
         public MatchListItem onCreateViewHolder(ViewGroup parent, int viewType) {
             View holder;
             holder = inflater.inflate(R.layout.fragment_match_list, parent, false);
-            return new MatchListItem(holder);
+            return new MatchListItem(this, holder);
         }
 
         @Override
@@ -379,9 +349,15 @@ public class MatchesFragment
         public int getItemCount() {
             return matches != null ? matches.length : 0;
         }
+
+        public void matchClick(MatchDTO match) {
+            if (clickListener != null)
+                clickListener.matchClick(match);
+        }
     }
 
-    private class MatchListItem extends RecyclerView.ViewHolder {
+    private class MatchListItem extends RecyclerView.ViewHolder implements View.OnClickListener {
+        final MatchListAdapter owner;
         final View view;
 
         final ConstraintLayout summaryContainer;
@@ -400,9 +376,12 @@ public class MatchesFragment
 
         final AtomicInteger uniqueId;
 
-        public MatchListItem(View view) {
+        MatchDTO match;
+
+        public MatchListItem(MatchListAdapter owner, View view) {
             super(view);
 
+            this.owner = owner;
             this.view = view;
             uniqueId = new AtomicInteger(0);
 
@@ -427,9 +406,13 @@ public class MatchesFragment
             gameDuration = view.findViewById(R.id.game_duration);
             gameDate = view.findViewById(R.id.game_date);
             gameId = view.findViewById(R.id.game_id);
+
+            view.setOnClickListener(this);
         }
 
         public void bind(final MatchDTO match) {
+            this.match = match;
+
             // Assign a unique identifier to this row to handle racing responses on recycled views
             final int rowId = uniqueId.getAndIncrement();
             view.setTag(rowId);
@@ -468,17 +451,12 @@ public class MatchesFragment
             gameDate.setText(dateFormat.format(date));
             gameId.setText("#" + String.valueOf(match.gameId));
 
-            final boolean isRemake = match.gameDuration < 300;
+            final boolean isRemake = RiotAPI.durationIsRemake(match.gameDuration);
 
-            gameDuration.setText(formatMinSec(match.gameDuration));
+            gameDuration.setText(RiotAPI.formatMinSec(match.gameDuration));
 
             // Avoid flash of old content
             kda.setText("");
-            championIcon.setImageDrawable(null);
-            for (int i = 0; i < spellIcons.length; ++i)
-                spellIcons[i].setImageDrawable(null);
-            for (int i = 0; i < runeIcons.length; ++i)
-                runeIcons[i].setImageDrawable(null);
             kdaRatio.setText("");
             specialKills.setText("");
 
@@ -489,102 +467,24 @@ public class MatchesFragment
                     if ((int) view.getTag() != rowId)
                         return;
 
-                    ParticipantIdentityDTO summonerIdentity = null;
+                    ParticipantIdentityDTO summonerIdentity =
+                            RiotAPI.participantIdentityFromSummoner(
+                            match.participantIdentities, summoner);
 
-                    for (ParticipantIdentityDTO participantIdentity : match.participantIdentities) {
-                        if (participantIdentity.player.accountId == summoner.accountId) {
-                            summonerIdentity = participantIdentity;
-                            break;
-                        }
-                    }
-
-                    ParticipantDTO participantFind = null;
-
-                    for (ParticipantDTO participantSearch : match.participants) {
-                        if (participantSearch.participantId == summonerIdentity.participantId) {
-                            participantFind = participantSearch;
-                            break;
-                        }
-                    }
+                    ParticipantDTO participantFind = RiotAPI.participantFromParticipantId(
+                            match.participants, summonerIdentity.participantId);
 
                     final ParticipantDTO participant = participantFind;
 
-                    final String kdaText = String.format(Locale.US, "%d / %d / %d",
-                            participant.stats.kills, participant.stats.deaths,
-                            participant.stats.assists);
+                    final String kdaText = RiotAPI.formatKda(participant);
 
-                    RiotAPI.fetchChampionIcon(participant.championId,
-                            new RiotAPI.AsyncCallback<Drawable>() {
-                                @Override
-                                public void invoke(final Drawable item) {
-                                    // See if we're populating a recycled view too late
-                                    if ((int) view.getTag() != rowId)
-                                        return;
+                    RiotAPI.populateChampionIcon(view, rowId, uiThreadHandler, championIcon,
+                            participant);
 
-                                    uiThreadHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            // See if we're populating a recycled view too late
-                                            if ((int) view.getTag() != rowId)
-                                                return;
+                    RiotAPI.populateSpellIcons(view, rowId, uiThreadHandler,
+                            spellIcons, participant);
 
-                                            championIcon.setImageDrawable(item);
-                                        }
-                                    });
-                                }
-                            });
-
-                    for (int i = 0; i < 2; ++i) {
-                        final int tempI = i;
-                        long id = i > 0 ? participant.spell2Id : participant.spell1Id;
-                        RiotAPI.fetchSpellIcon(id, new RiotAPI.AsyncCallback<Drawable>() {
-                            @Override
-                            public void invoke(final Drawable item) {
-                                // See if we're populating a recycled view too late
-                                if ((int) view.getTag() != rowId)
-                                    return;
-
-                                uiThreadHandler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        // See if we're populating a recycled view too late
-                                        if ((int) view.getTag() != rowId)
-                                            return;
-
-                                        spellIcons[tempI].setImageDrawable(item);
-                                    }
-                                });
-                            }
-                        });
-                    }
-
-                    for (int i = 0; i < 2; ++i) {
-                        final int tempI = i;
-
-                        if (participant.runes == null || participant.runes.size() <= i)
-                            continue;
-
-                        long id = participant.runes.get(i).runeId;
-                        RiotAPI.fetchRuneIcon(id, new RiotAPI.AsyncCallback<Drawable>() {
-                            @Override
-                            public void invoke(final Drawable item) {
-                                // See if we're populating a recycled view too late
-                                if ((int) view.getTag() != rowId)
-                                    return;
-
-                                uiThreadHandler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        // See if we're populating a recycled view too late
-                                        if ((int) view.getTag() != rowId)
-                                            return;
-
-                                        runeIcons[tempI].setImageDrawable(item);
-                                    }
-                                });
-                            }
-                        });
-                    }
+                    RiotAPI.populateRuneIcons(view, rowId, uiThreadHandler, runeIcons, participant);
 
 //                    long totalDamageAll = 0;
 //                    long minionKillsAll = 0;
@@ -602,19 +502,9 @@ public class MatchesFragment
                     final long killsPlusAssists = participant.stats.kills +
                             participant.stats.assists;
 
-                    final String kdaRatioText = formatKdaRatio(killsPlusAssists, deaths);
+                    final String kdaRatioText = RiotAPI.formatKdaRatio(killsPlusAssists, deaths);
 
-                    String specialKillsText = null;
-
-                    if (participant.stats.pentaKills > 0) {
-                        specialKillsText = "Penta-kill!";
-                    } else if (participant.stats.tripleKils > 0) {
-                        specialKillsText = "Triple-kill";
-                    } else if (participant.stats.doubleKills > 0) {
-                        specialKillsText = "Double-kill";
-                    }
-
-                    final String specialKillsTextTemp = specialKillsText;
+                    final String specialKillsText = RiotAPI.formatSpecialKills(participant);
 
                     uiThreadHandler.post(new Runnable() {
                         @Override
@@ -624,23 +514,17 @@ public class MatchesFragment
                                 return;
 
                             view.setBackgroundColor(isRemake
-                                    ? 0xffb6b6b6
+                                    ? ContextCompat.getColor(getContext(), R.color.remakeColor)
                                     : participant.stats.win
-                                    ? 0xffa3cfec : 0xffe2b6b3);
+                                    ? ContextCompat.getColor(getContext(), R.color.victoryColor)
+                                    : ContextCompat.getColor(getContext(), R.color.defeatColor));
                             view.setBackgroundTintMode(PorterDuff.Mode.ADD);
-
-                            runeIcons[0].setImageResource(
-                                    RiotAPI.perkIdToResourceId(participant.stats.perk0));
-
-                            runeIcons[1].setImageResource(
-                                    RiotAPI.perkStyleIdToResourceId(
-                                            participant.stats.perkSubStyle));
 
                             kda.setText(kdaText);
                             kdaRatio.setText(kdaRatioText);
 
-                            if (specialKillsTextTemp != null) {
-                                specialKills.setText(specialKillsTextTemp);
+                            if (specialKillsText != null) {
+                                specialKills.setText(specialKillsText);
                                 specialKills.setVisibility(View.VISIBLE);
                             } else {
                                 specialKills.setVisibility(View.GONE);
@@ -649,6 +533,11 @@ public class MatchesFragment
                     });
                 }
             });
+        }
+
+        @Override
+        public void onClick(View view) {
+            owner.matchClick(match);
         }
     }
 
@@ -663,4 +552,8 @@ public class MatchesFragment
         }
     }
 
+}
+
+interface MatchClickListener {
+    void matchClick(MatchDTO match);
 }

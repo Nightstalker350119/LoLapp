@@ -4,8 +4,11 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -15,12 +18,15 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.norbertotaveras.game_companion_app.DTO.Match.MatchDTO;
+import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantDTO;
+import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantIdentityDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionListDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ProfileIconDataDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.RealmDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.SummonerSpellDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.SummonerSpellListDTO;
+import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
 
 import java.io.EOFException;
 import java.io.FileInputStream;
@@ -32,6 +38,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import okhttp3.HttpUrl;
@@ -50,7 +58,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RiotAPI {
     private static RiotAPI instance;
-    private static final String riotApiKey = "RGAPI-c4a32493-4c08-4a04-8988-b8ec473f5c0c";
+    private static final String riotApiKey = "RGAPI-bd290dba-1e5f-4f54-86af-100b4def1951";
     private static final String rootEndpoint = "https://na1.api.riotgames.com/";
     private static final String staticCdn = "http://ddragon.leagueoflegends.com/cdn";
     private static FirebaseDatabase firebase;
@@ -527,7 +535,79 @@ public class RiotAPI {
             default: return android.R.color.transparent;
         }
     }
+    
+    public static int championLevelToResourceId(int level) {
+        switch (level) {
+            case 1: return R.drawable.mastery_icon_i;
+            case 2: return R.drawable.mastery_icon_ii;
+            case 3: return R.drawable.mastery_icon_iii;
+            case 4: return R.drawable.mastery_icon_iv;
+            case 5: return R.drawable.mastery_icon_v;
+            case 6: return R.drawable.mastery_icon_vi;
+            case 7: return R.drawable.mastery_icon_vii;
+            default: return android.R.color.transparent;
+        }
+    }
 
+    public static String formatMinSec(long seconds) {
+        long s = seconds % 60;
+        long m = (seconds / 60) % 60;
+        long h = (seconds / 3600);
+        if (h == 0)
+            return String.valueOf(m) + "m " + String.valueOf(s) + "s";
+        return String.valueOf(h) + "h " + String.valueOf(m) + "m " + String.valueOf(s) + "s";
+    }
+
+    public static String formatKda(ParticipantDTO participant) {
+        return String.format(Locale.US, "%d / %d / %d",
+                participant.stats.kills, participant.stats.deaths,
+                participant.stats.assists);
+    }
+
+    public static String formatKdaRatio(ParticipantDTO participant) {
+        return formatKdaRatio(participant.stats.kills + participant.stats.assists,
+                participant.stats.deaths);
+    }
+
+    public static String formatKdaRatio(long killsPlusAssists, long deaths) {
+        String kdaText;
+
+        if (deaths > 0) {
+            long kdaRatioGcd = gcd(killsPlusAssists, deaths);
+            final double numer = kdaRatioGcd != 0
+                    ? (double)killsPlusAssists / kdaRatioGcd : killsPlusAssists;
+            final double denom = kdaRatioGcd != 0
+                    ? (double)deaths / kdaRatioGcd : deaths;
+
+            kdaText = simpleDouble(numer) + ":" + simpleDouble(denom);
+        } else {
+            kdaText = "Perfect";
+        }
+
+        return kdaText;
+    }
+
+    public static String simpleDouble(double n) {
+        if (n == Math.floor(n))
+            return String.valueOf((int)n);
+        return String.format(Locale.US, "%.2f", n);
+    }
+
+    // Find greatest common divisor using simple Euclid's algorithm
+    public static long gcd(long a, long b)
+    {
+        if (a == 0 || b == 0)
+            return 0;
+
+        while (a != b) {
+            if (a > b)
+                a -= b;
+            else
+                b -= a;
+        }
+
+        return a;
+    }
 
     private void initialRequests() {
         final Gson gson = new Gson();
@@ -724,6 +804,164 @@ public class RiotAPI {
 
             }
         });
+    }
+
+    public static boolean durationIsRemake(long gameDuration) {
+        return gameDuration < 300;
+    }
+
+    public static ParticipantIdentityDTO participantIdentityFromSummoner(
+            List<ParticipantIdentityDTO> participantIdentities, SummonerDTO summoner) {
+        ParticipantIdentityDTO summonerIdentity = null;
+        for (ParticipantIdentityDTO participantIdentity : participantIdentities) {
+            if (participantIdentity.player.accountId == summoner.accountId) {
+                summonerIdentity = participantIdentity;
+                break;
+            }
+        }
+        return summonerIdentity;
+    }
+
+    public static ParticipantDTO participantFromParticipantId(
+            List<ParticipantDTO> participants, int participantId)
+    {
+        ParticipantDTO participantFind = null;
+        for (ParticipantDTO participantSearch : participants) {
+            if (participantSearch.participantId == participantId) {
+                participantFind = participantSearch;
+                break;
+            }
+        }
+        return participantFind;
+    }
+
+    public static void populateSpellIcons(final View view, final int rowId,
+                                          final Handler uiThreadHandler,
+                                          final ImageView[] spellIcons,
+                                          final ParticipantDTO participant)
+    {
+        long[] spellIds = new long[] {
+                participant.spell1Id,
+                participant.spell2Id
+        };
+
+        for (int i = 0; i < spellIcons.length; ++i) {
+            spellIcons[i].setImageDrawable(null);
+
+            final int tempI = i;
+
+            RiotAPI.fetchSpellIcon(spellIds[i], new RiotAPI.AsyncCallback<Drawable>() {
+                @Override
+                public void invoke(final Drawable drawable) {
+                    if ((int)view.getTag() != rowId)
+                        return;
+
+                    uiThreadHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if ((int)view.getTag() != rowId)
+                                return;
+
+                            spellIcons[tempI].setImageDrawable(drawable);
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    public static void populateRuneIcons(final View view, final int rowId,
+                                         final Handler uiThreadHandler,
+                                         final ImageView[] runeIcons,
+                                         final ParticipantDTO participant)
+    {
+        uiThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                runeIcons[0].setImageResource(
+                        RiotAPI.perkIdToResourceId(participant.stats.perk0));
+
+                runeIcons[1].setImageResource(
+                        RiotAPI.perkStyleIdToResourceId(
+                                participant.stats.perkSubStyle));
+            }
+        });
+    }
+
+    public static void populateItemIcons(final View view, final int rowId,
+                                         final Handler uiThreadHandler,
+                                         final ImageView[] itemIcons,
+                                         final ParticipantDTO participant)
+    {
+        long[] itemIds = new long[] {
+                participant.stats.item0,
+                participant.stats.item1,
+                participant.stats.item2,
+                participant.stats.item3,
+                participant.stats.item4,
+                participant.stats.item5,
+                participant.stats.item6
+        };
+
+        for (int i = 0; i < itemIds.length; ++i) {
+            itemIcons[i].setImageDrawable(null);
+
+            final int tempI = i;
+
+            RiotAPI.fetchItemIcon(itemIds[i], new RiotAPI.AsyncCallback<Drawable>() {
+                @Override
+                public void invoke(final Drawable drawable) {
+                    if ((int)view.getTag() != rowId)
+                        return;
+
+                    uiThreadHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if ((int)view.getTag() != rowId)
+                                return;
+
+                            itemIcons[tempI].setImageDrawable(drawable);
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    public static void populateChampionIcon(final View view, final int rowId,
+                                            final Handler uiThreadHandler,
+                                            final ImageView championIcon,
+                                            final ParticipantDTO participant)
+    {
+        championIcon.setImageDrawable(null);
+        RiotAPI.fetchChampionIcon(participant.championId, new AsyncCallback<Drawable>() {
+            @Override
+            public void invoke(final Drawable drawable) {
+                if ((int)view.getTag() != rowId)
+                    return;
+
+                uiThreadHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if ((int)view.getTag() != rowId)
+                            return;
+
+                        championIcon.setImageDrawable(drawable);
+                    }
+                });
+            }
+        });
+    }
+
+    public static String formatSpecialKills(ParticipantDTO participant) {
+        if (participant.stats.pentaKills > 0) {
+            return "Penta-kill!";
+        } else if (participant.stats.tripleKils > 0) {
+            return "Triple-kill";
+        } else if (participant.stats.doubleKills > 0) {
+            return "Double-kill";
+        }
+        return null;
     }
 
     public static class RequestCache {

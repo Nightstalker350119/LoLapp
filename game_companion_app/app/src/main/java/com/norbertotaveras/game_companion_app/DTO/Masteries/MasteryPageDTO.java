@@ -1,12 +1,13 @@
 package com.norbertotaveras.game_companion_app.DTO.Masteries;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by Emanuel on 11/28/2017.
  */
 
-public class MasteryPageDTO {
+public class MasteryPageDTO implements Serializable {
     public long id; // Mastery page ID.
     public String name; // Mastery page name.
     public boolean current; // Indicates if the mastery page is the current mastery page.

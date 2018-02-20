@@ -1,10 +1,12 @@
 package com.norbertotaveras.game_companion_app.DTO.StaticData;
 
+import java.io.Serializable;
+
 /**
  * Created by Norberto Taveras on 11/28/2017.
  */
 
-public class StatsDTO {
+public class StatsDTO implements Serializable {
     /* This class contains champion stats data */
     public double armorperlevel;
     public double hpperlevel;

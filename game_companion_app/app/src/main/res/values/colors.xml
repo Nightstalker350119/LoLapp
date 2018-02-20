@@ -9,4 +9,7 @@
     <color name="highlight">#444444</color>
 
     <color name="darkText">#333333</color>
+    <color name="remakeColor">#ffb6b6b6</color>
+    <color name="victoryColor">#ffa3cfec</color>
+    <color name="defeatColor">#ffe2b6b3</color>
 </resources>

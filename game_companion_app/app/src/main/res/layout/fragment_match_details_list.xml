@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="4dp"
+    android:layout_marginBottom="4dp"
+    android:orientation="vertical">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/summary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <com.norbertotaveras.game_companion_app.RoundImageView
+                    android:id="@+id/champion_icon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.norbertotaveras.game_companion_app.RoundImageView
+                        android:id="@+id/spell0"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp" />
+
+                    <com.norbertotaveras.game_companion_app.RoundImageView
+                        android:id="@+id/spell1"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.norbertotaveras.game_companion_app.RoundImageView
+                        android:id="@+id/rune0"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp" />
+
+                    <com.norbertotaveras.game_companion_app.RoundImageView
+                        android:id="@+id/rune1"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/summoner_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="player"/>
+
+                    <TextView
+                        android:id="@+id/kda"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="kda"/>
+
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/minion_kills"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MinionKills"/>
+
+            <TextView
+                android:id="@+id/participation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Participation"/>
+
+        </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/player_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+        <LinearLayout
+            android:id="@+id/items"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="4dp">
+            <ImageView
+                android:id="@+id/items0"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_margin="2dp" />
+            <ImageView
+                android:id="@+id/items1"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_margin="2dp"  />
+            <ImageView
+                android:id="@+id/items2"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_margin="2dp"  />
+            <ImageView
+                android:id="@+id/items3"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_margin="2dp"  />
+            <ImageView
+                android:id="@+id/items4"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_margin="2dp"  />
+            <ImageView
+                android:id="@+id/items5"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_margin="2dp"  />
+            <ImageView
+                android:id="@+id/items6"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_margin="2dp"  />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/damage_done"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Damage"
+                android:layout_margin="8dp"/>
+            <TextView
+                android:id="@+id/gold_earned"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="gold"
+                android:layout_margin="8dp"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
