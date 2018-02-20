@@ -12,6 +12,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.ChampionGGService;
 import com.norbertotaveras.game_companion_app.R;
@@ -32,6 +33,7 @@ public class MainChampions extends AppCompatActivity {
     FloatingActionButton fabPlus, fabTop, fabJun, fabMid, fabSup, fabBot, fabFilter;
     Animation FabOpen, FabClose, FabRotateClockWise, FabRotateCounterClockWise;
     boolean isOpen = false;
+    int wantedPosition = 0; //0=all | 1=top | 2=jungle | 3=middle | 4=support | 5=bottom
 
     private ListView listView;
     private ArrayList<String> mNames = new ArrayList<>();
@@ -88,19 +90,22 @@ public class MainChampions extends AppCompatActivity {
 
         Log.d(TAG, "onCreate: starting.");
 
+
+
         final Button btnTop = (Button) findViewById(R.id.topButton);
         final RecyclerView rView = findViewById(R.id.winrecyclerview);
         btnTop.setEnabled(false);
 
+        initImageBitmaps(wantedPosition, rView);
 
         //Sorting buttons
-        fabPlus = (FloatingActionButton) findViewById(R.id.fab_plus);
-        fabTop = (FloatingActionButton) findViewById(R.id.fab_top);
-        fabJun = (FloatingActionButton) findViewById(R.id.fab_jungle);
-        fabMid = (FloatingActionButton) findViewById(R.id.fab_middle);
-        fabSup = (FloatingActionButton) findViewById(R.id.fab_support);
-        fabBot = (FloatingActionButton) findViewById(R.id.fab_bottom);
-        fabFilter = (FloatingActionButton) findViewById(R.id.fab_filter);
+        fabPlus = findViewById(R.id.fab_plus);
+        fabTop = findViewById(R.id.fab_top);
+        fabJun = findViewById(R.id.fab_jungle);
+        fabMid = findViewById(R.id.fab_middle);
+        fabSup = findViewById(R.id.fab_support);
+        fabBot = findViewById(R.id.fab_bottom);
+        fabFilter = findViewById(R.id.fab_filter);
         FabOpen = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
         FabClose = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
         FabRotateClockWise = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_clockwise);
@@ -109,45 +114,103 @@ public class MainChampions extends AppCompatActivity {
         fabPlus.setOnClickListener(new View.OnClickListener() { //Sorting buttons
             @Override
             public void onClick(View v) {
-                if(isOpen)
-                {
-                    fabTop.startAnimation(FabClose);
-                    fabJun.startAnimation(FabClose);
-                    fabMid.startAnimation(FabClose);
-                    fabSup.startAnimation(FabClose);
-                    fabBot.startAnimation(FabClose);
-                    fabFilter.startAnimation(FabClose);
-                    fabPlus.startAnimation(FabRotateCounterClockWise);
-                    fabTop.setClickable(false);
-                    fabJun.setClickable(false);
-                    fabMid.setClickable(false);
-                    fabSup.setClickable(false);
-                    fabBot.setClickable(false);
-                    fabFilter.setClickable(false);
-                    isOpen = false;
-                }
-
-                else
-                {
-                    //Animate buttons coming out of our FAB and get them working
-                    fabTop.startAnimation(FabOpen);
-                    fabJun.startAnimation(FabOpen);
-                    fabMid.startAnimation(FabOpen);
-                    fabSup.startAnimation(FabOpen);
-                    fabBot.startAnimation(FabOpen);
-                    fabFilter.startAnimation(FabOpen);
-                    fabPlus.startAnimation(FabRotateClockWise);
-                    fabTop.setClickable(true);
-                    fabJun.setClickable(true);
-                    fabMid.setClickable(true);
-                    fabSup.setClickable(true);
-                    fabBot.setClickable(true);
-                    fabFilter.setClickable(true);
-                    isOpen = true;
-                }
+                fabOpenClose();
             }
         });
 
+        fabFilter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fabOpenClose();
+
+                mImageUrls.clear();
+                mNames.clear();
+                mWinRates.clear();
+                mChampionPosition.clear();
+                wantedPosition = 0;
+                Log.i(TAG, "User picked Filter");
+                initImageBitmaps(wantedPosition, rView);
+            }
+        });
+
+        fabTop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                fabOpenClose();
+
+                mImageUrls.clear();
+                mNames.clear();
+                mWinRates.clear();
+                mChampionPosition.clear();
+                wantedPosition = 1;
+                Log.i(TAG, "User picked Top");
+                initImageBitmaps(wantedPosition, rView);
+            }
+        });
+
+        fabJun.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fabOpenClose();
+
+                mImageUrls.clear();
+                mNames.clear();
+                mWinRates.clear();
+                mChampionPosition.clear();
+                wantedPosition = 2;
+                Log.i(TAG, "User picked Jungle");
+                initImageBitmaps(wantedPosition, rView);
+            }
+        });
+
+        fabMid.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                fabOpenClose();
+
+                mImageUrls.clear();
+                mNames.clear();
+                mWinRates.clear();
+                mChampionPosition.clear();
+                wantedPosition = 3;
+                Log.i(TAG, "User picked Middle");
+                initImageBitmaps(wantedPosition, rView);
+            }
+        });
+
+        fabSup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                fabOpenClose();
+
+                mImageUrls.clear();
+                mNames.clear();
+                mWinRates.clear();
+                mChampionPosition.clear();
+                wantedPosition = 4;
+                Log.i(TAG, "User picked Support");
+                initImageBitmaps(wantedPosition, rView);
+            }
+        });
+
+        fabBot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                fabOpenClose();
+
+                mImageUrls.clear();
+                mNames.clear();
+                mWinRates.clear();
+                mChampionPosition.clear();
+                wantedPosition = 5;
+                Log.i(TAG, "User picked Bottom");
+                initImageBitmaps(wantedPosition, rView);
+            }
+        });
 
         rView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -159,11 +222,12 @@ public class MainChampions extends AppCompatActivity {
                 btnTop.setEnabled(true);
                 btnTop.setVisibility(View.VISIBLE);
                 btnTop.setAlpha(0.50f);
+
                 if (firstVisiblePosition > 1) // && ScrollAmount < dy // Scroll has to be less than current y in order for us to realize it's scrolling up
                 {
                     btnTop.setEnabled(true);
                     buttonAnimation(btnTop);
-                    //ScrollAmount = dy;
+
                     btnTop.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -179,15 +243,21 @@ public class MainChampions extends AppCompatActivity {
                     btnTop.setEnabled(false);
                     Log.d(TAG, "ButtonState Disabler: else");
                 }
-
             }
         });
-
-
-        initImageBitmaps();
-
     }
 
+    //For when connection to ChampionGG goes through
+//    public void addChampion()
+//    {
+//        for (int i = 0; i < 147; i++)
+//        {
+//            mImageUrls.add(apicall.champimage[i]);
+//            mNames.add(apicall.champnames[i]);
+//            mWinRates.add(apicall.champwinrate[i]);
+//            mChampionPosition.add(apicall.champposition[i]);
+//        }
+//    }
 
     public void buttonAnimation(final Button button) { // Timing and animation effects
         Animation btn = new AlphaAnimation(1.00f, 0.00f);
@@ -213,9 +283,60 @@ public class MainChampions extends AppCompatActivity {
          button.startAnimation(btn);
     }
 
+    public void clear(RecyclerView rView) {
+        final int size = mNames.size();
+        if (size > 0) {
+            for (int i = 0; i < size; i++) {
+                mImageUrls.remove(0);
+                mNames.remove(0);
+                mWinRates.remove(0);
+                mChampionPosition.remove(0);
+            }
+        }
+    }
 
 
-    private void initImageBitmaps(){
+    public void fabOpenClose()
+    {
+        if(isOpen)
+        {
+            fabTop.startAnimation(FabClose);
+            fabJun.startAnimation(FabClose);
+            fabMid.startAnimation(FabClose);
+            fabSup.startAnimation(FabClose);
+            fabBot.startAnimation(FabClose);
+            fabFilter.startAnimation(FabClose);
+            fabPlus.startAnimation(FabRotateCounterClockWise);
+            fabTop.setClickable(false);
+            fabJun.setClickable(false);
+            fabMid.setClickable(false);
+            fabSup.setClickable(false);
+            fabBot.setClickable(false);
+            fabFilter.setClickable(false);
+            isOpen = false;
+        }
+
+        else
+        {
+            //Animate buttons coming out of our FAB and get them working
+            fabTop.startAnimation(FabOpen);
+            fabJun.startAnimation(FabOpen);
+            fabMid.startAnimation(FabOpen);
+            fabSup.startAnimation(FabOpen);
+            fabBot.startAnimation(FabOpen);
+            fabFilter.startAnimation(FabOpen);
+            fabPlus.startAnimation(FabRotateClockWise);
+            fabTop.setClickable(true);
+            fabJun.setClickable(true);
+            fabMid.setClickable(true);
+            fabSup.setClickable(true);
+            fabBot.setClickable(true);
+            fabFilter.setClickable(true);
+            isOpen = true;
+        }
+    }
+
+    private void initImageBitmaps(int wantedPosition, RecyclerView rView){
         Log.d(TAG, "initImageBitmaps: preparing bitmaps.");
 
         //Call<List<ChampionDTO>> champions = apiService.getChampions();
@@ -262,7 +383,7 @@ public class MainChampions extends AppCompatActivity {
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/ashe.png");
         mNames.add("Ashe");
         mWinRates.add("54.76");
-        mChampionPosition.add("Middle");
+        mChampionPosition.add("ADC");
 
         mImageUrls.add("https://www.mobafire.com/images/avatars/aurelion-sol-classic.png");
         mNames.add("Aurelion Sol");
@@ -382,7 +503,7 @@ public class MainChampions extends AppCompatActivity {
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/gangplank.png");
         mNames.add("Gangplank");
         mWinRates.add("53.13");
-        mChampionPosition.add("Top");
+        mChampionPosition.add("Top | Middle");
 
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/garen.png");
         mNames.add("Garen");
@@ -402,7 +523,7 @@ public class MainChampions extends AppCompatActivity {
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/graves.png");
         mNames.add("Graves");
         mWinRates.add("53.13");
-        mChampionPosition.add("ADC");
+        mChampionPosition.add("ADC | Jungle");
 
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/hecarim.png");
         mNames.add("Hecarim");
@@ -432,12 +553,12 @@ public class MainChampions extends AppCompatActivity {
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/janna.png");
         mNames.add("Janna");
         mWinRates.add("53.13");
-        mChampionPosition.add("Top");
+        mChampionPosition.add("Support");
 
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/jarvan-iv.png");
         mNames.add("Jarvan IV");
         mWinRates.add("53.13");
-        mChampionPosition.add("Top");
+        mChampionPosition.add("Top | Jungle");
 
         mImageUrls.add("http://www.behindthevoiceactors.com/_img/chars/jax-league-of-legends-4.27.jpg");
         mNames.add("Jax");
@@ -447,7 +568,7 @@ public class MainChampions extends AppCompatActivity {
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/jayce.png");
         mNames.add("Jayce");
         mWinRates.add("53.13");
-        mChampionPosition.add("Top");
+        mChampionPosition.add("Top | Mid");
 
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/jhin.png");
         mNames.add("Jhin");
@@ -487,7 +608,7 @@ public class MainChampions extends AppCompatActivity {
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/kayle.png");
         mNames.add("Kayle");
         mWinRates.add("52.94");
-        mChampionPosition.add("Mid");
+        mChampionPosition.add("Mid | Top");
 
         mImageUrls.add("https://www.mobafire.com/images/avatars/kayn-classic.png");
         mNames.add("Kayn");
@@ -517,7 +638,7 @@ public class MainChampions extends AppCompatActivity {
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/kogmaw.png");
         mNames.add("Kog'Maw");
         mWinRates.add("52.94");
-        mChampionPosition.add("ADC");
+        mChampionPosition.add("ADC | Mid");
 
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/leblanc.png");
         mNames.add("LeBlanc");
@@ -541,37 +662,37 @@ public class MainChampions extends AppCompatActivity {
 
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/lucian.png");
         mNames.add("Lucian");
-        mWinRates.add("50.44");
+        mWinRates.add("43.58");
         mChampionPosition.add("ADC");
 
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/lulu.png");
         mNames.add("Lulu");
-        mWinRates.add("50.44");
+        mWinRates.add("38.28");
         mChampionPosition.add("Support");
 
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/lux.png");
         mNames.add("Lux");
-        mWinRates.add("50.44");
+        mWinRates.add("38.23");
         mChampionPosition.add("Mid | Support");
 
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/malphite.png");
         mNames.add("Malphite");
-        mWinRates.add("50.44");
-        mChampionPosition.add("Top");
+        mWinRates.add("39.48");
+        mChampionPosition.add("Top | Jungle");
 
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/malzahar.png");
         mNames.add("Malzahar");
-        mWinRates.add("50.44");
+        mWinRates.add("15.87");
         mChampionPosition.add("Middle");
 
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/maokai.png");
         mNames.add("Maokai");
-        mWinRates.add("50.44");
+        mWinRates.add("24.34");
         mChampionPosition.add("Top | Jungle");
 
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/master-yi.png");
         mNames.add("Master Yi");
-        mWinRates.add("50.44");
+        mWinRates.add("32.68");
         mChampionPosition.add("Jungle");
 
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/miss-fortune.png");
@@ -602,7 +723,7 @@ public class MainChampions extends AppCompatActivity {
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/nautilus.png");
         mNames.add("Nautilus");
         mWinRates.add("50.44");
-        mChampionPosition.add("Jungle");
+        mChampionPosition.add("Jungle | Support");
 
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/nidalee.png");
         mNames.add("Nidalee");
@@ -682,7 +803,7 @@ public class MainChampions extends AppCompatActivity {
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/ryze.png");
         mNames.add("Ryze");
         mWinRates.add("50.44");
-        mChampionPosition.add("Jungle | Top");
+        mChampionPosition.add("Middle | Top");
 
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/sejuani.png");
         mNames.add("Sejuani");
@@ -907,15 +1028,114 @@ public class MainChampions extends AppCompatActivity {
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/zoe.png");
         mNames.add("Zoe");
         mWinRates.add("29.28");
-        mChampionPosition.add("Mid | Sup");
+        mChampionPosition.add("Middle | Support");
 
         mImageUrls.add("https://www.mobafire.com/images/champion/icon/zyra.png");
         mNames.add("Zyra");
         mWinRates.add("10.42");
-        mChampionPosition.add("Support");
+        mChampionPosition.add("Support | Middle");
 
+        int m = mWinRates.size();
+
+        switch (wantedPosition)
+        {
+            case 0:
+                break;
+            case 1:
+                for (int i = 0; i < m-1; i++ )
+                {
+                    if (i == 147) { break; }
+
+                    if (!mChampionPosition.get(i).toLowerCase().contains("top"))
+                    {
+                        mImageUrls.remove(i);
+                        mNames.remove(i);
+                        mWinRates.remove(i);
+                        mChampionPosition.remove(i);
+                        m--;
+                        i--;
+                    }
+                }
+                break;
+
+            case 2:
+                for (int i = 0; i < m-1; i++ )
+                {
+                    if (i == 147) { break; }
+
+                    if (!mChampionPosition.get(i).toLowerCase().contains("jun"))
+                    {
+                        mImageUrls.remove(i);
+                        mNames.remove(i);
+                        mWinRates.remove(i);
+                        mChampionPosition.remove(i);
+                        m--;
+                        i--;
+                    }
+                }
+                break;
+
+            case 3:
+                for (int i = 0; i < m-1; i++ )
+                {
+                    if (i == 147) { break; }
+
+                    if (!mChampionPosition.get(i).toLowerCase().contains("mid"))
+                    {
+                        mImageUrls.remove(i);
+                        mNames.remove(i);
+                        mWinRates.remove(i);
+                        mChampionPosition.remove(i);
+                        m--;
+                        i--;
+                    }
+                }
+                break;
+
+            case 4:
+                for (int i = 0; i < m-1; i++ )
+                {
+                    if (i == 147) { break; }
+
+                    if (!mChampionPosition.get(i).toLowerCase().contains("sup"))
+                    {
+                        mImageUrls.remove(i);
+                        mNames.remove(i);
+                        mWinRates.remove(i);
+                        mChampionPosition.remove(i);
+                        m--;
+                        i--;
+                    }
+                }
+                break;
+
+            case 5:
+
+                for (int i = 0; i < m-1; i++ )
+                {
+                    if (i == 147) { break; }
+
+                    if (!mChampionPosition.get(i).toLowerCase().contains("adc"))
+                    {
+                        mImageUrls.remove(i);
+                        mNames.remove(i);
+                        mWinRates.remove(i);
+                        mChampionPosition.remove(i);
+                        m--;
+                        i--;
+                        Log.v(TAG, String.valueOf(mWinRates.size()));
+                    }
+                }
+                break;
+
+            default:
+                break;
+
+        }
 
         int n = mWinRates.size();
+
+        //Good ol' bubblesort!
         for (int i = 0; i < n - 1; i++)
         {
             for (int j = 0; j < n-i-1; j++)
@@ -945,15 +1165,14 @@ public class MainChampions extends AppCompatActivity {
 
         }
 
-        initRecyclerView();
+        initRecyclerView(rView);
     }
 
-    private void initRecyclerView(){
+    private void initRecyclerView(RecyclerView rView){
         Log.d(TAG, "initRecyclerView: initialized RecyclerView");
-        RecyclerView recyclerView = findViewById(R.id.winrecyclerview);
         RecyclerViewAdapter adapter = new RecyclerViewAdapter(this, mNames, mImageUrls, mWinRates, mChampionPosition);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        rView.setAdapter(adapter);
+        rView.setLayoutManager(new LinearLayoutManager(this));
         ;
     }
 }
