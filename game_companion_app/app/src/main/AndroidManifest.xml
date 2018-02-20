@@ -26,11 +26,11 @@
             android:name=".SummonerSearchResultsActivity"
             android:theme="@style/ScrollingActionBarTheme" />
         <activity
-            android:name=".ChampionsActivity"
+            android:name=".ChampionPage.ChampionsActivity"
             android:label="@string/title_activity_champions"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".LoginActivity" />
-        <activity android:name=".MainChampions" />
+        <activity android:name=".ChampionPage.MainChampions" />
         <activity android:name=".MatchDetailsActivity"></activity>
     </application>
 

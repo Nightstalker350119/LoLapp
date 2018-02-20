@@ -2,9 +2,19 @@
 <resources>
     <!--<color name="colorPrimary">#3F51B5</color>-->
     <!--<color name="colorPrimaryDark">#303F9F</color>-->
-    <color name="colorPrimary">#393939</color>
-    <color name="colorPrimaryDark">#2f2f2f</color>
-    <color name="colorAccent">#52b7f8</color>
+    <color name="textColorPrimary">#CCCCCC</color>
+    <color name="textColorDim">#888888</color>
+    <color name="textColorHighlight">#FFFFFF</color>
+    <color name="colorPrimary">#1F3240</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="highlight">#444444</color>
+
+    <color name="darkText">#333333</color>
+    <color name="remakeColor">#ffb6b6b6</color>
+    <color name="victoryColor">#ffa3cfec</color>
+    <color name="defeatColor">#ffe2b6b3</color>
+
     <color name="colorBackground">#2b2b2b</color>
     <color name="colorButtons">#999999</color>
 </resources>
