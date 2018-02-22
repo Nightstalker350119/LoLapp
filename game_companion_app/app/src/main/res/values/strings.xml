@@ -24,5 +24,9 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="pkill">%1$d%%</string>
+    <string name="pkill">%1$d%% P/Kill</string>
+    <string name="damage_done">%1$d\ndamage done</string>
+    <string name="gold_earned">%1$d\ngold earned</string>
+    <string name="minion_kills">%1$d CS</string>
+    <string name="season_num">S%1$d</string>
 </resources>

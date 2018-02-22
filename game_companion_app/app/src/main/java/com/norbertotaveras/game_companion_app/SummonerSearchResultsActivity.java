@@ -26,12 +26,17 @@ import android.widget.Toast;
 import com.gordonwong.materialsheetfab.AnimatedFab;
 import com.gordonwong.materialsheetfab.MaterialSheetFab;
 import com.norbertotaveras.game_companion_app.DTO.League.LeaguePositionDTO;
+import com.norbertotaveras.game_companion_app.DTO.Match.MatchDTO;
+import com.norbertotaveras.game_companion_app.DTO.Match.MatchReferenceDTO;
+import com.norbertotaveras.game_companion_app.DTO.Match.MatchlistDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantIdentityDTO;
 import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -59,9 +64,6 @@ public class SummonerSearchResultsActivity
 
     private Handler uiThreadHandler;
 
-    private Point displaySize;
-    //private ScrollView scrollParent;
-
     private TabLayout tabLayout;
     private ViewPager tabPager;
     private TabPagerAdapter tabPagerAdapter;
@@ -72,14 +74,14 @@ public class SummonerSearchResultsActivity
     private TextView rank;
     private TextView leaguePoints;
     private TextView winLoss;
-    private TextView queueText;
     private TextView summonerSummary;
+
+    private View[] seasonCards;
+    private TextView[] seasonNums;
+    private TextView[] seasonAchieved;
 
     private AnimatedFab summonerFab;
     private AnimatedFab champsFab;
-
-    //private LeagueCollectionFragmentAdapter leaguePagerAdapter;
-    //private ViewPager leaguePager;
 
     private RiotAPI.DeferredRequest<SummonerDTO> deferredSummoner;
 
@@ -108,10 +110,6 @@ public class SummonerSearchResultsActivity
         searchName = intent.getStringExtra("searchName");
         searchAccountId = intent.getLongExtra("searchAccountId", 0);
 
-        displaySize = getDisplaySize();
-//        scrollParent = findViewById(R.id.nested_scroll_parent);
-//        scrollParent.setNestedScrollingEnabled(true);
-
         tabLayout = findViewById(R.id.tabs);
         tabPager = findViewById(R.id.tab_pager);
 
@@ -133,10 +131,36 @@ public class SummonerSearchResultsActivity
         summonerSummary = findViewById(R.id.summoner_summary);
         profileIcon = findViewById(R.id.profile_icon);
         tierIcon = findViewById(R.id.tier_icon_0);
-        queueText = findViewById(R.id.queue_name);
 
         summonerFab = findViewById(R.id.summoner_fab);
         champsFab = findViewById(R.id.champs_fab);
+
+        seasonCards = new View[] {
+                findViewById(R.id.season_card_0),
+                findViewById(R.id.season_card_1),
+                findViewById(R.id.season_card_2)
+        };
+
+        seasonNums = new TextView[] {
+                findViewById(R.id.season_num_0),
+                findViewById(R.id.season_num_1),
+                findViewById(R.id.season_num_2)
+        };
+
+        seasonAchieved = new TextView[] {
+                findViewById(R.id.season_achieved_0),
+                findViewById(R.id.season_achieved_1),
+                findViewById(R.id.season_achieved_2)
+        };
+
+        for (TextView clr : seasonNums)
+            clr.setText("");
+
+        for (TextView clr : seasonAchieved)
+            clr.setText("");
+
+        for (View clr : seasonCards)
+            clr.setVisibility(View.GONE);
 
         tabLayout.addOnTabSelectedListener(this);
 
@@ -154,13 +178,6 @@ public class SummonerSearchResultsActivity
         search();
     }
 
-    private Point getDisplaySize() {
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        return size;
-    }
-
     private void search() {
         if (searchName != null) {
             deferredSummoner = new RiotAPI.DeferredRequest<>(
@@ -174,10 +191,75 @@ public class SummonerSearchResultsActivity
 
         deferredSummoner.getData(new RiotAPI.AsyncCallback<SummonerDTO>() {
             @Override
-            public void invoke(SummonerDTO item) {
-                handleGetSummonerResponse(item);
+            public void invoke(SummonerDTO summoner) {
+                handleGetSummonerResponse(summoner);
+                getRecentSeasonAchievements(summoner);
             }
         });
+    }
+
+    private void getRecentSeasonAchievements(final SummonerDTO summoner) {
+        final int year = Calendar.getInstance().get(Calendar.YEAR);
+        final int baseSeasonId = (year - 2014) * 2 + 3;
+
+        // This could be increased to 3 loops, but the API service only goes back one season
+        for (int i2 = 0; i2 < 1; ++i2) {
+            final int i = i2;
+
+            final int seasonId = baseSeasonId - i * 2;
+            final int seasonNum = ((seasonId - 9) / 2) + 6;
+
+            Log.v("PastTier", "Fetching seasonId=" + seasonId);
+
+            final Call<MatchlistDTO> matchListRequest = apiService.getMatchListBySeasonId(
+                    summoner.accountId, 0, 1, seasonId);
+
+            RiotAPI.cachedRequest(matchListRequest, new RiotAPI.AsyncCallback<MatchlistDTO>() {
+                @Override
+                public void invoke(MatchlistDTO matchList) {
+                    if (matchList == null || matchList.matches == null ||
+                            matchList.matches.isEmpty())
+                        return;
+
+                    final MatchReferenceDTO firstMatch = matchList.matches.get(0);
+
+                    final long firstMatchId = firstMatch.gameId;
+
+                    RiotAPI.getCachedMatch(firstMatchId, new RiotAPI.AsyncCallback<MatchDTO>() {
+                        @Override
+                        public void invoke(MatchDTO match) {
+                            Log.v("PastTier", "firstMatchId=" + firstMatchId);
+
+                            // Find the participant identity for the summoner in this match
+                            final ParticipantIdentityDTO identity =
+                                    RiotAPI.participantIdentityFromSummoner(
+                                            match.participantIdentities, summoner);
+                            if (identity == null)
+                                return;
+
+                            final ParticipantDTO participant =
+                                    RiotAPI.participantFromParticipantId(
+                                            match.participants, identity.participantId);
+                            if (participant == null)
+                                return;
+
+                            uiThreadHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    seasonAchieved[i].setText(
+                                            participant.highestAchievedSeasonTier);
+
+                                    seasonNums[i].setText(getResources().getString(
+                                            R.string.season_num, seasonNum));
+
+                                    seasonCards[i].setVisibility(View.VISIBLE);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
     }
 
     // Needs profileIconData, versionData
@@ -250,8 +332,8 @@ public class SummonerSearchResultsActivity
         final int fabColor = colorPrimary;
 
         // Initialize material sheet FAB
-        MaterialSheetFab<AnimatedMenuFab> sheet = new MaterialSheetFab<>(fab, sheetView, overlay,
-                sheetColor, fabColor);
+        MaterialSheetFab<AnimatedMenuFab> sheet = new MaterialSheetFab<>(
+                fab, sheetView, overlay, sheetColor, fabColor);
 
         return sheet;
     }
@@ -371,6 +453,7 @@ public class SummonerSearchResultsActivity
         }
     }
 
+    // Enables the FloatingActionButton between tabs (Matches and Fragment)
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
         int pos = tab.getPosition();
@@ -391,36 +474,6 @@ public class SummonerSearchResultsActivity
     @Override
     public void onTabReselected(TabLayout.Tab tab) {
 
-    }
-
-    private static class LeagueCollectionFragmentAdapter extends FragmentStatePagerAdapter {
-        LeagueInfo leagueInfo;
-
-        LeagueCollectionFragmentAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        public void setLeagueInfo(LeagueInfo info) {
-            leagueInfo = info;
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            if (leagueInfo == null)
-                return null;
-
-            Fragment fragment = new LeagueCollectionFragment();
-            Bundle args = new Bundle();
-            args.putSerializable(LeagueCollectionFragment.ARG_LEAGUE_INFO, leagueInfo);
-            args.putInt(LeagueCollectionFragment.ARG_POSITION, position);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public int getCount() {
-            return leagueInfo != null ? leagueInfo.leaguePositions.size() : 0;
-        }
     }
 
     public class LeagueInfo implements Serializable {
@@ -471,24 +524,6 @@ public class SummonerSearchResultsActivity
             } else {
                 winLoss.setText(getResources().getString(R.string.win_loss,
                         0, 0, 0));
-            }
-        }
-
-
-        private String formatTimeDiff(long diff) {
-            long n;
-            if (diff < 60 * 1000) {
-                n = diff / (1000);
-                return String.valueOf(n) + " second" + (n != 1 ? "s" : "");
-            } else if (diff < 60 * 60 * 1000) {
-                n = diff / (60 * 1000);
-                return String.valueOf(n) + " minute" + (n != 1 ? "s" : "");
-            } else if (diff < 24 * 60 * 60 * 1000) {
-                n = diff / (60 * 60 * 1000);
-                return String.valueOf(n) + " hour" + (n != 1 ? "s" : "");
-            } else {
-                n = diff / (24 * 60 * 60 * 1000);
-                return String.valueOf(n) + " day" + (n != 1 ? "s" : "");
             }
         }
     }

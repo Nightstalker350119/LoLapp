@@ -79,15 +79,24 @@ public interface RiotGamesService {
 
     // Get matchlist for game played on given account ID and filtered using given filter parameters.
     @GET("/lol/match/v3/matchlists/by-account/{id}")
-    Call<MatchlistDTO> getMatchList(@Path("id") long accountId,
-                                    @Query("beginIndex") long beginIndex,
-                                    @Query("endIndex") long endIndex);
+    Call<MatchlistDTO> getMatchList(
+            @Path("id") long accountId,
+            @Query("beginIndex") long beginIndex,
+            @Query("endIndex") long endIndex);
 
     @GET("/lol/match/v3/matchlists/by-account/{id}")
-    Call<MatchlistDTO> getMatchList_FilterQueue(@Path("id") long accountId,
-                                    @Query("beginIndex") long beginIndex,
-                                    @Query("endIndex") long endIndex,
-                                    @Query("queue") String queueFilter);
+    Call<MatchlistDTO> getMatchList_FilterQueue(
+            @Path("id") long accountId,
+            @Query("beginIndex") long beginIndex,
+            @Query("endIndex") long endIndex,
+            @Query("queue") String queueFilter);
+
+    @GET("/lol/match/v3/matchlists/by-account/{id}")
+    Call<MatchlistDTO> getMatchListBySeasonId(
+            @Path("id") long accountId,
+            @Query("beginIndex") long beginIndex,
+            @Query("endIndex") long endIndex,
+            @Query("season") long seasonId);
 
     // Get match by match ID.
     @GET("/lol/match/v3/matches/{matchId}")

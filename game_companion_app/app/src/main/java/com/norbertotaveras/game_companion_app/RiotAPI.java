@@ -58,7 +58,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RiotAPI {
     private static RiotAPI instance;
-    private static final String riotApiKey = "RGAPI-bd290dba-1e5f-4f54-86af-100b4def1951";
+    private static final String riotApiKey = "RGAPI-354f6e68-bbfa-44d5-a6ff-da2c99c4303d";
     private static final String rootEndpoint = "https://na1.api.riotgames.com/";
     private static final String staticCdn = "http://ddragon.leagueoflegends.com/cdn";
     private static FirebaseDatabase firebase;
@@ -962,6 +962,28 @@ public class RiotAPI {
             return "Double-kill";
         }
         return null;
+    }
+
+    public static String queueIdToQueueName(int queueId) {
+        switch (queueId) {
+            case 400:
+                return "Normal";
+
+            case 420:
+                return "Ranked Solo";
+
+            case 440:
+                return "Ranked Flex";
+
+            case 450:
+                return "ARAM";
+
+            case 1010:
+                return "Snow Urf";
+
+            default:
+                return "queueId=" + queueId;
+        }
     }
 
     public static class RequestCache {

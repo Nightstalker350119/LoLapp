@@ -29,9 +29,14 @@
             android:name=".ChampionPage.ChampionsActivity"
             android:label="@string/title_activity_champions"
             android:theme="@style/AppTheme.NoActionBar" />
+
         <activity android:name=".LoginActivity" />
-        <activity android:name=".ChampionPage.MainChampions" />
-        <activity android:name=".MatchDetailsActivity"></activity>
+
+        <activity
+            android:name=".ChampionPage.MainChampions" />
+        <activity
+            android:name=".MatchDetailsActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

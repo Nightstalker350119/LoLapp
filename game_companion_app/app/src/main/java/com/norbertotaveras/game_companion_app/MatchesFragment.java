@@ -1,11 +1,8 @@
 package com.norbertotaveras.game_companion_app;
 
-import android.content.Context;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,7 +24,6 @@ import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -360,7 +356,8 @@ public class MatchesFragment
         final MatchListAdapter owner;
         final View view;
 
-        final ConstraintLayout summaryContainer;
+        final View summaryContainer;
+        final View playerDetail;
 
         final ImageView championIcon;
         final ImageView[] spellIcons;
@@ -386,6 +383,7 @@ public class MatchesFragment
             uniqueId = new AtomicInteger(0);
 
             summaryContainer = view.findViewById(R.id.summary_container);
+            playerDetail = view.findViewById(R.id.player_detail);
 
             championIcon = view.findViewById(R.id.champion_icon);
 
@@ -417,32 +415,7 @@ public class MatchesFragment
             final int rowId = uniqueId.getAndIncrement();
             view.setTag(rowId);
 
-            String gameModeText;
-            switch (match.queueId) {
-                case 400:
-                    gameModeText = "Normal";
-                    break;
-
-                case 420:
-                    gameModeText = "Ranked Solo";
-                    break;
-
-                case 440:
-                    gameModeText = "Ranked Flex";
-                    break;
-
-                case 450:
-                    gameModeText = "ARAM";
-                    break;
-
-                case 1010:
-                    gameModeText = "Snow Urf";
-                    break;
-
-                default:
-                    gameModeText = "queueId=" + match.queueId;
-                    break;
-            }
+            String gameModeText = RiotAPI.queueIdToQueueName(match.queueId);
 
             gameType.setText(gameModeText);
 

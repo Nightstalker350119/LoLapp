@@ -814,7 +814,7 @@ public class ChampionsWinRate extends Fragment {
     private void initRecyclerView(){
         Log.d(TAG, "initRecyclerView: initialized RecyclerView");
         RecyclerView recyclerView = getActivity().findViewById(R.id.winrecyclerview);
-        RecyclerViewAdapter adapter = new RecyclerViewAdapter(getActivity(), mNames, mImageUrls, mWinRates, mChampionPosition);
+        HardcodedChampionListAdapter adapter = new HardcodedChampionListAdapter(getActivity(), mNames, mImageUrls, mWinRates, mChampionPosition);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     }

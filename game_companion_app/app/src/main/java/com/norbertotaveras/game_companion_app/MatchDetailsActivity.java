@@ -3,8 +3,6 @@ package com.norbertotaveras.game_companion_app;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +21,7 @@ import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantIdentityDTO;
 import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
 
 import java.text.SimpleDateFormat;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -79,7 +78,7 @@ public class MatchDetailsActivity extends AppCompatActivity {
 
         uiHandler = UIHelper.createRunnableLooper();
 
-        gameMode.setText(RiotAPI.transformQueueName(match.gameMode));
+        gameMode.setText(RiotAPI.queueIdToQueueName(match.queueId));
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         gameDate.setText(dateFormat.format(match.gameCreation));
@@ -90,27 +89,35 @@ public class MatchDetailsActivity extends AppCompatActivity {
         winLoss.setText(isRemake ? "Remake" : participant.stats.win ? "Victory" : "Defeat");
     }
 
-    private class SummonerListItem extends RecyclerView.ViewHolder {
-        View view;
+    private class SummonerListItem
+            extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
+        final View view;
 
-        private ImageView championIcon;
-        private TextView summonerName;
-        private TextView kda;
-        private TextView minionKills;
-        private TextView participation;
+        ParticipantDTO participant;
+        ParticipantIdentityDTO participantIdentity;
 
-        private View playerDetail;
+        private final ImageView championIcon;
+        private final TextView summonerName;
+        private final TextView kda;
+        private final TextView minionKills;
+        private final TextView participation;
 
-        private ImageView[] spells;
-        private ImageView[] runes;
-        private ImageView[] items;
+        private final ImageView[] spells;
+        private final ImageView[] runes;
+        private final ImageView[] items;
 
-        private TextView damageDone;
-        private TextView goldEarned;
+        private final TextView damageDone;
+        private final TextView goldEarned;
 
-        public SummonerListItem(final View view) {
+        private final View playerDetails;
+
+        final HashSet<ParticipantDTO> expandedViews;
+
+        public SummonerListItem(final View view, HashSet<ParticipantDTO> expandedViews) {
             super(view);
             this.view = view;
+            this.expandedViews = expandedViews;
 
             championIcon = view.findViewById(R.id.champion_icon);
             summonerName = view.findViewById(R.id.summoner_name);
@@ -138,19 +145,25 @@ public class MatchDetailsActivity extends AppCompatActivity {
                     view.findViewById(R.id.items6)
             };
 
-            playerDetail = view.findViewById(R.id.player_detail);
-
             damageDone = view.findViewById(R.id.damage_done);
             goldEarned = view.findViewById(R.id.gold_earned);
+
+            playerDetails = view.findViewById(R.id.player_detail);
+
+            view.setOnClickListener(this);
         }
 
         public void bind(final ParticipantIdentityDTO participantIdentity,
                          final ParticipantDTO participant, final int rowId) {
             view.setTag(rowId);
 
+            this.participant = participant;
+            this.participantIdentity = participantIdentity;
+
             summonerName.setText(participantIdentity.player.summonerName);
             kda.setText(RiotAPI.formatKda(participant));
-            minionKills.setText(String.valueOf(participant.stats.totalMinionsKilled +
+            minionKills.setText(getResources().getString(R.string.minion_kills,
+                    participant.stats.totalMinionsKilled +
                 participant.stats.neutralMinionsKilled));
 
             long totalKills = 0;
@@ -168,8 +181,10 @@ public class MatchDetailsActivity extends AppCompatActivity {
             RiotAPI.populateItemIcons(view, rowId, uiHandler, items, participant);
             RiotAPI.populateRuneIcons(view, rowId, uiHandler, runes, participant);
 
-            damageDone.setText(String.valueOf(participant.stats.totalDamageDealt));
-            goldEarned.setText(String.valueOf(participant.stats.goldEarned));
+            damageDone.setText(getResources().getString(R.string.damage_done,
+                    participant.stats.totalDamageDealt));
+            goldEarned.setText(getResources().getString(R.string.gold_earned,
+                    participant.stats.goldEarned));
 
             final boolean isRemake = RiotAPI.durationIsRemake(match.gameDuration);
 
@@ -179,14 +194,33 @@ public class MatchDetailsActivity extends AppCompatActivity {
                     ? ContextCompat.getColor(view.getContext(), R.color.victoryColor)
                     : ContextCompat.getColor(view.getContext(), R.color.defeatColor));
             view.setBackgroundTintMode(PorterDuff.Mode.ADD);
+
+            if (expandedViews.contains(participant))
+                playerDetails.setVisibility(View.VISIBLE);
+            else
+                playerDetails.setVisibility(View.GONE);
+        }
+
+        @Override
+        public void onClick(View view) {
+            boolean expanded = expandedViews.contains(participant);
+
+            if (expanded) {
+                playerDetails.setVisibility(View.GONE);
+                expandedViews.remove(participant);
+            } else {
+                playerDetails.setVisibility(View.VISIBLE);
+                expandedViews.add(participant);
+            }
         }
     }
 
     private class SummonerListAdapter extends RecyclerView.Adapter<SummonerListItem> {
-        LayoutInflater inflater;
-        List<ParticipantIdentityDTO> identities;
-        List<ParticipantDTO> players;
-        AtomicInteger uniqueId;
+        private final LayoutInflater inflater;
+        private final List<ParticipantIdentityDTO> identities;
+        private final List<ParticipantDTO> players;
+        private final AtomicInteger uniqueId;
+        private final HashSet<ParticipantDTO> expandedViews;
 
         SummonerListAdapter(List<ParticipantIdentityDTO> identities,
                             List<ParticipantDTO> players)
@@ -195,13 +229,14 @@ public class MatchDetailsActivity extends AppCompatActivity {
             this.players = players;
             inflater = getLayoutInflater();
             uniqueId = new AtomicInteger(0);
+            expandedViews = new HashSet<>();
         }
 
         @Override
         public SummonerListItem onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = inflater.inflate(R.layout.fragment_match_details_list,
                     parent, false);
-            return new SummonerListItem(view);
+            return new SummonerListItem(view, expandedViews);
         }
 
         @Override
