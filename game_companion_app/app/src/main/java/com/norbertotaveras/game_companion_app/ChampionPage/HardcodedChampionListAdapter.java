@@ -21,8 +21,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Created by Logan on 1/23/2018.
  */
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>{
-    private static final String TAG = "RecyclerViewAdapter";
+public class HardcodedChampionListAdapter extends RecyclerView.Adapter<HardcodedChampionListAdapter.HardcodedChampionListViewHolder>{
+    private static final String TAG = "HardcodedChampionListAdapter";
 
     private ArrayList<String> mImageNames = new ArrayList<>();
     private ArrayList<String> mImages = new ArrayList<>();
@@ -30,7 +30,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private ArrayList<String> mChampionPosition = new ArrayList<>(); //
     private Context mContext;
 
-    public RecyclerViewAdapter(Context mContext, ArrayList<String> mImageNames, ArrayList<String> mImages, ArrayList<String> mWinRates, ArrayList<String> mChampionPosition) {
+    public HardcodedChampionListAdapter(Context mContext, ArrayList<String> mImageNames, ArrayList<String> mImages, ArrayList<String> mWinRates, ArrayList<String> mChampionPosition) {
         this.mImageNames = mImageNames;
         this.mImages = mImages;
         this.mWinRates = mWinRates;
@@ -40,14 +40,14 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public HardcodedChampionListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.winlistitem, parent, false);
-        ViewHolder holder = new ViewHolder(view);
+        HardcodedChampionListViewHolder holder = new HardcodedChampionListViewHolder(view);
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(HardcodedChampionListViewHolder holder, final int position) {
         Log.d(TAG, "onBindViewHolder: called");
         Glide.with(mContext)
                 .asBitmap()
@@ -73,7 +73,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return mImageNames.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public class HardcodedChampionListViewHolder extends RecyclerView.ViewHolder{
 
         CircleImageView image;
         TextView imageName;
@@ -81,7 +81,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         TextView champPosition;
         RelativeLayout parentLayout;
 
-        public ViewHolder(View itemView) {
+        public HardcodedChampionListViewHolder(View itemView) {
             super(itemView);
             image = itemView.findViewById(R.id.image);
             imageName = itemView.findViewById(R.id.imagename);
