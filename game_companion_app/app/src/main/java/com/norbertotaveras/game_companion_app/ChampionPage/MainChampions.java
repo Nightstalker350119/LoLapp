@@ -1,12 +1,15 @@
 package com.norbertotaveras.game_companion_app.ChampionPage;
 
+import android.app.Fragment;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -17,29 +20,56 @@ import com.norbertotaveras.game_companion_app.R;
 
 import java.util.ArrayList;
 
-public class MainChampions extends AppCompatActivity {
+public class MainChampions extends Fragment {
+
+    private View view;
+    Button btnTop;
+    RecyclerView championList;
 
     private static final String TAG = "ChampionsWinRate";
     private static final String BASE_URL = "api.champion.gg/v2";
     FloatingActionButton fabPlus, fabTop, fabJun, fabMid, fabSup, fabBot, fabFilter;
+    FloatingActionButton[] fabList;
     Animation FabOpen, FabClose, FabRotateClockWise, FabRotateCounterClockWise;
     boolean isOpen = false;
     int wantedPosition = 0; //0=all | 1=top | 2=jungle | 3=middle | 4=support | 5=bottom
 
-    private ListView listView;
     private ArrayList<String> mNames = new ArrayList<>();
     private ArrayList<String> mImageUrls = new ArrayList<>();
     private ArrayList<String> mWinRates = new ArrayList<>(); //Needs api calls, use placeholders atm
     private ArrayList<String> mChampionPosition = new ArrayList<>(); //
 
-    float alpha = 1.0f;
-    private int ScrollAmount = 0;
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.activity_main_champions, container, false);
+
+        //Sorting buttons
+        fabPlus = view.findViewById(R.id.fab_plus);
+        fabTop = view.findViewById(R.id.fab_top);
+        fabJun = view.findViewById(R.id.fab_jungle);
+        fabMid = view.findViewById(R.id.fab_middle);
+        fabSup = view.findViewById(R.id.fab_support);
+        fabBot = view.findViewById(R.id.fab_bottom);
+        fabFilter = view.findViewById(R.id.fab_filter);
+        FabOpen = AnimationUtils.loadAnimation(getContext(), R.anim.fab_open);
+        FabClose = AnimationUtils.loadAnimation(getContext(), R.anim.fab_close);
+        FabRotateClockWise = AnimationUtils.loadAnimation(getContext(), R.anim.rotate_clockwise);
+        FabRotateCounterClockWise = AnimationUtils.loadAnimation(getContext(), R.anim.rotate_counterclockwise);
+
+        fabList = new FloatingActionButton[] {
+                fabTop, fabJun, fabMid, fabSup, fabBot, fabFilter
+        };
+
+        btnTop = view.findViewById(R.id.topButton);
+        championList = view.findViewById(R.id.champ_list);
+
+        return view;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_champions);
-        setTitle("Codex");
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         String x = "Need help setting up retrofit!";
 //        Retrofit retrofit = new Retrofit.Builder()
@@ -83,36 +113,21 @@ public class MainChampions extends AppCompatActivity {
 
 
 
-        final Button btnTop = (Button) findViewById(R.id.topButton);
-        final RecyclerView rView = findViewById(R.id.winrecyclerview);
         btnTop.setEnabled(false);
 
-        initImageBitmaps(wantedPosition, rView);
-
-        //Sorting buttons
-        fabPlus = findViewById(R.id.fab_plus);
-        fabTop = findViewById(R.id.fab_top);
-        fabJun = findViewById(R.id.fab_jungle);
-        fabMid = findViewById(R.id.fab_middle);
-        fabSup = findViewById(R.id.fab_support);
-        fabBot = findViewById(R.id.fab_bottom);
-        fabFilter = findViewById(R.id.fab_filter);
-        FabOpen = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
-        FabClose = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
-        FabRotateClockWise = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_clockwise);
-        FabRotateCounterClockWise = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_counterclockwise);
+        initImageBitmaps(wantedPosition, championList);
 
         fabPlus.setOnClickListener(new View.OnClickListener() { //Sorting buttons
             @Override
             public void onClick(View v) {
-                fabOpenClose();
+                fabToggle();
             }
         });
 
         fabFilter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fabOpenClose();
+                fabToggle();
 
                 mImageUrls.clear();
                 mNames.clear();
@@ -120,7 +135,7 @@ public class MainChampions extends AppCompatActivity {
                 mChampionPosition.clear();
                 wantedPosition = 0;
                 Log.i(TAG, "User picked Filter");
-                initImageBitmaps(wantedPosition, rView);
+                initImageBitmaps(wantedPosition, championList);
             }
         });
 
@@ -128,7 +143,7 @@ public class MainChampions extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
-                fabOpenClose();
+                fabToggle();
 
                 mImageUrls.clear();
                 mNames.clear();
@@ -136,14 +151,14 @@ public class MainChampions extends AppCompatActivity {
                 mChampionPosition.clear();
                 wantedPosition = 1;
                 Log.i(TAG, "User picked Top");
-                initImageBitmaps(wantedPosition, rView);
+                initImageBitmaps(wantedPosition, championList);
             }
         });
 
         fabJun.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fabOpenClose();
+                fabToggle();
 
                 mImageUrls.clear();
                 mNames.clear();
@@ -151,7 +166,7 @@ public class MainChampions extends AppCompatActivity {
                 mChampionPosition.clear();
                 wantedPosition = 2;
                 Log.i(TAG, "User picked Jungle");
-                initImageBitmaps(wantedPosition, rView);
+                initImageBitmaps(wantedPosition, championList);
             }
         });
 
@@ -159,7 +174,7 @@ public class MainChampions extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
-                fabOpenClose();
+                fabToggle();
 
                 mImageUrls.clear();
                 mNames.clear();
@@ -167,7 +182,7 @@ public class MainChampions extends AppCompatActivity {
                 mChampionPosition.clear();
                 wantedPosition = 3;
                 Log.i(TAG, "User picked Middle");
-                initImageBitmaps(wantedPosition, rView);
+                initImageBitmaps(wantedPosition, championList);
             }
         });
 
@@ -175,7 +190,7 @@ public class MainChampions extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
-                fabOpenClose();
+                fabToggle();
 
                 mImageUrls.clear();
                 mNames.clear();
@@ -183,7 +198,7 @@ public class MainChampions extends AppCompatActivity {
                 mChampionPosition.clear();
                 wantedPosition = 4;
                 Log.i(TAG, "User picked Support");
-                initImageBitmaps(wantedPosition, rView);
+                initImageBitmaps(wantedPosition, championList);
             }
         });
 
@@ -191,7 +206,7 @@ public class MainChampions extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
-                fabOpenClose();
+                fabToggle();
 
                 mImageUrls.clear();
                 mNames.clear();
@@ -199,16 +214,16 @@ public class MainChampions extends AppCompatActivity {
                 mChampionPosition.clear();
                 wantedPosition = 5;
                 Log.i(TAG, "User picked Bottom");
-                initImageBitmaps(wantedPosition, rView);
+                initImageBitmaps(wantedPosition, championList);
             }
         });
 
-        rView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        championList.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                LinearLayoutManager layoutManager = ((LinearLayoutManager) rView.getLayoutManager());
+                LinearLayoutManager layoutManager = ((LinearLayoutManager) championList.getLayoutManager());
                 int firstVisiblePosition = layoutManager.findFirstVisibleItemPosition();
                 btnTop.setEnabled(true);
                 btnTop.setVisibility(View.VISIBLE);
@@ -222,7 +237,7 @@ public class MainChampions extends AppCompatActivity {
                     btnTop.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            rView.getLayoutManager().scrollToPosition(0);
+                            championList.getLayoutManager().scrollToPosition(0);
                             btnTop.setEnabled(false);
                             btnTop.setAlpha(0);
                             Log.d(TAG, "ButtonState Disabler: onClick");
@@ -274,7 +289,7 @@ public class MainChampions extends AppCompatActivity {
          button.startAnimation(btn);
     }
 
-    public void clear(RecyclerView rView) {
+    public void clear() {
         final int size = mNames.size();
         if (size > 0) {
             for (int i = 0; i < size; i++) {
@@ -287,47 +302,21 @@ public class MainChampions extends AppCompatActivity {
     }
 
 
-    public void fabOpenClose()
-    {
-        if(isOpen)
-        {
-            fabTop.startAnimation(FabClose);
-            fabJun.startAnimation(FabClose);
-            fabMid.startAnimation(FabClose);
-            fabSup.startAnimation(FabClose);
-            fabBot.startAnimation(FabClose);
-            fabFilter.startAnimation(FabClose);
-            fabPlus.startAnimation(FabRotateCounterClockWise);
-            fabTop.setClickable(false);
-            fabJun.setClickable(false);
-            fabMid.setClickable(false);
-            fabSup.setClickable(false);
-            fabBot.setClickable(false);
-            fabFilter.setClickable(false);
-            isOpen = false;
+    public void fabToggle() {
+        isOpen = !isOpen;
+
+        Animation fabAnim = isOpen ? FabOpen : FabClose;
+        Animation fabRotation = isOpen ? FabRotateClockWise : FabRotateCounterClockWise;
+
+        for (FloatingActionButton fab : fabList) {
+            fab.startAnimation(fabAnim);
+            fab.setClickable(isOpen);
         }
 
-        else
-        {
-            //Animate buttons coming out of our FAB and get them working
-            fabTop.startAnimation(FabOpen);
-            fabJun.startAnimation(FabOpen);
-            fabMid.startAnimation(FabOpen);
-            fabSup.startAnimation(FabOpen);
-            fabBot.startAnimation(FabOpen);
-            fabFilter.startAnimation(FabOpen);
-            fabPlus.startAnimation(FabRotateClockWise);
-            fabTop.setClickable(true);
-            fabJun.setClickable(true);
-            fabMid.setClickable(true);
-            fabSup.setClickable(true);
-            fabBot.setClickable(true);
-            fabFilter.setClickable(true);
-            isOpen = true;
-        }
+        fabPlus.startAnimation(fabRotation);
     }
 
-    private void initImageBitmaps(int wantedPosition, RecyclerView rView){
+    private void initImageBitmaps(int wantedPosition, RecyclerView rView) {
         Log.d(TAG, "initImageBitmaps: preparing bitmaps.");
 
         //Call<List<ChampionDTO>> champions = apiService.getChampions();
@@ -1156,14 +1145,18 @@ public class MainChampions extends AppCompatActivity {
 
         }
 
-        initRecyclerView(rView);
+        initChampList(rView);
     }
 
-    private void initRecyclerView(RecyclerView rView){
-        Log.d(TAG, "initRecyclerView: initialized RecyclerView");
-        HardcodedChampionListAdapter adapter = new HardcodedChampionListAdapter(this, mNames, mImageUrls, mWinRates, mChampionPosition);
+    private void initChampList(RecyclerView rView){
+        Log.d(TAG, "initChampList: initialized RecyclerView");
+        HardcodedChampionListAdapter adapter = new HardcodedChampionListAdapter(
+                getContext(), mNames, mImageUrls, mWinRates, mChampionPosition);
         rView.setAdapter(adapter);
-        rView.setLayoutManager(new LinearLayoutManager(this));
-        ;
+        rView.setLayoutManager(new LinearLayoutManager(getContext()));
+    }
+
+    public static Fragment newInstance() {
+        return new MainChampions();
     }
 }

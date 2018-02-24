@@ -5,14 +5,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginBottom="@dimen/navigation_bar_height"
     tools:context="com.norbertotaveras.game_companion_app.ChampionPage.MainChampions">
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/winrecyclerview">
-
-    </android.support.v7.widget.RecyclerView>
+        android:id="@+id/champ_list"
+        />
 
     <Button
         android:id="@+id/topButton"
@@ -23,8 +23,7 @@
         android:layout_gravity="center|top"
         />
 
-
-    Change lane button
+    <!-- Change lane button -->
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -39,7 +38,7 @@
         android:tooltipText="Roles"
         />
 
-    Bottom Button
+    <!-- Bottom Button -->
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -54,7 +53,7 @@
         android:visibility="invisible"
         android:tooltipText="Bottom"
         />
-    Mid Button
+    <!-- Mid Button -->
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -69,7 +68,7 @@
         android:visibility="invisible"
         android:tooltipText="Middle"
         />
-    Top Button
+    <!-- Top Button -->
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -84,7 +83,7 @@
         android:visibility="invisible"
         android:tooltipText="Top"
         />
-    Support Button
+    <!-- Support Button -->
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -99,7 +98,7 @@
         android:visibility="invisible"
         android:tooltipText="Support"
         />
-    Jung Button
+    <!-- Jung Button -->
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -112,7 +111,8 @@
         app:pressedTranslationZ="12dp"
         android:backgroundTint="@color/colorButtons"
         android:visibility="invisible"
-        android:tooltipText="Jungle"/>
+        android:tooltipText="Jungle"
+        />
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
