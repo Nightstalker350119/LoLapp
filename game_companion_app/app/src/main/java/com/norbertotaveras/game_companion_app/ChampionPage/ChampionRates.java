@@ -8,13 +8,9 @@ import java.util.List;
 
 public class ChampionRates {
     String champData;
-    List<String> AllchampData;
-
-    public List<String> getAllchampData() {
-        return AllchampData;
-    }
 
     public String getChampData() {
+
         return champData;
     }
 }

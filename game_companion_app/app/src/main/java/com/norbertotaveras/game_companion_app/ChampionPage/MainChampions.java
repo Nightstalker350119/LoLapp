@@ -29,7 +29,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainChampions extends AppCompatActivity {
 
     private static final String TAG = "ChampionsWinRate";
-    private static final String BASE_URL = "api.champion.gg/v2";
+    private static final String BASE_URL = "http://api.champion.gg/v2/";
     FloatingActionButton fabPlus, fabTop, fabJun, fabMid, fabSup, fabBot, fabFilter;
     Animation FabOpen, FabClose, FabRotateClockWise, FabRotateCounterClockWise;
     boolean isOpen = false;
@@ -51,14 +51,30 @@ public class MainChampions extends AppCompatActivity {
         setTitle("Codex");
 
         String x = "Need help setting up retrofit!";
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl(BASE_URL)
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
-//
-//        ChampionGGService client = retrofit.create(ChampionGGService.class);
-//        Call<ChampionRates> call = client.getChampInfo();
-//
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        ChampionGGService client = retrofit.create(ChampionGGService.class);
+        Call<List<ChampionRates>> call = client.getChampInfo();
+        Log.d(TAG, "here's the call: " + call.toString());
+
+        call.enqueue(new Callback<List<ChampionRates>>() {
+            @Override
+            public void onResponse(Call<List<ChampionRates>> call, Response<List<ChampionRates>> response) {
+                List<ChampionRates> rates = response.body();
+
+                Log.d(TAG, "onResponse: rates:" + rates.toString());
+
+            }
+
+            @Override
+            public void onFailure(Call<List<ChampionRates>> call, Throwable t) {
+                Log.e(TAG, "Unable to retrieve from champGG");
+                Toast.makeText(MainChampions.this, "An error ocurred", Toast.LENGTH_SHORT).show();
+            }
+        });
 //        call.enqueue(new Callback<ChampionRates>() {
 //            @Override
 //            public void onResponse(Call<ChampionRates> call, Response<ChampionRates> response) {
@@ -89,6 +105,7 @@ public class MainChampions extends AppCompatActivity {
 //        });
 
         Log.d(TAG, "onCreate: starting.");
+
 
 
 
@@ -1044,7 +1061,7 @@ public class MainChampions extends AppCompatActivity {
             case 1:
                 for (int i = 0; i < m-1; i++ )
                 {
-                    if (i == 147) { break; }
+                    if (i == 147) { break; } //There's 147 champions, if it reaches this, something is wrong.
 
                     if (!mChampionPosition.get(i).toLowerCase().contains("top"))
                     {
