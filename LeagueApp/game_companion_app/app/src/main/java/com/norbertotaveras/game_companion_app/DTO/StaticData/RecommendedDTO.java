@@ -1,0 +1,19 @@
+package com.norbertotaveras.game_companion_app.DTO.StaticData;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * Created by Norberto Taverason 11/28/2017.
+ */
+
+public class RecommendedDTO implements Serializable {
+    /* This class contains champion recommended data */
+    public String map;
+    public String champion;
+    public String title;
+    public String mode;
+    public String type;
+    public boolean priority;
+    public List<BlockDTO> blocks;
+}

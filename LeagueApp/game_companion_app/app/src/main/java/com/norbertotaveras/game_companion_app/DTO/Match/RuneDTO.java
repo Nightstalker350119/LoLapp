@@ -1,0 +1,13 @@
+package com.norbertotaveras.game_companion_app.DTO.Match;
+
+import java.io.Serializable;
+
+/**
+ * Created by Emanuel on 11/28/2017.
+ */
+
+public class RuneDTO implements Serializable {
+    public int runeId;
+    public int rank;
+
+}
