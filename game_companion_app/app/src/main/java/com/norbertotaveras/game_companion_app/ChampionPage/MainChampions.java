@@ -40,6 +40,7 @@ public class MainChampions extends AppCompatActivity {
     private ArrayList<String> mImageUrls = new ArrayList<>();
     private ArrayList<String> mWinRates = new ArrayList<>(); //Needs api calls, use placeholders atm
     private ArrayList<String> mChampionPosition = new ArrayList<>(); //
+    private List<ChampionRates> rates;
 
     float alpha = 1.0f;
     private int ScrollAmount = 0;
@@ -50,69 +51,44 @@ public class MainChampions extends AppCompatActivity {
         setContentView(R.layout.activity_main_champions);
         setTitle("Codex");
 
-        String x = "Need help setting up retrofit!";
-        Retrofit retrofit = new Retrofit.Builder()
+        Retrofit.Builder builder = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
 
         ChampionGGService client = retrofit.create(ChampionGGService.class);
         Call<List<ChampionRates>> call = client.getChampInfo();
-        Log.d(TAG, "here's the call: " + call.toString());
 
         call.enqueue(new Callback<List<ChampionRates>>() {
             @Override
             public void onResponse(Call<List<ChampionRates>> call, Response<List<ChampionRates>> response) {
-                List<ChampionRates> rates = response.body();
+                rates = response.body();
 
-                Log.d(TAG, "onResponse: rates:" + rates.toString());
+                for (int i = 0; i < rates.size() - 1; i++)
+                {
+                    Log.v(TAG, "ChampID(" + i + ") = " + rates.get(i).getChampionId());
+                    Log.v(TAG, "winRate(" + i + ") = " + rates.get(i).getWinRate());
+                }
 
             }
 
             @Override
             public void onFailure(Call<List<ChampionRates>> call, Throwable t) {
-                Log.e(TAG, "Unable to retrieve from champGG");
-                Toast.makeText(MainChampions.this, "An error ocurred", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Unable to retrieve from champion.gg");
+                Toast.makeText(MainChampions.this, "An error occurred", Toast.LENGTH_SHORT).show();
             }
         });
-//        call.enqueue(new Callback<ChampionRates>() {
-//            @Override
-//            public void onResponse(Call<ChampionRates> call, Response<ChampionRates> response) {
-//                ChampionRates rates = response.body();
-//                Log.d(TAG, "onResponse: feed" + rates);
-//                Log.d(TAG, "onResponse: Server Response" + response.toString()); //Helps debug through responses
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ChampionRates> call, Throwable t) {
-//
-//            }
-//        });
-//        //
-//        call.enqueue(new Callback<ChampionRates>() {
-//            @Override
-//            public void onResponse(Call<ChampionRates> call, Response<ChampionRates> response) {
-//                ChampionRates rates = response.body();
-//                Log.d(TAG, "onResponse: feed" + response.body().getChampData());
-//                Log.d(TAG, "onResponse: Server Response" + response.toString()); //Helps debug through responses
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ChampionRates> call, Throwable t) {
-//                Log.e(TAG, "Unable to retrieve from champGG");
-//                Toast.makeText(MainChampions.this, "An error ocurred", Toast.LENGTH_SHORT).show();
-//            }
-//        });
 
         Log.d(TAG, "onCreate: starting.");
-
-
 
 
         final Button btnTop = (Button) findViewById(R.id.topButton);
         final RecyclerView rView = findViewById(R.id.winrecyclerview);
         btnTop.setEnabled(false);
 
+        //replaceRoles(rates);
+        //addChampion(rates);
         initImageBitmaps(wantedPosition, rView);
 
         //Sorting buttons
@@ -145,6 +121,7 @@ public class MainChampions extends AppCompatActivity {
                 mWinRates.clear();
                 mChampionPosition.clear();
                 wantedPosition = 0;
+                Toast.makeText(MainChampions.this, "All roles", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "User picked Filter");
                 initImageBitmaps(wantedPosition, rView);
             }
@@ -161,6 +138,7 @@ public class MainChampions extends AppCompatActivity {
                 mWinRates.clear();
                 mChampionPosition.clear();
                 wantedPosition = 1;
+                Toast.makeText(MainChampions.this, "Top", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "User picked Top");
                 initImageBitmaps(wantedPosition, rView);
             }
@@ -176,7 +154,7 @@ public class MainChampions extends AppCompatActivity {
                 mWinRates.clear();
                 mChampionPosition.clear();
                 wantedPosition = 2;
-                Log.i(TAG, "User picked Jungle");
+                Toast.makeText(MainChampions.this, "Jungle", Toast.LENGTH_SHORT).show();
                 initImageBitmaps(wantedPosition, rView);
             }
         });
@@ -192,6 +170,7 @@ public class MainChampions extends AppCompatActivity {
                 mWinRates.clear();
                 mChampionPosition.clear();
                 wantedPosition = 3;
+                Toast.makeText(MainChampions.this, "Middle", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "User picked Middle");
                 initImageBitmaps(wantedPosition, rView);
             }
@@ -208,6 +187,7 @@ public class MainChampions extends AppCompatActivity {
                 mWinRates.clear();
                 mChampionPosition.clear();
                 wantedPosition = 4;
+                Toast.makeText(MainChampions.this, "Support", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "User picked Support");
                 initImageBitmaps(wantedPosition, rView);
             }
@@ -224,6 +204,7 @@ public class MainChampions extends AppCompatActivity {
                 mWinRates.clear();
                 mChampionPosition.clear();
                 wantedPosition = 5;
+                Toast.makeText(MainChampions.this, "ADC", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "User picked Bottom");
                 initImageBitmaps(wantedPosition, rView);
             }
@@ -264,17 +245,43 @@ public class MainChampions extends AppCompatActivity {
         });
     }
 
-    //For when connection to ChampionGG goes through
-//    public void addChampion()
-//    {
-//        for (int i = 0; i < 147; i++)
-//        {
-//            mImageUrls.add(apicall.champimage[i]);
-//            mNames.add(apicall.champnames[i]);
-//            mWinRates.add(apicall.champwinrate[i]);
-//            mChampionPosition.add(apicall.champposition[i]);
-//        }
-//    }
+    public void replaceRoles(List<ChampionRates> rates)
+    {
+        for (int i = 0; i < rates.size(); i++)
+        {
+            if (rates.get(i).getChampionRole().toLowerCase().contains("top"))
+            {
+                rates.get(i).setChampionRole("Top");
+            }
+            if (rates.get(i).getChampionRole().toLowerCase().contains("jun"))
+            {
+                rates.get(i).setChampionRole("Jungle");
+            }
+            if (rates.get(i).getChampionRole().toLowerCase().contains("mid"))
+            {
+                rates.get(i).setChampionRole("Middle");
+            }
+            if (rates.get(i).getChampionRole().toLowerCase().contains("carry"))
+            {
+                rates.get(i).setChampionRole("ADC");
+            }
+            if (rates.get(i).getChampionRole().toLowerCase().contains("sup"))
+            {
+                rates.get(i).setChampionRole("Support");
+            }
+        }
+    }
+
+    public void addChampion(List<ChampionRates> rates)
+    {
+        for (int i = 0; i < rates.size() - 1; i++)
+        {
+            mImageUrls.add("http://media.comicbook.com/2017/07/aatrox-0-1005633.jpg");//mImageUrls.add(apicall.champimage[i]);
+            mNames.add(rates.get(i).getChampionId());
+            mWinRates.add(rates.get(i).getWinRate());
+            mChampionPosition.add(rates.get(i).getChampionRole());
+        }
+    }
 
     public void buttonAnimation(final Button button) { // Timing and animation effects
         Animation btn = new AlphaAnimation(1.00f, 0.00f);
@@ -297,10 +304,10 @@ public class MainChampions extends AppCompatActivity {
             }
         });
 
-         button.startAnimation(btn);
+        button.startAnimation(btn);
     }
 
-    public void clear(RecyclerView rView) {
+    public void clear (RecyclerView rView) {
         final int size = mNames.size();
         if (size > 0) {
             for (int i = 0; i < size; i++) {
@@ -311,7 +318,6 @@ public class MainChampions extends AppCompatActivity {
             }
         }
     }
-
 
     public void fabOpenClose()
     {
@@ -355,6 +361,8 @@ public class MainChampions extends AppCompatActivity {
 
     private void initImageBitmaps(int wantedPosition, RecyclerView rView){
         Log.d(TAG, "initImageBitmaps: preparing bitmaps.");
+
+
 
         //Call<List<ChampionDTO>> champions = apiService.getChampions();
         //Log.d(TAG, champions.toString());
@@ -1061,7 +1069,7 @@ public class MainChampions extends AppCompatActivity {
             case 1:
                 for (int i = 0; i < m-1; i++ )
                 {
-                    if (i == 147) { break; } //There's 147 champions, if it reaches this, something is wrong.
+//                    if (i == 147) { break; } //There's 147 champions, if it reaches this, something is wrong.
 
                     if (!mChampionPosition.get(i).toLowerCase().contains("top"))
                     {
@@ -1078,7 +1086,7 @@ public class MainChampions extends AppCompatActivity {
             case 2:
                 for (int i = 0; i < m-1; i++ )
                 {
-                    if (i == 147) { break; }
+//                    if (i == 147) { break; }
 
                     if (!mChampionPosition.get(i).toLowerCase().contains("jun"))
                     {
@@ -1095,7 +1103,7 @@ public class MainChampions extends AppCompatActivity {
             case 3:
                 for (int i = 0; i < m-1; i++ )
                 {
-                    if (i == 147) { break; }
+//                    if (i == 147) { break; }
 
                     if (!mChampionPosition.get(i).toLowerCase().contains("mid"))
                     {
@@ -1112,7 +1120,7 @@ public class MainChampions extends AppCompatActivity {
             case 4:
                 for (int i = 0; i < m-1; i++ )
                 {
-                    if (i == 147) { break; }
+//                    if (i == 147) { break; }
 
                     if (!mChampionPosition.get(i).toLowerCase().contains("sup"))
                     {
@@ -1130,7 +1138,7 @@ public class MainChampions extends AppCompatActivity {
 
                 for (int i = 0; i < m-1; i++ )
                 {
-                    if (i == 147) { break; }
+//                    if (i == 147) { break; }
 
                     if (!mChampionPosition.get(i).toLowerCase().contains("adc"))
                     {
