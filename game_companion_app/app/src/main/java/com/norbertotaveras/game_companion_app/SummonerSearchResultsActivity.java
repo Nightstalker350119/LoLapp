@@ -95,8 +95,6 @@ public class SummonerSearchResultsActivity
     private MaterialSheetFab<AnimatedMenuFab> matchFilterSheet;
     private MaterialSheetFab<AnimatedMenuFab> champSortSheet;
 
-    private boolean initializing;
-
     public SummonerSearchResultsActivity() {
         leagueInfo = new LeagueInfo();
     }
@@ -163,8 +161,6 @@ public class SummonerSearchResultsActivity
             clr.setVisibility(View.GONE);
 
         tabLayout.addOnTabSelectedListener(this);
-
-        initializing = true;
 
         apiService = RiotAPI.getInstance(getApplicationContext());
 
