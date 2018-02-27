@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -18,13 +19,18 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gordonwong.materialsheetfab.AnimatedFab;
 import com.gordonwong.materialsheetfab.MaterialSheetFab;
+import com.norbertotaveras.game_companion_app.ChampionPage.MainChampions;
 import com.norbertotaveras.game_companion_app.DTO.League.LeaguePositionDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantIdentityDTO;
@@ -78,6 +84,15 @@ public class SummonerSearchResultsActivity
     private AnimatedFab summonerFab;
     private AnimatedFab champsFab;
 
+    //FAB Button stuff
+
+//    FloatingActionButton fabPlus, fabSolo, fabName, fabFlex, fabPoints, fabNormal, fabLevel, fabARAM, fabEvent, fabFilter;
+//    Animation FabOpen, FabClose, FabRotateClockWise, FabRotateCounterClockWise;
+//    int wantedPosition = 0; //0=all | 1=Solo | 2=Flex | 3=Normals | 4=ARAM | 5=event | 6=Name | 7=Points | 8=Level
+//    boolean isOpen = false;
+
+    //FAB Button stuff
+
     //private LeagueCollectionFragmentAdapter leaguePagerAdapter;
     //private ViewPager leaguePager;
 
@@ -103,6 +118,133 @@ public class SummonerSearchResultsActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_summoner_search_results);
+//
+//        //Button functionality() {
+//        fabPlus = findViewById(R.id.summoner_fab); //MainFAB
+//        fabSolo = findViewById(R.id.match_filter_ranked_solo); //Sort by SoloQ
+//        fabFlex = findViewById(R.id.match_filter_ranked_flex); //Sort by FlexQ
+//        fabNormal = findViewById(R.id.match_filter_normal); //Sort by Normals
+//        fabARAM = findViewById(R.id.match_filter_aram); //Sort by ARAM
+//        fabEvent = findViewById(R.id.match_filter_event); //Sort by event
+//        fabFilter = findViewById(R.id.match_filter_all); //Sort, filter back to all
+//        fabName = findViewById(R.id.champ_sort_by_champion); //Sort by champion name
+//        FabOpen = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open); //OpenAnimationOnFAB
+//        FabClose = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close); //CloseAnimationOnFAB
+//        FabRotateClockWise = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_clockwise); //FABRotate
+//        FabRotateCounterClockWise = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_counterclockwise); //FABRotateCCWise
+//
+//
+//        //Button Events start here
+//        fabPlus.setOnClickListener(new View.OnClickListener() { //Sorting buttons
+//            @Override
+//            public void onClick(View v) {
+//                fabOpenClose();
+//            }
+//        });
+//
+//        fabFilter.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                fabOpenClose();
+//
+//                wantedPosition = 0;
+//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//        fabSolo.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v)
+//            {
+//                fabOpenClose();
+//
+//                wantedPosition = 1;
+//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//        fabFlex.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                fabOpenClose();
+//
+//                wantedPosition = 2;
+//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//        fabNormal.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v)
+//            {
+//                fabOpenClose();
+//
+//                wantedPosition = 3;
+//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//        fabARAM.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v)
+//            {
+//                fabOpenClose();
+//
+//                wantedPosition = 4;
+//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//        fabEvent.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v)
+//            {
+//                fabOpenClose();
+//
+//                wantedPosition = 5;
+//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//        fabName.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v)
+//            {
+//                fabOpenClose();
+//
+//                wantedPosition = 6;
+//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//        fabPoints.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v)
+//            {
+//                fabOpenClose();
+//
+//                wantedPosition = 7;
+//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//        fabLevel.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v)
+//            {
+//                fabOpenClose();
+//
+//                wantedPosition = 8;
+//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//
+//
+
+
+
+        //      };
 
         Intent intent = getIntent();
         searchName = intent.getStringExtra("searchName");
@@ -153,6 +295,109 @@ public class SummonerSearchResultsActivity
 
         search();
     }
+
+    // BUTTON STUFF! LOGAN
+//    public void fabOpenClose()
+//    {
+//        if(isOpen)
+//        {
+//            fabSolo.startAnimation(FabClose);
+//            fabName.startAnimation(FabClose);
+//            fabFlex.startAnimation(FabClose);
+//            fabPoints.startAnimation(FabClose);
+//            fabNormal.startAnimation(FabClose);
+//            fabLevel.startAnimation(FabClose);
+//            fabARAM.startAnimation(FabClose);
+//            fabEvent.startAnimation(FabClose);
+//            fabFilter.startAnimation(FabClose);
+//            fabPlus.startAnimation(FabRotateCounterClockWise);
+//            fabSolo.setClickable(false);
+//            fabName.setClickable(false);
+//            fabFlex.setClickable(false);
+//            fabPoints.setClickable(false);
+//            fabNormal.setClickable(false);
+//            fabLevel.setClickable(false);
+//            fabARAM.setClickable(false);
+//            fabEvent.setClickable(false);
+//            fabFilter.setClickable(false);
+//            isOpen = false;
+//        }
+//
+//        else
+//        {
+//            //Animate buttons coming out of our FAB and get them working
+//            fabSolo.startAnimation(FabOpen);
+//            fabName.startAnimation(FabOpen);
+//            fabFlex.startAnimation(FabOpen);
+//            fabPoints.startAnimation(FabOpen);
+//            fabNormal.startAnimation(FabOpen);
+//            fabLevel.startAnimation(FabOpen);
+//            fabARAM.startAnimation(FabOpen);
+//            fabEvent.startAnimation(FabOpen);
+//            fabFilter.startAnimation(FabOpen);
+//            fabPlus.startAnimation(FabRotateClockWise);
+//            fabSolo.setClickable(true);
+//            fabName.setClickable(true);
+//            fabFlex.setClickable(true);
+//            fabPoints.setClickable(true);
+//            fabNormal.setClickable(true);
+//            fabLevel.setClickable(true);
+//            fabARAM.setClickable(true);
+//            fabEvent.setClickable(true);
+//            fabFilter.setClickable(true);
+//            isOpen = true;
+//        }
+//    }
+
+    public void buttonAnimation(final Button button) { // Timing and animation effects
+        Animation btn = new AlphaAnimation(1.00f, 0.00f);
+        btn.setDuration(3000);
+        btn.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                button.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                button.setVisibility(View.INVISIBLE);
+                button.setEnabled(false);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        button.startAnimation(btn);
+    }
+
+    public void buttonEventHandler(int wantedPosition)
+    {
+        switch (wantedPosition) {
+            case 0: //Filter
+                break;
+            case 1: //Solo Results
+                break;
+            case 2: //Flex Results
+                break;
+            case 3: //Normal Results
+                break;
+            case 4: //ARAM Results
+                break;
+            case 5: //Event Results
+                break;
+            case 6: //Name Results
+                break;
+            case 7: //Points Results
+                break;
+            case 8: //Level Results
+                break;
+        }
+    }
+
+    // End of Button Stuff
 
     private Point getDisplaySize() {
         Display display = getWindowManager().getDefaultDisplay();

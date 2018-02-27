@@ -82,8 +82,7 @@ public class MainChampions extends AppCompatActivity {
 
         Log.d(TAG, "onCreate: starting.");
 
-
-        final Button btnTop = (Button) findViewById(R.id.topButton);
+        final Button btnTop = (Button) findViewById(R.id.topButton); //Bring me to top button
         final RecyclerView rView = findViewById(R.id.winrecyclerview);
         btnTop.setEnabled(false);
 
@@ -155,6 +154,7 @@ public class MainChampions extends AppCompatActivity {
                 mChampionPosition.clear();
                 wantedPosition = 2;
                 Toast.makeText(MainChampions.this, "Jungle", Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "User picked Jungle");
                 initImageBitmaps(wantedPosition, rView);
             }
         });
