@@ -1,3 +1,5 @@
+package com.norbertotaveras.game_companion_app;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
@@ -42,6 +44,7 @@ public class RoundTextView extends android.support.v7.widget.AppCompatTextView {
         textPaint = new Paint();
         textPaint.setTextAlign(Paint.Align.CENTER);
         textBounds = new Rect();
+        textPaint.setTextSize(getTextSize());
         setTextColor(getCurrentTextColor());
     }
 
@@ -49,6 +52,11 @@ public class RoundTextView extends android.support.v7.widget.AppCompatTextView {
     public void setTextColor(int color) {
         super.setTextColor(color);
         textPaint.setColor(color);
+    }
+
+    @Override
+    public void setTextSize(int unit, float size) {
+        textPaint.setTextSize(size);
     }
 
     @SuppressLint("MissingSuperCall")
@@ -59,9 +67,10 @@ public class RoundTextView extends android.support.v7.widget.AppCompatTextView {
         int height = getHeight();
 
         //textPaint.getTextBounds(text.toString(), 0, text.length(), textBounds);
+        backgroundPaint.setColor(0xff123456);
+        textPaint.setColor(0xFFFECDBA);
 
-
-        canvas.drawCircle(width / 2, height / 2, Math.min(width, height), backgroundPaint);
+        canvas.drawCircle(width / 2, height / 2, Math.min(width, height)/2, backgroundPaint);
         canvas.drawText(text, 0, text.length(), width / 2, height / 2, textPaint);
     }
 }
