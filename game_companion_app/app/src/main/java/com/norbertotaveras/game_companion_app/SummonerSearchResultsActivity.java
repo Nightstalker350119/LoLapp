@@ -1,7 +1,6 @@
 package com.norbertotaveras.game_companion_app;
 
 import android.content.Intent;
-import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,15 +9,11 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,12 +31,10 @@ import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -52,7 +45,7 @@ import retrofit2.Response;
  */
 
 public class SummonerSearchResultsActivity
-        extends AppCompatActivity implements TabLayout.OnTabSelectedListener {
+        extends AppCompatActivity implements TabLayout.OnTabSelectedListener, ViewPager.OnPageChangeListener {
     private RiotGamesService apiService;
 
     private String searchName;
@@ -110,8 +103,8 @@ public class SummonerSearchResultsActivity
 
         tabLayout = findViewById(R.id.tabs);
         tabPager = findViewById(R.id.tab_pager);
-
         tabPagerAdapter = new TabPagerAdapter(getSupportFragmentManager());
+        tabPager.addOnPageChangeListener(this);
 
         matchesFragment = MatchesFragment.newInstance();
         champsFragment = ChampsFragment.newInstance();
@@ -442,11 +435,12 @@ public class SummonerSearchResultsActivity
     public void onBackPressed() {
         // Close the match filter menu on back press if it is visible
         // otherwise, do default back behavior
-        if (matchFilterSheet.isSheetVisible() || champSortSheet.isSheetVisible()) {
+        if (matchFilterSheet.isSheetVisible())
             matchFilterSheet.hideSheet();
-        } else {
+        else if (champSortSheet.isSheetVisible())
+            champSortSheet.hideSheet();
+        else
             super.onBackPressed();
-        }
     }
 
     // Enables the FloatingActionButton between tabs (Matches and Fragment)
@@ -464,11 +458,26 @@ public class SummonerSearchResultsActivity
 
     @Override
     public void onTabUnselected(TabLayout.Tab tab) {
-
     }
 
     @Override
     public void onTabReselected(TabLayout.Tab tab) {
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        if (champSortSheet.isSheetVisible())
+            champSortSheet.hideSheet();
+        if (matchFilterSheet.isSheetVisible())
+            matchFilterSheet.hideSheet();
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
 
     }
 
