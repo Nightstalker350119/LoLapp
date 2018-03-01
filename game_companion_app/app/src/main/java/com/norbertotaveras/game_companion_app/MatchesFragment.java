@@ -103,6 +103,7 @@ public class MatchesFragment
         matchListAdapter.setMatchClickListener(this);
 
         matchListNoResults = view.findViewById(R.id.no_results);
+
         return view;
     }
 
