@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">game_companion_app</string>
+    <string name="app_name">LoLApp</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Champions</string>
     <string name="title_notifications">More</string>
