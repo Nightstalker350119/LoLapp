@@ -27,7 +27,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.norbertotaveras.game_companion_app.ChampionPage.ChampionsActivity;
+//import com.norbertotaveras.game_companion_app.ChampionPage.ChampionsActivity;
 import com.norbertotaveras.game_companion_app.ChampionPage.MainChampions;
 import com.norbertotaveras.game_companion_app.DTO.League.LeaguePositionDTO;
 import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
