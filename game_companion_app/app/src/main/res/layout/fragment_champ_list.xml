@@ -40,7 +40,7 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -54,6 +54,16 @@
             android:layout_height="48dp"
             android:text="level"/>
 
-    </LinearLayout>
+        <com.norbertotaveras.game_companion_app.RoundTextView
+            android:layout_width="64dp"
+            android:layout_height="27dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_margin="0dp"
+            android:textSize="9dp"
+            android:textStyle="bold"
+            android:text="Test"/>
+
+    </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>
