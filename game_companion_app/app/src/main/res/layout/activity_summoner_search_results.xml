@@ -210,6 +210,177 @@
         android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
+    <!--Summoner FAB-->
+    <!--<android.support.design.widget.FloatingActionButton-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom|end"-->
+    <!--android:layout_marginRight="@dimen/fab_margin_right"-->
+    <!--android:layout_marginBottom="16dp"-->
+    <!--android:src="@drawable/ic_action_plus"-->
+    <!--android:elevation="6dp"-->
+    <!--android:id="@+id/summoner_fab"-->
+    <!--app:pressedTranslationZ="12dp"-->
+    <!--android:backgroundTint="@color/colorPrimary"-->
+    <!--android:tooltipText="Roles"-->
+    <!--/>-->
+    <!--Champion FAB NOT REALLY NECESSARY-->
+    <!--<android.support.design.widget.FloatingActionButton-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom|end"-->
+    <!--android:layout_marginRight="@dimen/fab_margin_right"-->
+    <!--android:layout_marginBottom="16dp"-->
+    <!--android:src="@drawable/ic_action_plus"-->
+    <!--android:elevation="6dp"-->
+    <!--android:id="@+id/champs_fab"-->
+    <!--app:pressedTranslationZ="12dp"-->
+    <!--android:backgroundTint="@color/colorPrimary"-->
+    <!--android:tooltipText="Roles"-->
+    <!--/>-->
+    <!--Normals Button-->
+    <!--<android.support.design.widget.FloatingActionButton-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom|end"-->
+    <!--android:layout_marginRight="@dimen/fab_margin_right"-->
+    <!--android:layout_marginBottom="71dp"-->
+    <!--android:src="@drawable/ic_action_bottom"-->
+    <!--android:elevation="6dp"-->
+    <!--android:id="@+id/match_filter_normal"-->
+    <!--app:pressedTranslationZ="12dp"-->
+    <!--android:backgroundTint="@color/colorButtons"-->
+    <!--android:visibility="invisible"-->
+    <!--android:tooltipText="Bottom"-->
+    <!--/>-->
+    <!--Level Button-->
+    <!--<android.support.design.widget.FloatingActionButton-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom|end"-->
+    <!--android:layout_marginRight="@dimen/fab_margin_right"-->
+    <!--android:layout_marginBottom="71dp"-->
+    <!--android:src="@drawable/ic_action_bottom"-->
+    <!--android:elevation="6dp"-->
+    <!--android:id="@+id/champ_sort_by_level"-->
+    <!--app:pressedTranslationZ="12dp"-->
+    <!--android:backgroundTint="@color/colorButtons"-->
+    <!--android:visibility="invisible"-->
+    <!--android:tooltipText="Bottom"-->
+    <!--/>-->
+    <!--Flex Button-->
+    <!--<android.support.design.widget.FloatingActionButton-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom|end"-->
+    <!--android:layout_marginRight="@dimen/fab_margin_right"-->
+    <!--android:layout_marginBottom="121dp"-->
+    <!--android:src="@drawable/ic_action_middle"-->
+    <!--android:elevation="6dp"-->
+    <!--android:id="@+id/match_filter_ranked_flex"-->
+    <!--app:pressedTranslationZ="12dp"-->
+    <!--android:backgroundTint="@color/colorButtons"-->
+    <!--android:visibility="invisible"-->
+    <!--android:tooltipText="Middle"-->
+    <!--/>-->
+    <!--Points Button-->
+    <!--<android.support.design.widget.FloatingActionButton-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom|end"-->
+    <!--android:layout_marginRight="@dimen/fab_margin_right"-->
+    <!--android:layout_marginBottom="121dp"-->
+    <!--android:src="@drawable/ic_action_middle"-->
+    <!--android:elevation="6dp"-->
+    <!--android:id="@+id/champ_sort_by_points"-->
+    <!--app:pressedTranslationZ="12dp"-->
+    <!--android:backgroundTint="@color/colorButtons"-->
+    <!--android:visibility="invisible"-->
+    <!--android:tooltipText="Middle"-->
+    <!--/>-->
+    <!--Solo Button-->
+    <!--<android.support.design.widget.FloatingActionButton-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom|end"-->
+    <!--android:layout_marginRight="@dimen/fab_margin_right"-->
+    <!--android:layout_marginBottom="171dp"-->
+    <!--android:src="@drawable/ic_action_top"-->
+    <!--android:elevation="6dp"-->
+    <!--android:id="@+id/match_filter_ranked_solo"-->
+    <!--app:pressedTranslationZ="12dp"-->
+    <!--android:backgroundTint="@color/colorButtons"-->
+    <!--android:visibility="invisible"-->
+    <!--android:tooltipText="Top"-->
+    <!--/>-->
+    <!--Champion Name Button-->
+    <!--<android.support.design.widget.FloatingActionButton-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom|end"-->
+    <!--android:layout_marginRight="@dimen/fab_margin_right"-->
+    <!--android:layout_marginBottom="171dp"-->
+    <!--android:src="@drawable/ic_action_top"-->
+    <!--android:elevation="6dp"-->
+    <!--android:id="@+id/champ_sort_by_champion"-->
+    <!--app:pressedTranslationZ="12dp"-->
+    <!--android:backgroundTint="@color/colorButtons"-->
+    <!--android:visibility="invisible"-->
+    <!--android:tooltipText="Top"-->
+    <!--/>-->
+    <!--ARAM Button-->
+    <!--<android.support.design.widget.FloatingActionButton-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom|end"-->
+    <!--android:layout_marginRight="71dp"-->
+    <!--android:layout_marginBottom="16dp"-->
+    <!--android:src="@drawable/ic_action_support"-->
+    <!--android:elevation="6dp"-->
+    <!--android:id="@+id/match_filter_aram"-->
+    <!--app:pressedTranslationZ="12dp"-->
+    <!--android:backgroundTint="@color/colorButtons"-->
+    <!--android:visibility="invisible"-->
+    <!--android:tooltipText="Support"-->
+    <!--/>-->
+    <!--Event Button-->
+    <!--<android.support.design.widget.FloatingActionButton-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom|end"-->
+    <!--android:layout_marginRight="121dp"-->
+    <!--android:layout_marginBottom="16dp"-->
+    <!--android:src="@drawable/ic_action_jungle"-->
+    <!--android:elevation="6dp"-->
+    <!--android:id="@+id/match_filter_event"-->
+    <!--app:pressedTranslationZ="12dp"-->
+    <!--android:backgroundTint="@color/colorButtons"-->
+    <!--android:visibility="invisible"-->
+    <!--android:tooltipText="Jungle"/>-->
+
+    <!--All Button-->
+    <!--<android.support.design.widget.FloatingActionButton-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom|end"-->
+    <!--android:layout_marginRight="71dp"-->
+    <!--android:layout_marginBottom="71dp"-->
+    <!--android:src="@drawable/ic_action_filter"-->
+    <!--android:elevation="6dp"-->
+    <!--android:id="@+id/match_filter_all"-->
+    <!--app:pressedTranslationZ="12dp"-->
+    <!--android:backgroundTint="@color/colorPrimary"-->
+    <!--android:visibility="invisible"-->
+    <!--android:tooltipText="All"-->
+    <!--/>-->
+
+    <!--<com.gordonwong.materialsheetfab.DimOverlayFrameLayout-->
+    <!--android:id="@+id/dim_overlay"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:visibility="gone"/>-->
+
+
     <RelativeLayout
         android:layout_height="match_parent"
         android:layout_width="match_parent"
