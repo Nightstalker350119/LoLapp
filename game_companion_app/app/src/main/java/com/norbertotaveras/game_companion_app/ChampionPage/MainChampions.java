@@ -8,6 +8,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -58,6 +61,7 @@ public class MainChampions extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.activity_main_champions, container, false);
+        setHasOptionsMenu(true);
 
         //Sorting buttons
         fabPlus = view.findViewById(R.id.fab_plus);
@@ -107,8 +111,8 @@ public class MainChampions extends Fragment {
                 for (int i = 0; i < rates.size() - 1; i++)
                 {
                     int currentID = Integer.parseInt(rates.get(i).getChampionId());
-                    TransitionID2Name(currentID);
-
+                    IDtoName(currentID);
+                    rates.get(i).setChampionId(championName);
 
                     Log.v(TAG, "ChampID(" + i + ") = " + rates.get(i).getChampionId());
                     Log.v(TAG, "winRate(" + i + ") = " + rates.get(i).getWinRate());
@@ -279,6 +283,300 @@ public class MainChampions extends Fragment {
 //            mChampionPosition.add(apicall.champposition[i]);
 //        }
 //    }
+
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.mainchampmenu, menu);
+        super.onCreateOptionsMenu(menu,inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.win_search:
+                return true;
+            case R.id.pick_search:
+                return true;
+            case R.id.ban_search:
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void IDtoName(int id)
+    {
+        switch (id)
+        {
+            case 266:
+                championName =  "Aatrox";
+            case 412:
+                championName =  "Thresh";
+            case 23:
+                championName = "Tryndamere";
+            case 79:
+                championName = "Gragas";
+            case 69:
+                championName = "Cassiopeia";
+            case 136:
+                championName = "Aurelion Sol";
+            case 13:
+                championName = "Ryze";
+            case 78:
+                championName = "Poppy";
+            case 14:
+                championName = "Sion";
+            case 1:
+                championName = "Annie";
+            case 202:
+                championName = "Jhin";
+            case 43:
+                championName = "Karma";
+            case 111:
+                championName = "Nautilus";
+            case 240:
+                championName = "Kled";
+            case 99:
+                championName = "Lux";
+            case 103:
+                championName = "Ahri";
+            case 2:
+                championName = "Olaf";
+            case 112:
+                championName = "Viktor";
+            case 34:
+                championName = "Anivia";
+            case 27:
+                championName = "Singed";
+            case 86:
+                championName = "Garen";
+            case 127:
+                championName = "Lissandra";
+            case 57:
+                championName = "Maokai";
+            case 25:
+                championName = "Morgana";
+            case 28:
+                championName = "Evelynn";
+            case 105:
+                championName = "Fizz";
+            case 74:
+                championName = "Heimerdinger";
+            case 238:
+                championName = "Zed";
+            case 68:
+                championName = "Rumble";
+            case 82:
+                championName = "Mordekaiser";
+            case 37:
+                championName = "Sona";
+            case 96:
+                championName = "Kog'Maw";
+            case 55:
+                championName = "Katarina";
+            case 117:
+                championName = "Lulu";
+            case 22:
+                championName = "Ashe";
+            case 30:
+                championName = "Karthus";
+            case 12:
+                championName = "Alistar";
+            case 122:
+                championName = "Darius";
+            case 67:
+                championName = "Vayne";
+            case 110:
+                championName = "Varus";
+            case 77:
+                championName = "Udyr";
+            case 89:
+                championName = "Leona";
+            case 126:
+                championName = "Jayce";
+            case 134:
+                championName = "Syndra";
+            case 80:
+                championName = "Pantheon";
+            case 92:
+                championName = "Riven";
+            case 121:
+                championName = "Kha'Zix";
+            case 42:
+                championName = "Corki";
+            case 268:
+                championName = "Azir";
+            case 51:
+                championName = "Caitlyn";
+            case 76:
+                championName = "Nidalee";
+            case 85:
+                championName = "Kennen";
+            case 3:
+                championName = "Galio";
+            case 45:
+                championName = "Veigar";
+            case 432:
+                championName = "Bard";
+            case 150:
+                championName = "Gnar";
+            case 90:
+                championName = "Malzahar";
+            case 104:
+                championName = "Graves";
+            case 254:
+                championName = "Vi";
+            case 10:
+                championName = "Kayle";
+            case 39:
+                championName = "Irelia";
+            case 64:
+                championName = "Lee Sin";
+            case 420:
+                championName = "Illaoi";
+            case 60:
+                championName = "Elise";
+            case 106:
+                championName = "Volibear";
+            case 20:
+                championName = "Nunu";
+            case 4:
+                championName = "Twisted Fate";
+            case 24:
+                championName = "Jax";
+            case 102:
+                championName = "Shyvana";
+            case 429:
+                championName = "Kalista";
+            case 36:
+                championName = "Dr. Mundo";
+            case 427:
+                championName = "Ivern";
+            case 131:
+                championName = "Diana";
+            case 223:
+                championName = "Tahm Kench";
+            case 63:
+                championName = "Brand";
+            case 113:
+                championName = "Sejuani";
+            case 8:
+                championName = "Vladimir";
+            case 154:
+                championName = "Zac";
+            case 421:
+                championName = "Rek'Sai";
+            case 133:
+                championName = "Quinn";
+            case 84:
+                championName = "Akali";
+            case 163:
+                championName = "Taliyah";
+            case 18:
+                championName = "Tristana";
+            case 120:
+                championName = "Hecarim";
+            case 15:
+                championName = "Sivir";
+            case 236:
+                championName = "Lucian";
+            case 107:
+                championName = "Rengar";
+            case 19:
+                championName = "Warwick";
+            case 72:
+                championName = "Skarner";
+            case 54:
+                championName = "Malphite";
+            case 157:
+                championName = "Yasuo";
+            case 101:
+                championName = "Xerath";
+            case 17:
+                championName = "Teemo";
+            case 75:
+                championName = "Nasus";
+            case 58:
+                championName = "Renekton";
+            case 119:
+                championName = "Draven";
+            case 35:
+                championName = "Shaco";
+            case 50:
+                championName = "Swain";
+            case 91:
+                championName = "Talon";
+            case 40:
+                championName = "Janna";
+            case 115:
+                championName = "Ziggs";
+            case 245:
+                championName = "Ekko";
+            case 61:
+                championName = "Orianna";
+            case 114:
+                championName = "Fiora";
+            case 9:
+                championName = "Fiddlesticks";
+            case 31:
+                championName = "Cho'Gath";
+            case 33:
+                championName = "Rammus";
+            case 7:
+                championName = "LeBlanc";
+            case 16:
+                championName = "Soraka";
+            case 26:
+                championName = "Zilean";
+            case 56:
+                championName = "Nocturne";
+            case 222:
+                championName = "Jinx";
+            case 83:
+                championName = "Yorick";
+            case 6:
+                championName = "Urgot";
+            case 203:
+                championName = "Kindred";
+            case 21:
+                championName = "Miss Fortune";
+            case 62:
+                championName = "Wukong";
+            case 53:
+                championName = "Blitzcrank";
+            case 98:
+                championName = "Shen";
+            case 201:
+                championName = "Braum";
+            case 5:
+                championName = "Xin Zhao";
+            case 29:
+                championName = "Twitch";
+            case 11:
+                championName = "Master Yi";
+            case 44:
+                championName = "Taric";
+            case 32:
+                championName = "Amumu";
+            case 41:
+                championName = "Gangplank";
+            case 48:
+                championName = "Trundle";
+            case 38:
+                championName = "Kassadin";
+            case 161:
+                championName = "Vel'Koz";
+            case 143:
+                championName = "Zyra";
+            case 267:
+                championName = "Nami";
+            case 59:
+                championName = "Jarvan IV";
+            case 81:
+                championName = "Ezreal";
+        }
+    }
 
     public void TransitionID2Name(int id) {
         final int champID = id;

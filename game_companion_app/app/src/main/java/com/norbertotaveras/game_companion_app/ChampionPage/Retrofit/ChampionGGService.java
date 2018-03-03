@@ -12,6 +12,6 @@ import retrofit2.http.GET;
  */
 
 public interface ChampionGGService {
-    @GET("champions?limit=1&api_key=75aeb3ae675651c7cbe4fc72651c846f") //&?sort=winRate-desc,championId,playRate,banRate
+    @GET("champions?api_key=75aeb3ae675651c7cbe4fc72651c846f") //&?sort=winRate-desc,championId,playRate,banRate
     Call<List<ChampionRates>> getChampInfo();
 }

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/win_search"
+        android:icon="@drawable/winimage"
+        android:title="WinRate"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/pick_search"
+        android:icon="@drawable/pickimage"
+        android:title="PickRate"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/ban_search"
+        android:icon="@drawable/banimage"
+        android:title="BanRate"
+        app:showAsAction="always"/>
+
+</menu>
