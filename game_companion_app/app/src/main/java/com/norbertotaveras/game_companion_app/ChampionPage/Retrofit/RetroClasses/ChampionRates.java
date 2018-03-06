@@ -1,4 +1,4 @@
-package com.norbertotaveras.game_companion_app.ChampionPage;
+package com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.RetroClasses;
 
 import com.google.gson.annotations.SerializedName;
 

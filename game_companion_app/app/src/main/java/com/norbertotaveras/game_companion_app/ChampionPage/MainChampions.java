@@ -21,6 +21,9 @@ import android.widget.Toast;
 
 import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.ChampionGGService;
 import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.ChampionRiotAPI;
+import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.RetroClasses.ChampionDTO;
+import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.RetroClasses.ChampionName;
+import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.RetroClasses.ChampionRates;
 import com.norbertotaveras.game_companion_app.R;
 
 import java.util.ArrayList;
@@ -53,8 +56,9 @@ public class MainChampions extends Fragment {
     private ArrayList<String> mWinRates = new ArrayList<>(); //Needs api calls, use placeholders atm
     private ArrayList<String> mChampionPosition = new ArrayList<>(); //
     private List<ChampionRates> rates;
-    private String championName;
-
+    private ChampionDTO currentChamp;
+    private List<ChampionDTO> allChamps;
+    private List<ChampionName> allChampNames;
 
 
     @Nullable
@@ -90,45 +94,96 @@ public class MainChampions extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-
         Retrofit.Builder builder = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(RIOT_URL)
                 .addConverterFactory(GsonConverterFactory.create());
 
         Retrofit retrofit = builder.build();
 
-        ChampionGGService client = retrofit.create(ChampionGGService.class);
-        Call<List<ChampionRates>> call = client.getChampInfo();
+        ChampionRiotAPI client = retrofit.create(ChampionRiotAPI.class);
+        Call<List<ChampionDTO>> call = client.getChampions();
+        Log.d(TAG, "Attempting RiotCall");
 
-        Log.d(TAG, "About to Call on Championgg");
 
-        call.enqueue(new Callback<List<ChampionRates>>() {
+        call.enqueue(new Callback<List<ChampionDTO>>() {
             @Override
-            public void onResponse(Call<List<ChampionRates>> call, Response<List<ChampionRates>> response) {
-                rates = response.body();
+            public void onResponse(Call<List<ChampionDTO>> call, Response<List<ChampionDTO>> response) {
+                Log.d(TAG, "riotcall Engaged");
+                allChamps = response.body();
 
-                Log.d(TAG, "Call worked");
-                for (int i = 0; i < rates.size() - 1; i++)
-                {
-                    int currentID = Integer.parseInt(rates.get(i).getChampionId());
-                    IDtoName(currentID);
-                    rates.get(i).setChampionId(championName);
-
-                    Log.v(TAG, "ChampID(" + i + ") = " + rates.get(i).getChampionId());
-                    Log.v(TAG, "winRate(" + i + ") = " + rates.get(i).getWinRate());
+                for(int i = 0; i < allChamps.size()-1; i++) {
+                    Log.v(TAG, "allChampnames " + allChamps.get(i).getName());
                 }
-
             }
 
             @Override
-            public void onFailure(Call<List<ChampionRates>> call, Throwable t) {
-                Log.e(TAG, "Unable to retrieve from champion.gg");
-                Toast.makeText(getActivity(), "An error occurred", Toast.LENGTH_SHORT).show();
+            public void onFailure(Call<List<ChampionDTO>> call, Throwable t) {
+
             }
         });
 
+//        Retrofit.Builder riotbuilder = new Retrofit.Builder()
+//                .baseUrl(RIOT_URL)
+//                .addConverterFactory(GsonConverterFactory.create());
+//
+//        Retrofit riotretrofit = riotbuilder.build();
+//        ChampionRiotAPI riotclient = riotretrofit.create(ChampionRiotAPI.class);
+//        Call<List<ChampionName>> riotcall = riotclient.getChampionNames();
+//        Log.d(TAG, "Attempting RiotCall");
+//
+//        riotcall.enqueue(new Callback<List<ChampionName>>() {
+//            @Override
+//            public void onResponse(Call<List<ChampionName>> call, Response<List<ChampionName>> response) {
+//                Log.d(TAG, "riotcall Engaged");
+//                allChampNames = response.body();
+//
+//                for(int i = 0; i < allChampNames.size()-1; i++) {
+//                    Log.v(TAG, "allChampnames " + allChampNames.get(i).getChampionName());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<ChampionName>> call, Throwable t) {
+//
+//            }
+//        });
 
-        Log.d(TAG, "onCreate: starting.");
+        //ChampionGG stuff
+//        Retrofit.Builder builder = new Retrofit.Builder()
+//                .baseUrl(BASE_URL)
+//                .addConverterFactory(GsonConverterFactory.create());
+//
+//        Retrofit retrofit = builder.build();
+//        ChampionGGService client = retrofit.create(ChampionGGService.class);
+//        Call<List<ChampionRates>> call = client.getChampInfo();
+//
+//        Log.d(TAG, "About to Call on Championgg");
+//
+//        call.enqueue(new Callback<List<ChampionRates>>() {
+//            @Override
+//            public void onResponse(Call<List<ChampionRates>> call, Response<List<ChampionRates>> response) {
+//                rates = response.body();
+//
+//                Log.d(TAG, "Call worked");
+//                for (int i = 0; i < rates.size() - 1; i++)
+//                {
+//                    int currentID = Integer.parseInt(rates.get(i).getChampionId());
+////                    TransitionID2Name(currentID);
+////                    rates.get(i).setChampionId(currentChamp.getName());
+//
+//                    Log.v(TAG, "ChampID(" + i + ") = " + rates.get(i).getChampionId());
+//                    Log.v(TAG, "winRate(" + i + ") = " + rates.get(i).getWinRate());
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<ChampionRates>> call, Throwable t) {
+//                Log.e(TAG, "Unable to retrieve from champion.gg");
+//                Toast.makeText(getActivity(), "An error occurred", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
 
 
 
@@ -304,279 +359,279 @@ public class MainChampions extends Fragment {
 
         return super.onOptionsItemSelected(item);
     }
-
-    public void IDtoName(int id)
-    {
-        switch (id)
-        {
-            case 266:
-                championName =  "Aatrox";
-            case 412:
-                championName =  "Thresh";
-            case 23:
-                championName = "Tryndamere";
-            case 79:
-                championName = "Gragas";
-            case 69:
-                championName = "Cassiopeia";
-            case 136:
-                championName = "Aurelion Sol";
-            case 13:
-                championName = "Ryze";
-            case 78:
-                championName = "Poppy";
-            case 14:
-                championName = "Sion";
-            case 1:
-                championName = "Annie";
-            case 202:
-                championName = "Jhin";
-            case 43:
-                championName = "Karma";
-            case 111:
-                championName = "Nautilus";
-            case 240:
-                championName = "Kled";
-            case 99:
-                championName = "Lux";
-            case 103:
-                championName = "Ahri";
-            case 2:
-                championName = "Olaf";
-            case 112:
-                championName = "Viktor";
-            case 34:
-                championName = "Anivia";
-            case 27:
-                championName = "Singed";
-            case 86:
-                championName = "Garen";
-            case 127:
-                championName = "Lissandra";
-            case 57:
-                championName = "Maokai";
-            case 25:
-                championName = "Morgana";
-            case 28:
-                championName = "Evelynn";
-            case 105:
-                championName = "Fizz";
-            case 74:
-                championName = "Heimerdinger";
-            case 238:
-                championName = "Zed";
-            case 68:
-                championName = "Rumble";
-            case 82:
-                championName = "Mordekaiser";
-            case 37:
-                championName = "Sona";
-            case 96:
-                championName = "Kog'Maw";
-            case 55:
-                championName = "Katarina";
-            case 117:
-                championName = "Lulu";
-            case 22:
-                championName = "Ashe";
-            case 30:
-                championName = "Karthus";
-            case 12:
-                championName = "Alistar";
-            case 122:
-                championName = "Darius";
-            case 67:
-                championName = "Vayne";
-            case 110:
-                championName = "Varus";
-            case 77:
-                championName = "Udyr";
-            case 89:
-                championName = "Leona";
-            case 126:
-                championName = "Jayce";
-            case 134:
-                championName = "Syndra";
-            case 80:
-                championName = "Pantheon";
-            case 92:
-                championName = "Riven";
-            case 121:
-                championName = "Kha'Zix";
-            case 42:
-                championName = "Corki";
-            case 268:
-                championName = "Azir";
-            case 51:
-                championName = "Caitlyn";
-            case 76:
-                championName = "Nidalee";
-            case 85:
-                championName = "Kennen";
-            case 3:
-                championName = "Galio";
-            case 45:
-                championName = "Veigar";
-            case 432:
-                championName = "Bard";
-            case 150:
-                championName = "Gnar";
-            case 90:
-                championName = "Malzahar";
-            case 104:
-                championName = "Graves";
-            case 254:
-                championName = "Vi";
-            case 10:
-                championName = "Kayle";
-            case 39:
-                championName = "Irelia";
-            case 64:
-                championName = "Lee Sin";
-            case 420:
-                championName = "Illaoi";
-            case 60:
-                championName = "Elise";
-            case 106:
-                championName = "Volibear";
-            case 20:
-                championName = "Nunu";
-            case 4:
-                championName = "Twisted Fate";
-            case 24:
-                championName = "Jax";
-            case 102:
-                championName = "Shyvana";
-            case 429:
-                championName = "Kalista";
-            case 36:
-                championName = "Dr. Mundo";
-            case 427:
-                championName = "Ivern";
-            case 131:
-                championName = "Diana";
-            case 223:
-                championName = "Tahm Kench";
-            case 63:
-                championName = "Brand";
-            case 113:
-                championName = "Sejuani";
-            case 8:
-                championName = "Vladimir";
-            case 154:
-                championName = "Zac";
-            case 421:
-                championName = "Rek'Sai";
-            case 133:
-                championName = "Quinn";
-            case 84:
-                championName = "Akali";
-            case 163:
-                championName = "Taliyah";
-            case 18:
-                championName = "Tristana";
-            case 120:
-                championName = "Hecarim";
-            case 15:
-                championName = "Sivir";
-            case 236:
-                championName = "Lucian";
-            case 107:
-                championName = "Rengar";
-            case 19:
-                championName = "Warwick";
-            case 72:
-                championName = "Skarner";
-            case 54:
-                championName = "Malphite";
-            case 157:
-                championName = "Yasuo";
-            case 101:
-                championName = "Xerath";
-            case 17:
-                championName = "Teemo";
-            case 75:
-                championName = "Nasus";
-            case 58:
-                championName = "Renekton";
-            case 119:
-                championName = "Draven";
-            case 35:
-                championName = "Shaco";
-            case 50:
-                championName = "Swain";
-            case 91:
-                championName = "Talon";
-            case 40:
-                championName = "Janna";
-            case 115:
-                championName = "Ziggs";
-            case 245:
-                championName = "Ekko";
-            case 61:
-                championName = "Orianna";
-            case 114:
-                championName = "Fiora";
-            case 9:
-                championName = "Fiddlesticks";
-            case 31:
-                championName = "Cho'Gath";
-            case 33:
-                championName = "Rammus";
-            case 7:
-                championName = "LeBlanc";
-            case 16:
-                championName = "Soraka";
-            case 26:
-                championName = "Zilean";
-            case 56:
-                championName = "Nocturne";
-            case 222:
-                championName = "Jinx";
-            case 83:
-                championName = "Yorick";
-            case 6:
-                championName = "Urgot";
-            case 203:
-                championName = "Kindred";
-            case 21:
-                championName = "Miss Fortune";
-            case 62:
-                championName = "Wukong";
-            case 53:
-                championName = "Blitzcrank";
-            case 98:
-                championName = "Shen";
-            case 201:
-                championName = "Braum";
-            case 5:
-                championName = "Xin Zhao";
-            case 29:
-                championName = "Twitch";
-            case 11:
-                championName = "Master Yi";
-            case 44:
-                championName = "Taric";
-            case 32:
-                championName = "Amumu";
-            case 41:
-                championName = "Gangplank";
-            case 48:
-                championName = "Trundle";
-            case 38:
-                championName = "Kassadin";
-            case 161:
-                championName = "Vel'Koz";
-            case 143:
-                championName = "Zyra";
-            case 267:
-                championName = "Nami";
-            case 59:
-                championName = "Jarvan IV";
-            case 81:
-                championName = "Ezreal";
-        }
-    }
+//
+//    public void IDtoName(int id)
+//    {
+//        switch (id)
+//        {
+//            case 266:
+//                championName =  "Aatrox";
+//            case 412:
+//                championName =  "Thresh";
+//            case 23:
+//                championName = "Tryndamere";
+//            case 79:
+//                championName = "Gragas";
+//            case 69:
+//                championName = "Cassiopeia";
+//            case 136:
+//                championName = "Aurelion Sol";
+//            case 13:
+//                championName = "Ryze";
+//            case 78:
+//                championName = "Poppy";
+//            case 14:
+//                championName = "Sion";
+//            case 1:
+//                championName = "Annie";
+//            case 202:
+//                championName = "Jhin";
+//            case 43:
+//                championName = "Karma";
+//            case 111:
+//                championName = "Nautilus";
+//            case 240:
+//                championName = "Kled";
+//            case 99:
+//                championName = "Lux";
+//            case 103:
+//                championName = "Ahri";
+//            case 2:
+//                championName = "Olaf";
+//            case 112:
+//                championName = "Viktor";
+//            case 34:
+//                championName = "Anivia";
+//            case 27:
+//                championName = "Singed";
+//            case 86:
+//                championName = "Garen";
+//            case 127:
+//                championName = "Lissandra";
+//            case 57:
+//                championName = "Maokai";
+//            case 25:
+//                championName = "Morgana";
+//            case 28:
+//                championName = "Evelynn";
+//            case 105:
+//                championName = "Fizz";
+//            case 74:
+//                championName = "Heimerdinger";
+//            case 238:
+//                championName = "Zed";
+//            case 68:
+//                championName = "Rumble";
+//            case 82:
+//                championName = "Mordekaiser";
+//            case 37:
+//                championName = "Sona";
+//            case 96:
+//                championName = "Kog'Maw";
+//            case 55:
+//                championName = "Katarina";
+//            case 117:
+//                championName = "Lulu";
+//            case 22:
+//                championName = "Ashe";
+//            case 30:
+//                championName = "Karthus";
+//            case 12:
+//                championName = "Alistar";
+//            case 122:
+//                championName = "Darius";
+//            case 67:
+//                championName = "Vayne";
+//            case 110:
+//                championName = "Varus";
+//            case 77:
+//                championName = "Udyr";
+//            case 89:
+//                championName = "Leona";
+//            case 126:
+//                championName = "Jayce";
+//            case 134:
+//                championName = "Syndra";
+//            case 80:
+//                championName = "Pantheon";
+//            case 92:
+//                championName = "Riven";
+//            case 121:
+//                championName = "Kha'Zix";
+//            case 42:
+//                championName = "Corki";
+//            case 268:
+//                championName = "Azir";
+//            case 51:
+//                championName = "Caitlyn";
+//            case 76:
+//                championName = "Nidalee";
+//            case 85:
+//                championName = "Kennen";
+//            case 3:
+//                championName = "Galio";
+//            case 45:
+//                championName = "Veigar";
+//            case 432:
+//                championName = "Bard";
+//            case 150:
+//                championName = "Gnar";
+//            case 90:
+//                championName = "Malzahar";
+//            case 104:
+//                championName = "Graves";
+//            case 254:
+//                championName = "Vi";
+//            case 10:
+//                championName = "Kayle";
+//            case 39:
+//                championName = "Irelia";
+//            case 64:
+//                championName = "Lee Sin";
+//            case 420:
+//                championName = "Illaoi";
+//            case 60:
+//                championName = "Elise";
+//            case 106:
+//                championName = "Volibear";
+//            case 20:
+//                championName = "Nunu";
+//            case 4:
+//                championName = "Twisted Fate";
+//            case 24:
+//                championName = "Jax";
+//            case 102:
+//                championName = "Shyvana";
+//            case 429:
+//                championName = "Kalista";
+//            case 36:
+//                championName = "Dr. Mundo";
+//            case 427:
+//                championName = "Ivern";
+//            case 131:
+//                championName = "Diana";
+//            case 223:
+//                championName = "Tahm Kench";
+//            case 63:
+//                championName = "Brand";
+//            case 113:
+//                championName = "Sejuani";
+//            case 8:
+//                championName = "Vladimir";
+//            case 154:
+//                championName = "Zac";
+//            case 421:
+//                championName = "Rek'Sai";
+//            case 133:
+//                championName = "Quinn";
+//            case 84:
+//                championName = "Akali";
+//            case 163:
+//                championName = "Taliyah";
+//            case 18:
+//                championName = "Tristana";
+//            case 120:
+//                championName = "Hecarim";
+//            case 15:
+//                championName = "Sivir";
+//            case 236:
+//                championName = "Lucian";
+//            case 107:
+//                championName = "Rengar";
+//            case 19:
+//                championName = "Warwick";
+//            case 72:
+//                championName = "Skarner";
+//            case 54:
+//                championName = "Malphite";
+//            case 157:
+//                championName = "Yasuo";
+//            case 101:
+//                championName = "Xerath";
+//            case 17:
+//                championName = "Teemo";
+//            case 75:
+//                championName = "Nasus";
+//            case 58:
+//                championName = "Renekton";
+//            case 119:
+//                championName = "Draven";
+//            case 35:
+//                championName = "Shaco";
+//            case 50:
+//                championName = "Swain";
+//            case 91:
+//                championName = "Talon";
+//            case 40:
+//                championName = "Janna";
+//            case 115:
+//                championName = "Ziggs";
+//            case 245:
+//                championName = "Ekko";
+//            case 61:
+//                championName = "Orianna";
+//            case 114:
+//                championName = "Fiora";
+//            case 9:
+//                championName = "Fiddlesticks";
+//            case 31:
+//                championName = "Cho'Gath";
+//            case 33:
+//                championName = "Rammus";
+//            case 7:
+//                championName = "LeBlanc";
+//            case 16:
+//                championName = "Soraka";
+//            case 26:
+//                championName = "Zilean";
+//            case 56:
+//                championName = "Nocturne";
+//            case 222:
+//                championName = "Jinx";
+//            case 83:
+//                championName = "Yorick";
+//            case 6:
+//                championName = "Urgot";
+//            case 203:
+//                championName = "Kindred";
+//            case 21:
+//                championName = "Miss Fortune";
+//            case 62:
+//                championName = "Wukong";
+//            case 53:
+//                championName = "Blitzcrank";
+//            case 98:
+//                championName = "Shen";
+//            case 201:
+//                championName = "Braum";
+//            case 5:
+//                championName = "Xin Zhao";
+//            case 29:
+//                championName = "Twitch";
+//            case 11:
+//                championName = "Master Yi";
+//            case 44:
+//                championName = "Taric";
+//            case 32:
+//                championName = "Amumu";
+//            case 41:
+//                championName = "Gangplank";
+//            case 48:
+//                championName = "Trundle";
+//            case 38:
+//                championName = "Kassadin";
+//            case 161:
+//                championName = "Vel'Koz";
+//            case 143:
+//                championName = "Zyra";
+//            case 267:
+//                championName = "Nami";
+//            case 59:
+//                championName = "Jarvan IV";
+//            case 81:
+//                championName = "Ezreal";
+//        }
+//    }
 
     public void TransitionID2Name(int id) {
         final int champID = id;
@@ -588,20 +643,37 @@ public class MainChampions extends Fragment {
         Retrofit retrofit = builder.build();
 
         ChampionRiotAPI riotclient = retrofit.create(ChampionRiotAPI.class);
-        Call<String> riotCall = riotclient.getChampionById(champID);
+        Call<ChampionDTO> riotCall = riotclient.getChampionById(champID);
 
-        riotCall.enqueue(new Callback<String>() {
+        riotCall.enqueue(new Callback<ChampionDTO>() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                championName = response.body();
-                Log.v(TAG, "ChampID: " + champID + " | ChampName: " + championName);
+            public void onResponse(Call<ChampionDTO> call, Response<ChampionDTO> response) {
+                currentChamp = response.body();
+                Log.d(TAG, "ChampID: " + champID + " | ChampName: " + currentChamp.getName());
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            public void onFailure(Call<ChampionDTO> call, Throwable t) {
 
             }
         });
+
+
+
+
+
+//        riotCall.enqueue(new Callback<ChampionDTO>() {
+//            @Override
+//            public void onResponse(Call<ChampionDTO> call, Response<ChampionDTO> response) {
+//                allChamps = response.body();
+//                Log.d(TAG, "ChampID: " + champID + " | ChampName: " + currentChamp.getChampionName());
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ChampionDTO> call, Throwable t) {
+//
+//            }
+//        });
     }
 
 
