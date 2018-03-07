@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -202,7 +203,6 @@ public class ChampsFragment extends Fragment {
                     champions.clear();
                     champions.addAll(items);
                     notifyItemRangeInserted(0, champions.size());
-                    //notifyDataSetChanged();
                 }
             });
         }
