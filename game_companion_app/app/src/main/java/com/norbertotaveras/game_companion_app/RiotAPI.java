@@ -18,6 +18,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.norbertotaveras.game_companion_app.DTO.ChampionMastery.ChampionMasteryDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.MatchDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantIdentityDTO;
@@ -37,6 +38,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -1011,25 +1013,72 @@ public class RiotAPI {
         return null;
     }
 
-    public static String queueIdToQueueName(int queueId) {
-        switch (queueId) {
-            case 400:
-                return "Normal";
+    // Singleton uses double checked lock to lazily
+    // asynchronously initialize id->champion lookup table
+    public static class ChampionLookup {
+        static volatile HashMap<Long, ChampionDTO> lookup;
+        static Object lock = new Object();
 
-            case 420:
-                return "Ranked Solo";
+        static ChampionDTO championById(long id) {
+            if (lookup == null) {
+                synchronized (lock) {
+                    if (lookup == null) {
+                        RiotAPI.getChampionList(new RiotAPI.AsyncCallback<ChampionListDTO>() {
+                            @Override
+                            public void invoke(ChampionListDTO item) {
+                                HashMap<Long, ChampionDTO> lookupInit =
+                                        new HashMap<>(item.data.size());
 
-            case 440:
-                return "Ranked Flex";
+                                for (Map.Entry<String, ChampionDTO> entry : item.data.entrySet())
+                                    lookupInit.put(entry.getValue().id, entry.getValue());
 
-            case 450:
-                return "ARAM";
+                                lookup = lookupInit;
+                                lock.notify();
+                            }
+                        });
 
-            case 1010:
-                return "Snow Urf";
+                        // Stall first call until asynchronous callback completes
+                        try {
+                            while (lookup == null)
+                                lock.wait();
+                        } catch (InterruptedException ex) {
+                        }
+                    }
+                }
+            }
 
-            default:
-                return "queueId=" + queueId;
+            return lookup.get(id);
+        }
+    }
+
+    public static class ChampionMasteryComparators {
+        public static final Comparator<ChampionMasteryDTO> byChampion =
+                new Comparator<ChampionMasteryDTO>() {
+                    @Override
+                    public int compare(ChampionMasteryDTO lhs, ChampionMasteryDTO rhs) {
+                        ChampionDTO lhsChamp = RiotAPI.ChampionLookup.championById(lhs.championId);
+                        ChampionDTO rhsChamp = RiotAPI.ChampionLookup.championById(rhs.championId);
+
+                        return lhsChamp.name.compareTo(rhsChamp.name);
+                    }
+                };
+
+        public static final Comparator<ChampionMasteryDTO> byPoints =
+                new Comparator<ChampionMasteryDTO>() {
+                    @Override
+                    public int compare(ChampionMasteryDTO lhs, ChampionMasteryDTO rhs) {
+                        return -Long.compare(lhs.championPoints, rhs.championPoints);
+                    }
+                };
+
+        public static final Comparator<ChampionMasteryDTO> byLevel =
+                new Comparator<ChampionMasteryDTO>() {
+                    @Override
+                    public int compare(ChampionMasteryDTO lhs, ChampionMasteryDTO rhs) {
+                        return -Integer.compare(lhs.championLevel, rhs.championLevel);
+                    }
+                };
+    }
 
     public enum QueueId {
         all(-1, "All"),

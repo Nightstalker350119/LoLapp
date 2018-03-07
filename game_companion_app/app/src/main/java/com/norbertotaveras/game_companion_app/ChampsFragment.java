@@ -43,42 +43,6 @@ public class ChampsFragment extends Fragment {
     private RiotAPI.DeferredRequest<List<ChampionMasteryDTO>> deferredChampions;
     private RiotGamesService apiService;
 
-    private static final Comparator<ChampionMasteryDTO> sortByChampion =
-            new Comparator<ChampionMasteryDTO>() {
-        @Override
-        public int compare(ChampionMasteryDTO lhs, ChampionMasteryDTO rhs) {
-            ChampionDTO lhsChamp = ChampionLookup.championById(lhs.championId);
-            ChampionDTO rhsChamp = ChampionLookup.championById(rhs.championId);
-
-            return lhsChamp.name.compareTo(rhsChamp.name);
-        }
-    };
-
-    private static final Comparator<ChampionMasteryDTO> sortByPoints =
-            new Comparator<ChampionMasteryDTO>() {
-        @Override
-        public int compare(ChampionMasteryDTO lhs, ChampionMasteryDTO rhs) {
-            return -Long.compare(lhs.championPoints, rhs.championPoints);
-        }
-    };
-
-    private static final Comparator<ChampionMasteryDTO> sortByLevel =
-            new Comparator<ChampionMasteryDTO>() {
-        @Override
-        public int compare(ChampionMasteryDTO lhs, ChampionMasteryDTO rhs) {
-            return -Integer.compare(lhs.championLevel, rhs.championLevel);
-        }
-    };
-
-    private static final ChampSortMenuItem[] sortMenuItems = new ChampSortMenuItem[] {
-            new ChampSortMenuItem(R.id.champ_sort_by_champion, sortByChampion),
-            new ChampSortMenuItem(R.id.champ_sort_by_points, sortByPoints),
-            new ChampSortMenuItem(R.id.champ_sort_by_level, sortByLevel),
-    };
-
-    private ChampSortMenuItem currentSort = sortMenuItems[0];
-    private Comparator<ChampionMasteryDTO> currentSortComparator = sortMenuItems[0].comparator;
-
     public ChampsFragment() {
     }
 
