@@ -81,11 +81,18 @@ public class MainFragment
         return view;
     }
 
+    private void showSignIn() {
+        LoginActivity.autoShowSignIn(getActivity());
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         auth = FirebaseAuth.getInstance();
+
+        if (auth.getCurrentUser() == null)
+            showSignIn();
 
         recentSearchesItemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
             @Override
@@ -130,15 +137,7 @@ public class MainFragment
         // Start fetching icon data and stuff while the user types their search
         apiService = RiotAPI.getInstance(view.getContext());
 
-        if (auth.getCurrentUser() == null)
-            showSignIn();
-
         updateNoResults();
-    }
-
-    private void showSignIn() {
-        Intent intent = new Intent(getContext(), LoginActivity.class);
-        startActivity(intent);
     }
 
     @Override
@@ -184,8 +183,7 @@ public class MainFragment
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sign_in:
-                Intent intent = new Intent(getContext(), LoginActivity.class);
-                startActivity(intent);
+                LoginActivity.startSignIn(getActivity());
                 return true;
 
             case R.id.sign_out:

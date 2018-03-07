@@ -26,8 +26,38 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private TextView confirmPasswordTitle;
     private EditText confirmPassword;
 
+    private static boolean autoShowCompleted = false;
+
     boolean busy = false;
     boolean registerMode = false;
+
+    public static void startSignIn(Activity source) {
+        Intent intent = new Intent(source, LoginActivity.class);
+        source.startActivity(intent);
+        enterTransition(source);
+    }
+
+    private static void enterTransition(Activity source) {
+        source.overridePendingTransition(R.anim.slide_from_right, R.anim.stay_put);
+    }
+
+    private static void leaveTransition(Activity source) {
+        source.overridePendingTransition(0, R.anim.slide_to_right);
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+        leaveTransition(this);
+    }
+
+    public static void autoShowSignIn(Activity source) {
+        if (autoShowCompleted)
+            return;
+        autoShowCompleted = true;
+
+        startSignIn(source);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
