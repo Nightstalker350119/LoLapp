@@ -1030,7 +1030,36 @@ public class RiotAPI {
 
             default:
                 return "queueId=" + queueId;
+
+    public enum QueueId {
+        all(-1, "All"),
+        normal(400, "Normal"),
+        rankedSolo(420, "Ranked Solo"),
+        rankedFlex(440, "Ranked Flex"),
+        aram(450, "ARAM"),
+        snowUrf(1010, "Snow Urf");
+
+        public final int queueId;
+        public final String text;
+
+        QueueId(int id, String text) {
+            this.queueId = id;
+            this.text = text;
         }
+
+        public static String textFromInt(int queueId) {
+            if (queueId == all.queueId) return all.text;
+            if (queueId == normal.queueId) return normal.text;
+            if (queueId == rankedSolo.queueId) return rankedSolo.text;
+            if (queueId == rankedFlex.queueId) return rankedFlex.text;
+            if (queueId == aram.queueId) return aram.text;
+            if (queueId == snowUrf.queueId) return snowUrf.text;
+            return "queueId=" + queueId;
+        }
+    }
+
+    public static String queueIdToQueueName(int queueId) {
+        return QueueId.textFromInt(queueId);
     }
 
     public static class RequestCache {
