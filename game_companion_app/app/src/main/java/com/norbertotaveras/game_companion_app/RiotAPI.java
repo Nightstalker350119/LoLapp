@@ -812,8 +812,8 @@ public class RiotAPI {
             return;
         }
 
-        DatabaseReference dbMatch = firebaseDB.child("match").child(gameIdStr);
-        dbMatch.addListenerForSingleValueEvent(new ValueEventListener() {
+        firebaseDB.child("match").child(gameIdStr).addListenerForSingleValueEvent(
+                new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
