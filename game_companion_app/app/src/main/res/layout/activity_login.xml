@@ -50,6 +50,16 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <TextView
+        android:id="@+id/email_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textColor="#FFCC4444"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="@id/email"
+        app:layout_constraintTop_toBottomOf="@id/email" />
+
+    <TextView
         android:id="@+id/password_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -60,7 +70,7 @@
         android:text="Password"
         android:textColor="#FF000000"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/email"/>
+        app:layout_constraintTop_toBottomOf="@id/email_error"/>
 
     <EditText
         android:id="@+id/password"
@@ -78,6 +88,16 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <TextView
+        android:id="@+id/password_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textColor="#FFCC4444"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="@id/password"
+        app:layout_constraintTop_toBottomOf="@id/password"/>
+
+    <TextView
         android:id="@+id/confirm_password_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -88,7 +108,7 @@
         android:text="Confirm Password"
         android:textColor="#FF000000"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/password"
+        app:layout_constraintTop_toBottomOf="@id/password_error"
         android:visibility="gone"/>
 
     <EditText
@@ -107,6 +127,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:visibility="gone"/>
 
+    <TextView
+        android:id="@+id/confirm_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textColor="#FFCC4444"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="@id/confirm_password"
+        app:layout_constraintTop_toBottomOf="@id/confirm_password"/>
+
     <Button
         android:id="@+id/sign_in"
         android:layout_width="0dp"
@@ -118,7 +148,7 @@
         android:text="Sign in"
         android:background="#FF000000"
         android:textColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/confirm_password"
+        app:layout_constraintTop_toBottomOf="@id/confirm_error"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
