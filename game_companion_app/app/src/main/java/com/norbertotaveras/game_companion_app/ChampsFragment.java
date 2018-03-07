@@ -98,18 +98,8 @@ public class ChampsFragment extends Fragment {
         });
     }
 
-    public void setSortOrder(ChampSortMenuItem menuItem) {
-        currentSortComparator = menuItem.comparator;
-        currentSort = menuItem;
-        champListAdapter.setSortOrder(currentSortComparator);
-    }
-
-    public static ChampSortMenuItem[] getSortMenuItems() {
-        return sortMenuItems;
-    }
-
-    public ChampSortMenuItem getCurrentSort() {
-        return null;
+    public void setSortOrder(Comparator<ChampionMasteryDTO> comparator) {
+        champListAdapter.setSortOrder(comparator);
     }
 
     class ChampionListItem extends RecyclerView.ViewHolder {
@@ -239,58 +229,8 @@ public class ChampsFragment extends Fragment {
             champions.toArray(temp);
             Arrays.sort(temp, comparator);
             champions.clear();
-            for (ChampionMasteryDTO item : temp)
-                champions.add(item);
-            notifyDataSetChanged();
-        }
-    }
-
-    public static class ChampSortMenuItem {
-        public final int id;
-        public final Comparator<ChampionMasteryDTO> comparator;
-        public TextView item;
-
-        public ChampSortMenuItem(int id, Comparator<ChampionMasteryDTO> comparator) {
-            this.id = id;
-            this.comparator = comparator;
-        }
-    }
-
-    // Singleton uses double checked lock to lazily
-    // asynchronously initialize id->champion lookup table
-    private static class ChampionLookup {
-        static volatile HashMap<Long, ChampionDTO> lookup;
-        static Object lock = new Object();
-
-        static ChampionDTO championById(long id) {
-            if (lookup == null) {
-                synchronized (lock) {
-                    if (lookup == null) {
-                        RiotAPI.getChampionList(new RiotAPI.AsyncCallback<ChampionListDTO>() {
-                            @Override
-                            public void invoke(ChampionListDTO item) {
-                                HashMap<Long, ChampionDTO> lookupInit =
-                                        new HashMap<>(item.data.size());
-
-                                for (Map.Entry<String, ChampionDTO> entry : item.data.entrySet())
-                                    lookupInit.put(entry.getValue().id, entry.getValue());
-
-                                lookup = lookupInit;
-                                lock.notify();
-                            }
-                        });
-
-                        // Stall first call until asynchronous callback completes
-                        try {
-                            while (lookup == null)
-                                lock.wait();
-                        } catch (InterruptedException ex) {
-                        }
-                    }
-                }
-            }
-
-            return lookup.get(id);
+            champions.addAll(Arrays.asList(temp));
+            notifyItemRangeChanged(0, champions.size());
         }
     }
 }
