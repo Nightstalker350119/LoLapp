@@ -389,24 +389,33 @@ public class MainFragment
                                 }
                             }
 
-                            if (rs5v5 == null)
+                            if (rs5v5 != null) {
+                                tierIcon.setImageResource(RiotAPI.tierNameToResourceId(
+                                        rs5v5.tier, rs5v5.rank));
+
+                                rank.setText(RiotAPI.beautifyTierName(rs5v5.tier) +
+                                        " " + rs5v5.rank);
+
+                                leaguePoints.setText(String.valueOf(rs5v5.leaguePoints) + " LP");
+                            } else {
+                                tierIcon.setImageResource(RiotAPI.tierNameToResourceId(
+                                        "PROVISIONAL", "I"));
+
+                                rank.setText("Unranked");
+
+                                leaguePoints.setText("- LP");
+                            }
+
+                            if (rs5v5 == null) {
+                                winLoss.setVisibility(View.GONE);
                                 return;
-
-                            tierIcon.setImageResource(RiotAPI.tierNameToResourceId(
-                                    rs5v5 != null ? rs5v5.tier : "PROVISIONAL", rs5v5.rank));
-
-                            rank.setText(rs5v5 != null
-                                    ? RiotAPI.beautifyTierName(rs5v5.tier) +
-                                    " " + rs5v5.rank
-                                    : "Unranked");
-
-                            leaguePoints.setText(rs5v5 != null
-                                    ? String.valueOf(rs5v5.leaguePoints) +
-                                    " LP" : "- LP");
+                            }
 
                             int winPercent = 100 * rs5v5.wins / (rs5v5.wins + rs5v5.losses);
                             winLoss.setText(getResources().getString(R.string.win_loss,
                                     rs5v5.wins, rs5v5.losses, winPercent));
+
+                            winLoss.setVisibility(View.VISIBLE);
                         }
                     });
                 }
