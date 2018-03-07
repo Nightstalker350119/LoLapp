@@ -8,6 +8,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -18,6 +21,9 @@ import android.widget.Toast;
 
 import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.ChampionGGService;
 import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.ChampionRiotAPI;
+import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.RetroClasses.ChampionDTO;
+import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.RetroClasses.ChampionName;
+import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.RetroClasses.ChampionRates;
 import com.norbertotaveras.game_companion_app.R;
 
 import java.util.ArrayList;
@@ -44,6 +50,7 @@ public class MainChampions extends Fragment {
     Animation FabOpen, FabClose, FabRotateClockWise, FabRotateCounterClockWise;
     boolean isOpen = false;
     int wantedPosition = 0; //0=all | 1=top | 2=jungle | 3=middle | 4=support | 5=bottom
+    int wantedRating = 0; //0=all | 1=win | 2=pick | 3=ban
 
     private ArrayList<String> mNames = new ArrayList<>();
     private ArrayList<String> mImageUrls = new ArrayList<>();
@@ -53,11 +60,11 @@ public class MainChampions extends Fragment {
     private String championName;
 
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.activity_main_champions, container, false);
+        setHasOptionsMenu(true);
 
         //Sorting buttons
         fabPlus = view.findViewById(R.id.fab_plus);
@@ -86,13 +93,12 @@ public class MainChampions extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-
+        //ChampionGG stuff
         Retrofit.Builder builder = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create());
 
         Retrofit retrofit = builder.build();
-
         ChampionGGService client = retrofit.create(ChampionGGService.class);
         Call<List<ChampionRates>> call = client.getChampInfo();
 
@@ -107,12 +113,14 @@ public class MainChampions extends Fragment {
                 for (int i = 0; i < rates.size() - 1; i++)
                 {
                     int currentID = Integer.parseInt(rates.get(i).getChampionId());
-                    TransitionID2Name(currentID);
-
+                    IDtoName(currentID);
+                    rates.get(i).setChampionId(championName);
 
                     Log.v(TAG, "ChampID(" + i + ") = " + rates.get(i).getChampionId());
                     Log.v(TAG, "winRate(" + i + ") = " + rates.get(i).getWinRate());
                 }
+
+                initImageBitmaps(wantedPosition, championList);
 
             }
 
@@ -123,14 +131,8 @@ public class MainChampions extends Fragment {
             }
         });
 
-
-        Log.d(TAG, "onCreate: starting.");
-
-
-
         btnTop.setEnabled(false);
 
-        initImageBitmaps(wantedPosition, championList);
 
         fabPlus.setOnClickListener(new View.OnClickListener() { //Sorting buttons
             @Override
@@ -268,43 +270,503 @@ public class MainChampions extends Fragment {
         });
     }
 
-    //For when connection to ChampionGG goes through
-//    public void addChampion()
-//    {
-//        for (int i = 0; i < 147; i++)
-//        {
-//            mImageUrls.add(apicall.champimage[i]);
-//            mNames.add(apicall.champnames[i]);
-//            mWinRates.add(apicall.champwinrate[i]);
-//            mChampionPosition.add(apicall.champposition[i]);
-//        }
-//    }
-
-    public void TransitionID2Name(int id) {
-        final int champID = id;
-
-        Retrofit.Builder builder = new Retrofit.Builder()
-                .baseUrl(RIOT_URL)
-                .addConverterFactory(GsonConverterFactory.create());
-
-        Retrofit retrofit = builder.build();
-
-        ChampionRiotAPI riotclient = retrofit.create(ChampionRiotAPI.class);
-        Call<String> riotCall = riotclient.getChampionById(champID);
-
-        riotCall.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                championName = response.body();
-                Log.v(TAG, "ChampID: " + champID + " | ChampName: " + championName);
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-
-            }
-        });
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.mainchampmenu, menu);
+        super.onCreateOptionsMenu(menu,inflater);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.win_search:
+                wantedRating = 0;
+                initImageBitmaps(wantedPosition, championList);
+                Toast.makeText(getActivity(), "WinRate", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.pick_search:
+                wantedRating = 1;
+                initImageBitmaps(wantedPosition, championList);
+                Toast.makeText(getActivity(), "PickRate", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.ban_search:
+                wantedRating = 2;
+                initImageBitmaps(wantedPosition, championList);
+                Toast.makeText(getActivity(), "BanRate", Toast.LENGTH_SHORT).show();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void IDtoName(int id)
+    {
+        switch (id)
+        {
+            case 266:
+                championName =  "Aatrox"; // //173jung
+                break;
+            case 412:
+                championName =  "Thresh"; //
+                break;
+            case 23:
+                championName = "Tryndamere"; //118top //174jung
+                break;
+            case 79:
+                championName = "Gragas"; //135jung //183mid
+                break;
+            case 69:
+                championName = "Cassiopeia"; //
+                break;
+            case 136:
+                championName = "Aurelion Sol"; //
+                break;
+            case 13:
+                championName = "Ryze"; //
+                break;
+            case 78:
+                championName = "Poppy"; //120top //178jung //179supp
+                break;
+            case 14:
+                championName = "Sion"; // //126supp
+                break;
+            case 1:
+                championName = "Annie"; //129mid //176supp
+                break;
+            case 202:
+                championName = "Jhin"; //
+                break;
+            case 43:
+                championName = "Karma"; //62supp //159mid
+                break;
+            case 111:
+                championName = "Nautilus"; //130supp //175top
+                break;
+            case 240:
+                championName = "Kled"; //
+                break;
+            case 99:
+                championName = "Lux"; // //112supp
+                break;
+            case 103:
+                championName = "Ahri"; //
+                break;
+            case 2:
+                championName = "Olaf"; //161top //165jung
+                break;
+            case 112:
+                championName = "Viktor"; //
+                break;
+            case 34:
+                championName = "Anivia"; //
+                break;
+            case 27:
+                championName = "Singed"; //
+                break;
+            case 86:
+                championName = "Garen"; //
+                break;
+            case 127:
+                championName = "Lissandra"; // //184top
+                break;
+            case 57:
+                championName = "Maokai"; // //167jung
+                break;
+            case 25:
+                championName = "Morgana"; // //45mid
+                break;
+            case 28:
+                championName = "Evelynn"; //
+                break;
+            case 105:
+                championName = "Fizz"; //
+                break;
+            case 74:
+                championName = "Heimerdinger"; //164top //170mid
+                break;
+            case 238:
+                championName = "Zed"; //
+                break;
+            case 68:
+                championName = "Rumble"; //136top
+                break;
+            case 82:
+                championName = "Mordekaiser"; // //187mid
+                break;
+            case 37:
+                championName = "Sona"; //
+                break;
+            case 96:
+                championName = "Kog'Maw"; //
+                break;
+            case 55:
+                championName = "Katarina"; //
+                break;
+            case 117:
+                championName = "Lulu"; //
+                break;
+            case 22:
+                championName = "Ashe"; //
+                break;
+            case 30:
+                championName = "Karthus"; // //185top
+                break;
+            case 12:
+                championName = "Alistar"; //
+                break;
+            case 122:
+                championName = "Darius"; //
+                break;
+            case 67:
+                championName = "Vayne"; //
+                break;
+            case 110:
+                championName = "Varus"; //
+                break;
+            case 77:
+                championName = "Udyr"; //
+                break;
+            case 89:
+                championName = "Leona"; //
+                break;
+            case 126:
+                championName = "Jayce"; //111top //163mid
+                break;
+            case 134:
+                championName = "Syndra"; //
+                break;
+            case 80:
+                championName = "Pantheon"; // //158jung
+                break;
+            case 92:
+                championName = "Riven"; //
+                break;
+            case 121:
+                championName = "Kha'Zix"; //
+                break;
+            case 42:
+                championName = "Corki"; //65mid
+                break;
+            case 268:
+                championName = "Azir"; //
+                break;
+            case 51:
+                championName = "Caitlyn"; //
+                break;
+            case 76:
+                championName = "Nidalee"; //70jung
+                break;
+            case 85:
+                championName = "Kennen"; //149top //186mid
+                break;
+            case 3:
+                championName = "Galio"; //mid //155top
+                break;
+            case 45:
+                championName = "Veigar"; // //157supp
+                break;
+            case 432:
+                championName = "Bard"; //
+                break;
+            case 150:
+                championName = "Gnar"; //
+                break;
+            case 90:
+                championName = "Malzahar"; //
+                break;
+            case 104:
+                championName = "Graves"; //125jung
+                break;
+            case 254:
+                championName = "Vi"; //
+                break;
+            case 10:
+                championName = "Kayle"; //153top //180mid
+                break;
+            case 39:
+                championName = "Irelia"; //
+                break;
+            case 64:
+                championName = "Lee Sin"; //
+                break;
+            case 420:
+                championName = "Illaoi"; //
+                break;
+            case 60:
+                championName = "Elise"; //
+                break;
+            case 106:
+                championName = "Volibear"; // //127top
+                break;
+            case 20:
+                championName = "Nunu"; //106jung //
+                break;
+            case 4:
+                championName = "Twisted Fate"; //
+                break;
+            case 24:
+                championName = "Jax"; // //69top
+                break;
+            case 102:
+                championName = "Shyvana"; //
+                break;
+            case 429:
+                championName = "Kalista"; //
+                break;
+            case 36:
+                championName = "Dr. Mundo"; //147top //181jung
+                break;
+            case 427:
+                championName = "Ivern"; //151jung
+                break;
+            case 131:
+                championName = "Diana"; //107mid //168jung
+                break;
+            case 223:
+                championName = "Tahm Kench"; //63Supp //160top
+                break;
+            case 63:
+                championName = "Brand"; //support //119mid
+                break;
+            case 113:
+                championName = "Sejuani"; //
+                break;
+            case 8:
+                championName = "Vladimir"; //81 mid //90top
+                break;
+            case 154:
+                championName = "Zac"; //
+                break;
+            case 421:
+                championName = "Rek'Sai"; //
+                break;
+            case 133:
+                championName = "Quinn"; //169top //188adc //189jung
+                break;
+            case 84:
+                championName = "Akali"; //131top //140mid
+                break;
+            case 163:
+                championName = "Taliyah"; //
+                break;
+            case 18:
+                championName = "Tristana"; //
+                break;
+            case 120:
+                championName = "Hecarim"; //
+                break;
+            case 15:
+                championName = "Sivir"; //
+                break;
+            case 236:
+                championName = "Lucian"; //
+                break;
+            case 107:
+                championName = "Rengar"; // //117top
+                break;
+            case 19:
+                championName = "Warwick"; //
+                break;
+            case 72:
+                championName = "Skarner"; //
+                break;
+            case 54:
+                championName = "Malphite"; // //166supp
+                break;
+            case 157:
+                championName = "Yasuo"; //mid//top61
+                break;
+            case 101:
+                championName = "Xerath"; // //150supp
+                break;
+            case 17:
+                championName = "Teemo"; // //171supp
+                break;
+            case 75:
+                championName = "Nasus"; //
+                break;
+            case 58:
+                championName = "Renekton"; //
+                break;
+            case 119:
+                championName = "Draven"; //
+                break;
+            case 35:
+                championName = "Shaco"; //
+                break;
+            case 50:
+                championName = "Swain"; // //97mid
+                break;
+            case 91:
+                championName = "Talon"; //
+                break;
+            case 40:
+                championName = "Janna"; //
+                break;
+            case 115:
+                championName = "Ziggs"; //
+                break;
+            case 245:
+                championName = "Ekko"; // //156jung
+                break;
+            case 61:
+                championName = "Orianna"; //
+                break;
+            case 114:
+                championName = "Fiora"; //
+                break;
+            case 9:
+                championName = "Fiddlesticks"; // //105jung //139supp
+                break;
+            case 31:
+                championName = "Cho'Gath"; // //172jung
+                break;
+            case 33:
+                championName = "Rammus"; //
+                break;
+            case 7:
+                championName = "LeBlanc"; //
+                break;
+            case 16:
+                championName = "Soraka"; //
+                break;
+            case 26:
+                championName = "Zilean"; //109supp //154mid
+                break;
+            case 56:
+                championName = "Nocturne"; //141jung
+                break;
+            case 222:
+                championName = "Jinx"; //
+                break;
+            case 83:
+                championName = "Yorick"; //
+                break;
+            case 6:
+                championName = "Urgot"; //
+                break;
+            case 203:
+                championName = "Kindred"; //
+                break;
+            case 21:
+                championName = "Miss Fortune"; //
+                break;
+            case 62:
+                championName = "Wukong"; //142jung //152top
+                break;
+            case 53:
+                championName = "Blitzcrank"; //
+                break;
+            case 98:
+                championName = "Shen"; //82top //100sup
+                break;
+            case 201:
+                championName = "Braum"; //
+                break;
+            case 5:
+                championName = "Xin Zhao"; //
+                break;
+            case 29:
+                championName = "Twitch"; // //143jung
+                break;
+            case 11:
+                championName = "Master Yi"; //
+                break;
+            case 44:
+                championName = "Taric"; //
+                break;
+            case 32:
+                championName = "Amumu"; //
+                break;
+            case 41:
+                championName = "Gangplank"; //
+                break;
+            case 48:
+                championName = "Trundle"; //137top //162jung //182supp
+                break;
+            case 38:
+                championName = "Kassadin"; //
+                break;
+            case 161:
+                championName = "Vel'Koz"; //102mid //144supp
+                break;
+            case 143:
+                championName = "Zyra"; //84supp
+                break;
+            case 267:
+                championName = "Nami"; //
+                break;
+            case 59:
+                championName = "Jarvan IV"; //
+                break;
+            case 81:
+                championName = "Ezreal"; //
+                break;
+            case 516:
+                championName = "Ornn"; //104top
+                break;
+            case 141:
+                championName = "Kayn"; //
+                break;
+            case 497:
+                championName = "Rakan"; //
+                break;
+            case 142:
+                championName = "Zoe"; // //177supp
+                break;
+            case 498:
+                championName = "Xayah"; //
+                break;
+            case 164:
+                championName = "Camille"; // //98jung
+                break;
+            default:
+                break;
+        }
+    }
+
+//    public void TransitionID2Name(int id) {
+//        final int champID = id;
+//
+//        Retrofit.Builder builder = new Retrofit.Builder()
+//                .baseUrl(RIOT_URL)
+//                .addConverterFactory(GsonConverterFactory.create());
+//
+//        Retrofit retrofit = builder.build();
+//
+//        ChampionRiotAPI riotclient = retrofit.create(ChampionRiotAPI.class);
+//        Call<ChampionDTO> riotCall = riotclient.getChampionById(champID);
+//
+//        riotCall.enqueue(new Callback<ChampionDTO>() {
+//            @Override
+//            public void onResponse(Call<ChampionDTO> call, Response<ChampionDTO> response) {
+//                currentChamp = response.body();
+//                Log.d(TAG, "ChampID: " + champID + " | ChampName: " + currentChamp.getName());
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ChampionDTO> call, Throwable t) {
+//
+//            }
+//        });
+
+
+
+
+
+//        riotCall.enqueue(new Callback<ChampionDTO>() {
+//            @Override
+//            public void onResponse(Call<ChampionDTO> call, Response<ChampionDTO> response) {
+//                allChamps = response.body();
+//                Log.d(TAG, "ChampID: " + champID + " | ChampName: " + currentChamp.getChampionName());
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ChampionDTO> call, Throwable t) {
+//
+//            }
+//        });
+
 
 
     public void buttonAnimation(final Button button) { // Timing and animation effects
@@ -328,21 +790,8 @@ public class MainChampions extends Fragment {
             }
         });
 
-         button.startAnimation(btn);
+        button.startAnimation(btn);
     }
-
-    public void clear() {
-        final int size = mNames.size();
-        if (size > 0) {
-            for (int i = 0; i < size; i++) {
-                mImageUrls.remove(0);
-                mNames.remove(0);
-                mWinRates.remove(0);
-                mChampionPosition.remove(0);
-            }
-        }
-    }
-
 
     public void fabToggle() {
         isOpen = !isOpen;
@@ -359,703 +808,124 @@ public class MainChampions extends Fragment {
     }
 
     private void initImageBitmaps(int wantedPosition, RecyclerView rView) {
+
         Log.d(TAG, "initImageBitmaps: preparing bitmaps.");
 
-        //Call<List<ChampionDTO>> champions = apiService.getChampions();
-        //Log.d(TAG, champions.toString());
-        //Best way is to call them all, but how would I sort the info gained to it's specific champion?
-        //Hardcode names, pictures, and positions but leave winrates to be dynamically allocated to champs.
-        //LeagueAPI is down even for OPGG, hardcoding paths EXCEPT winrate until it works again
+        if (wantedRating == 0) {
+            float tempRate;
+            String tempRateString;
+            String splitRateString;
+            int m = mWinRates.size();
 
-        mImageUrls.add("http://media.comicbook.com/2017/07/aatrox-0-1005633.jpg");
-        mNames.add("Aatrox");
-        mWinRates.add("54.76");
-        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/ahri.png");
-//        mNames.add("Ahri");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/avatars/akali-classic.png");
-//        mNames.add("Akali");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/rectangle/alistar.png");
-//        mNames.add("Alistar");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/amumu.png");
-//        mNames.add("Amumu");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/anivia.png");
-//        mNames.add("Anivia");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/annie.png");
-//        mNames.add("Annie");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Middle | Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/ashe.png");
-//        mNames.add("Ashe");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("ADC");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/avatars/aurelion-sol-classic.png");
-//        mNames.add("Aurelion Sol");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/square/azir.png");
-//        mNames.add("Azir");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/bard.png");
-//        mNames.add("Bard");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/blitzcrank.png");
-//        mNames.add("Blitzcrank");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/brand.png");
-//        mNames.add("Brand");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Middle | Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/braum.png");
-//        mNames.add("Braum");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/caitlyn.png");
-//        mNames.add("Caitlyn");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("ADC");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/camille.png");
-//        mNames.add("Camille");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/cassiopeia.png");
-//        mNames.add("Cassiopeia");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/chogath.png");
-//        mNames.add("Cho'Gath");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Middle | Top | Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/corki.png");
-//        mNames.add("Corki");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("ADC | Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/darius.png");
-//        mNames.add("Darius");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/diana.png");
-//        mNames.add("Diana");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Middle | Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/dr-mundo.png");
-//        mNames.add("Dr. Mundo");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/draven.png");
-//        mNames.add("Draven");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("ADC");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/ekko.png");
-//        mNames.add("Ekko");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Middle | Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/elise.png");
-//        mNames.add("Elise");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/evelynn.png");
-//        mNames.add("Evelynn");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/ezreal.png");
-//        mNames.add("Ezreal");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("ADC");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/fiddlesticks.png");
-//        mNames.add("Fiddlesticks");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Middle | Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/square/fiora.png");
-//        mNames.add("Fiora");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/fizz.png");
-//        mNames.add("Fizz");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/galio.png");
-//        mNames.add("Galio");
-//        mWinRates.add("54.76");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/gangplank.png");
-//        mNames.add("Gangplank");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("Top | Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/garen.png");
-//        mNames.add("Garen");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/gnar.png");
-//        mNames.add("Gnar");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/gragas.png");
-//        mNames.add("Gragas");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("Jungle | Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/graves.png");
-//        mNames.add("Graves");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("ADC | Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/hecarim.png");
-//        mNames.add("Hecarim");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/heimerdinger.png");
-//        mNames.add("Heimerdinger");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("Top | Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/illaoi.png");
-//        mNames.add("Illaoi");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/irelia.png");
-//        mNames.add("Irelia");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/ivern.png");
-//        mNames.add("Ivern");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/janna.png");
-//        mNames.add("Janna");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/jarvan-iv.png");
-//        mNames.add("Jarvan IV");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("Top | Jungle");
-//
-//        mImageUrls.add("http://www.behindthevoiceactors.com/_img/chars/jax-league-of-legends-4.27.jpg");
-//        mNames.add("Jax");
-//        mWinRates.add("50.89");
-//        mChampionPosition.add("Top | Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/jayce.png");
-//        mNames.add("Jayce");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("Top | Mid");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/jhin.png");
-//        mNames.add("Jhin");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("ADC");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/jinx.png");
-//        mNames.add("Jinx");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("ADC");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/kalista.png");
-//        mNames.add("Kalista");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("ADC");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/karma.png");
-//        mNames.add("Karma");
-//        mWinRates.add("53.13");
-//        mChampionPosition.add("Support | Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/karthus.png");
-//        mNames.add("Karthus");
-//        mWinRates.add("52.94");
-//        mChampionPosition.add("Mid");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/kassadin.png");
-//        mNames.add("Kassadin");
-//        mWinRates.add("52.94");
-//        mChampionPosition.add("Mid");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/katarina.png");
-//        mNames.add("Katarina");
-//        mWinRates.add("52.94");
-//        mChampionPosition.add("Mid");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/kayle.png");
-//        mNames.add("Kayle");
-//        mWinRates.add("52.94");
-//        mChampionPosition.add("Mid | Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/avatars/kayn-classic.png");
-//        mNames.add("Kayn");
-//        mWinRates.add("49.73");
-//        mChampionPosition.add("Jungle | Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/kennen.png");
-//        mNames.add("Kennen");
-//        mWinRates.add("52.94");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/khazix.png");
-//        mNames.add("Kha'Zix");
-//        mWinRates.add("52.94");
-//        mChampionPosition.add("Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/kindred.png");
-//        mNames.add("Kindred");
-//        mWinRates.add("52.94");
-//        mChampionPosition.add("Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/kled.png");
-//        mNames.add("Kled");
-//        mWinRates.add("52.94");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/kogmaw.png");
-//        mNames.add("Kog'Maw");
-//        mWinRates.add("52.94");
-//        mChampionPosition.add("ADC | Mid");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/leblanc.png");
-//        mNames.add("LeBlanc");
-//        mWinRates.add("52.94");
-//        mChampionPosition.add("Mid");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/lee-sin.png");
-//        mNames.add("Lee Sin");
-//        mWinRates.add("52.94");
-//        mChampionPosition.add("Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/leona.png");
-//        mNames.add("Leona");
-//        mWinRates.add("52.94");
-//        mChampionPosition.add("Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/lissandra.png");
-//        mNames.add("Lissandra");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/lucian.png");
-//        mNames.add("Lucian");
-//        mWinRates.add("43.58");
-//        mChampionPosition.add("ADC");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/lulu.png");
-//        mNames.add("Lulu");
-//        mWinRates.add("38.28");
-//        mChampionPosition.add("Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/lux.png");
-//        mNames.add("Lux");
-//        mWinRates.add("38.23");
-//        mChampionPosition.add("Mid | Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/malphite.png");
-//        mNames.add("Malphite");
-//        mWinRates.add("39.48");
-//        mChampionPosition.add("Top | Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/malzahar.png");
-//        mNames.add("Malzahar");
-//        mWinRates.add("15.87");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/maokai.png");
-//        mNames.add("Maokai");
-//        mWinRates.add("24.34");
-//        mChampionPosition.add("Top | Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/master-yi.png");
-//        mNames.add("Master Yi");
-//        mWinRates.add("32.68");
-//        mChampionPosition.add("Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/miss-fortune.png");
-//        mNames.add("Miss Fortune");
-//        mWinRates.add("40.72");
-//        mChampionPosition.add("ADC | Sup");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/mordekaiser.png");
-//        mNames.add("Mordekaiser");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/morgana.png");
-//        mNames.add("Morgana");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Support | Mid");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/nami.png");
-//        mNames.add("Nami");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/nasus.png");
-//        mNames.add("Nasus");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/nautilus.png");
-//        mNames.add("Nautilus");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Jungle | Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/nidalee.png");
-//        mNames.add("Nidalee");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Jungle | Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/nocturne.png");
-//        mNames.add("Nocturne");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/nunu.png");
-//        mNames.add("Nunu");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Jungle | Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/olaf.png");
-//        mNames.add("Olaf");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top | Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/orianna.png");
-//        mNames.add("Orianna");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/ornn.png");
-//        mNames.add("Ornn");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/square/pantheon.png");
-//        mNames.add("Pantheon");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/poppy.png");
-//        mNames.add("Poppy");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/quinn.png");
-//        mNames.add("Quinn");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top | ADC");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/rakan.png");
-//        mNames.add("Rakan");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/rammus.png");
-//        mNames.add("Rammus");
-//        mWinRates.add("50.34");
-//        mChampionPosition.add("Top | Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/reksai.png");
-//        mNames.add("Rek'Sai");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Jungle | Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/rengar.png");
-//        mNames.add("Rengar");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Jungle | Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/riven.png");
-//        mNames.add("Riven");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/rumble.png");
-//        mNames.add("Rumble");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/ryze.png");
-//        mNames.add("Ryze");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Middle | Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/sejuani.png");
-//        mNames.add("Sejuani");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/shaco.png");
-//        mNames.add("Shaco");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/shen.png");
-//        mNames.add("Shen");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top | Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/shyvana.png");
-//        mNames.add("Shyvana");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Jungle | Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/singed.png");
-//        mNames.add("Singed");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/sion.png");
-//        mNames.add("Sion");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/sivir.png");
-//        mNames.add("Sivir");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("ADC");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/skarner.png");
-//        mNames.add("Skarner");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/sona.png");
-//        mNames.add("Sona");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/soraka.png");
-//        mNames.add("Soraka");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/swain.png");
-//        mNames.add("Swain");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Middle | Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/syndra.png");
-//        mNames.add("Syndra");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/tahm-kench.png");
-//        mNames.add("Tahm Kench");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/taliyah.png");
-//        mNames.add("Taliyah");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/talon.png");
-//        mNames.add("Talon");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Middle | Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/taric.png");
-//        mNames.add("Taric");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/teemo.png");
-//        mNames.add("Teemo");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/thresh.png");
-//        mNames.add("Thresh");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/tristana.png");
-//        mNames.add("Tristana");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("ADC");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/trundle.png");
-//        mNames.add("Trundle");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Jungle | Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/tryndamere.png");
-//        mNames.add("Tryndamere");
-//        mWinRates.add("47.74");
-//        mChampionPosition.add("Top | Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/twisted-fate.png");
-//        mNames.add("Twisted Fate");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/twitch.png");
-//        mNames.add("Twitch");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("ADC");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/udyr.png");
-//        mNames.add("Udyr");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/urgot.png");
-//        mNames.add("Urgot");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("TOP");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/varus.png");
-//        mNames.add("Varus");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("ADC");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/vayne.png");
-//        mNames.add("Vayne");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("ADC | Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/veigar.png");
-//        mNames.add("Veigar");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/velkoz.png");
-//        mNames.add("Vel'Koz");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/vi.png");
-//        mNames.add("Vi");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/viktor.png");
-//        mNames.add("Viktor");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/vladimir.png");
-//        mNames.add("Vladimir");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top | Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/volibear.png");
-//        mNames.add("Volibear");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Jungle | Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/warwick.png");
-//        mNames.add("Warwick");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Jungle | Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/wukong.png");
-//        mNames.add("Wukong");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top | Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/xayah.png");
-//        mNames.add("Xayah");
-//        mWinRates.add("23.44");
-//        mChampionPosition.add("ADC");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/xerath.png");
-//        mNames.add("Xerath");
-//        mWinRates.add("56.44");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/xin-zhao.png");
-//        mNames.add("Xin Zhao");
-//        mWinRates.add("24.44");
-//        mChampionPosition.add("Jungle | Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/yasuo.png");
-//        mNames.add("Yasuo");
-//        mWinRates.add("55.44");
-//        mChampionPosition.add("Middle | Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/yorick.png");
-//        mNames.add("Yorick");
-//        mWinRates.add("50.44");
-//        mChampionPosition.add("Top");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/zac.png");
-//        mNames.add("Zac");
-//        mWinRates.add("23.44");
-//        mChampionPosition.add("Jungle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/zed.png");
-//        mNames.add("Zed");
-//        mWinRates.add("50.22");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/ziggs.png");
-//        mNames.add("Ziggs");
-//        mWinRates.add("10.44");
-//        mChampionPosition.add("Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/zilean.png");
-//        mNames.add("Zilean");
-//        mWinRates.add("53.44");
-//        mChampionPosition.add("Support | Middle");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/zoe.png");
-//        mNames.add("Zoe");
-//        mWinRates.add("29.28");
-//        mChampionPosition.add("Middle | Support");
-//
-//        mImageUrls.add("https://www.mobafire.com/images/champion/icon/zyra.png");
-//        mNames.add("Zyra");
-//        mWinRates.add("10.42");
-//        mChampionPosition.add("Support | Middle");
+            if (m != 0)
+            {
+                for (int i = 0; i < m - 1; i++)
+                {
+                    mImageUrls.remove(i);
+                    mNames.remove(i);
+                    mWinRates.remove(i);
+                    mChampionPosition.remove(i);
+                    m--;
+                    i--;
+                }
+            }
+
+            for (int i = 0; i < rates.size()-1; i++)
+            {
+
+                tempRate = Float.parseFloat(rates.get(i).getWinRate()) * 100;
+                tempRateString = Float.toString(tempRate);
+                splitRateString = tempRateString.substring(0, 5);
+
+                String tempPosition = rates.get(i).getChampionRole().replaceAll("DUO_CARRY", "ADC").replaceAll("DUO_SUPPORT", "SUPPORT");
+                String tempImage = "https://www.mobafire.com/images/champion/icon/" + rates.get(i).getChampionId().toLowerCase()
+                        .replaceAll("\\s+","-")
+                        .replaceAll("'", "")
+                        .replaceAll(". ", "-") + ".png";
+                mImageUrls.add(tempImage);
+                mNames.add(rates.get(i).getChampionId());
+                mWinRates.add(splitRateString);
+                mChampionPosition.add(tempPosition);
+            }
+        }
+
+        if (wantedRating == 1) {
+
+
+            float tempRate;
+            String tempRateString;
+            String splitRateString;
+            int m = mWinRates.size();
+
+            if (m != 0)
+            {
+                for (int i = 0; i < m - 1; i++)
+                {
+                    mImageUrls.remove(i);
+                    mNames.remove(i);
+                    mWinRates.remove(i);
+                    mChampionPosition.remove(i);
+                    m--;
+                    i--;
+                }
+            }
+
+            for (int i = 0; i < rates.size()-1; i++)
+            {
+
+                tempRate = Float.parseFloat(rates.get(i).getPlayRate()) * 100;
+                tempRateString = Float.toString(tempRate);
+                splitRateString = tempRateString.substring(0, 5);
+
+                String tempPosition = rates.get(i).getChampionRole().replaceAll("DUO_CARRY", "ADC").replaceAll("DUO_SUPPORT", "SUPPORT");
+                String tempImage = "https://www.mobafire.com/images/champion/icon/" + rates.get(i).getChampionId().toLowerCase()
+                        .replaceAll("\\s+","-")
+                        .replaceAll("'", "")
+                        .replaceAll(". ", "-") + ".png";
+                mImageUrls.add(tempImage);
+                mNames.add(rates.get(i).getChampionId());
+                mWinRates.add(splitRateString);
+                mChampionPosition.add(tempPosition);
+            }
+        }
+
+        if (wantedRating == 2) {
+            float tempRate;
+            String tempRateString;
+            String splitRateString;
+            int m = mWinRates.size();
+
+            if (m != 0)
+            {
+                for (int i = 0; i < m - 1; i++)
+                {
+                    mImageUrls.remove(i);
+                    mNames.remove(i);
+                    mWinRates.remove(i);
+                    mChampionPosition.remove(i);
+                    m--;
+                    i--;
+                }
+            }
+
+            for (int i = 0; i < rates.size()-1; i++)
+            {
+
+                tempRate = Float.parseFloat(rates.get(i).getBanRate()) * 100;
+                tempRateString = Float.toString(tempRate);
+                splitRateString = tempRateString.substring(0, 5);
+
+                String tempPosition = rates.get(i).getChampionRole().replaceAll("DUO_CARRY", "ADC").replaceAll("DUO_SUPPORT", "SUPPORT");
+                String tempImage = "https://www.mobafire.com/images/champion/icon/" + rates.get(i).getChampionId().toLowerCase()
+                        .replaceAll("\\s+","-")
+                        .replaceAll("'", "")
+                        .replaceAll(". ", "-") + ".png";
+                mImageUrls.add(tempImage);
+                mNames.add(rates.get(i).getChampionId());
+                mWinRates.add(splitRateString);
+                mChampionPosition.add(tempPosition);
+            }
+        }
 
         int m = mWinRates.size();
 
