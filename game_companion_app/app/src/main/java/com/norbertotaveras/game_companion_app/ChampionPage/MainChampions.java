@@ -282,14 +282,17 @@ public class MainChampions extends Fragment {
             case R.id.win_search:
                 wantedRating = 0;
                 initImageBitmaps(wantedPosition, championList);
+                Toast.makeText(getActivity(), "WinRate", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.pick_search:
                 wantedRating = 1;
                 initImageBitmaps(wantedPosition, championList);
+                Toast.makeText(getActivity(), "PickRate", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.ban_search:
                 wantedRating = 2;
                 initImageBitmaps(wantedPosition, championList);
+                Toast.makeText(getActivity(), "BanRate", Toast.LENGTH_SHORT).show();
                 return true;
         }
 
@@ -789,19 +792,6 @@ public class MainChampions extends Fragment {
 
         button.startAnimation(btn);
     }
-
-    public void clear() {
-        final int size = mNames.size();
-        if (size > 0) {
-            for (int i = 0; i < size; i++) {
-                mImageUrls.remove(0);
-                mNames.remove(0);
-                mWinRates.remove(0);
-                mChampionPosition.remove(0);
-            }
-        }
-    }
-
 
     public void fabToggle() {
         isOpen = !isOpen;
