@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -97,6 +98,8 @@ public class LocalDBCache {
             SQLiteDatabase localDB = context.openOrCreateDatabase("local-cache.sqlite",
                     Context.MODE_PRIVATE, null);
 
+            Log.v("LocalDBCache", "Initializing database");
+
             localDB.execSQL(
                     "CREATE TABLE IF NOT EXISTS \"match\" (" +
                             " \"type\" VARCHAR(8)," +
@@ -107,7 +110,7 @@ public class LocalDBCache {
 
             localDB.execSQL(
                     "CREATE UNIQUE INDEX IF NOT EXISTS \"match_type_id\"" +
-                            " ON \"match\"(\"type\",\"id\")"
+                            " ON \"match\"(\"type\", \"id\")"
             );
 
             cache.localDB = localDB;
@@ -136,6 +139,8 @@ public class LocalDBCache {
         public void run() {
             cache.waitOpen();
 
+            Log.v("LocalDBCache", "Looking up " + kind + " with id " + id);
+
             Cursor result = cache.localDB.rawQuery("SELECT json" +
                             " FROM \"match\"" +
                             " WHERE type = @kind" +
@@ -145,8 +150,11 @@ public class LocalDBCache {
             T match = null;
 
             if (result.moveToNext()) {
+                Log.v("LocalDBCache", "Cache hit for " + kind + " with id " + id);
                 String json = result.getString(0);
                 match = cache.gson.fromJson(json, type);
+            } else {
+                Log.v("LocalDBCache", "Cache miss for " + kind + " with id " + id);
             }
 
             result.close();
@@ -177,12 +185,21 @@ public class LocalDBCache {
 
             boolean result = false;
             try {
+                Log.v("LocalDBCache", "Inserting" +
+                        " type=" + type + "," +
+                        " id=" + id +
+                        " size=" + json.length());
+
                 cache.localDB.execSQL("INSERT INTO match ( \"type\", \"id\", \"json\" )" +
                                 " VALUES ( @type, @id, @json )",
                         new Object[]{ type, id, json });
+
                 result = true;
             } catch (SQLiteConstraintException ex) {
                 // Another client won a race
+                Log.v("LocalDBCache", "Insert conflict," +
+                        " type=" + type + "," +
+                        " id=" + id);
             }
 
             if (callback != null)
