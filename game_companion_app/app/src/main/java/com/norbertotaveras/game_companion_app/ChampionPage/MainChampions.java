@@ -800,7 +800,7 @@ public class MainChampions extends Fragment {
             {
                 tempRank = Integer.toString(i + 1);
                 tempRate = Float.parseFloat(rates.get(i).getWinRate()) * 100;
-                tempRateString = Float.toString(tempRate);
+                tempRateString = Float.toString(tempRate) + "000";
                 splitRateString = tempRateString.substring(0, 5);
 
                 String tempPosition = rates.get(i).getChampionRole().replaceAll("DUO_CARRY", "ADC").replaceAll("DUO_SUPPORT", "SUPPORT");
@@ -841,7 +841,7 @@ public class MainChampions extends Fragment {
             {
                 tempRank = Integer.toString(i + 1);
                 tempRate = Float.parseFloat(rates.get(i).getPlayRate()) * 100;
-                tempRateString = Float.toString(tempRate);
+                tempRateString = Float.toString(tempRate) + "000";
                 splitRateString = tempRateString.substring(0, 5);
 
                 String tempPosition = rates.get(i).getChampionRole().replaceAll("DUO_CARRY", "ADC").replaceAll("DUO_SUPPORT", "SUPPORT");
@@ -882,7 +882,7 @@ public class MainChampions extends Fragment {
             {
                 tempRank = Integer.toString(i + 1);
                 tempRate = Float.parseFloat(rates.get(i).getBanRate()) * 100;
-                tempRateString = Float.toString(tempRate);
+                tempRateString = Float.toString(tempRate) + "000";
                 splitRateString = tempRateString.substring(0, 5);
 
                 String tempPosition = rates.get(i).getChampionRole().replaceAll("DUO_CARRY", "ADC").replaceAll("DUO_SUPPORT", "SUPPORT");
