@@ -25,6 +25,7 @@ import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.RetroClasses
 import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.RetroClasses.ChampionName;
 import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.RetroClasses.ChampionRates;
 import com.norbertotaveras.game_companion_app.R;
+import com.spark.submitbutton.SubmitButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +57,7 @@ public class MainChampions extends Fragment {
     private ArrayList<String> mImageUrls = new ArrayList<>();
     private ArrayList<String> mWinRates = new ArrayList<>(); //Needs api calls, use placeholders atm
     private ArrayList<String> mChampionPosition = new ArrayList<>(); //
+    private ArrayList<String> mRankPosition = new ArrayList<>();
     private List<ChampionRates> rates;
     private String championName;
 
@@ -150,6 +152,7 @@ public class MainChampions extends Fragment {
                 mNames.clear();
                 mWinRates.clear();
                 mChampionPosition.clear();
+                mRankPosition.clear();
                 wantedPosition = 0;
                 Log.i(TAG, "User picked Filter");
                 initImageBitmaps(wantedPosition, championList);
@@ -166,6 +169,7 @@ public class MainChampions extends Fragment {
                 mNames.clear();
                 mWinRates.clear();
                 mChampionPosition.clear();
+                mRankPosition.clear();
                 wantedPosition = 1;
                 Log.i(TAG, "User picked Top");
                 initImageBitmaps(wantedPosition, championList);
@@ -181,6 +185,7 @@ public class MainChampions extends Fragment {
                 mNames.clear();
                 mWinRates.clear();
                 mChampionPosition.clear();
+                mRankPosition.clear();
                 wantedPosition = 2;
                 Log.i(TAG, "User picked Jungle");
                 initImageBitmaps(wantedPosition, championList);
@@ -197,6 +202,7 @@ public class MainChampions extends Fragment {
                 mNames.clear();
                 mWinRates.clear();
                 mChampionPosition.clear();
+                mRankPosition.clear();
                 wantedPosition = 3;
                 Log.i(TAG, "User picked Middle");
                 initImageBitmaps(wantedPosition, championList);
@@ -213,6 +219,7 @@ public class MainChampions extends Fragment {
                 mNames.clear();
                 mWinRates.clear();
                 mChampionPosition.clear();
+                mRankPosition.clear();
                 wantedPosition = 4;
                 Log.i(TAG, "User picked Support");
                 initImageBitmaps(wantedPosition, championList);
@@ -229,6 +236,7 @@ public class MainChampions extends Fragment {
                 mNames.clear();
                 mWinRates.clear();
                 mChampionPosition.clear();
+                mRankPosition.clear();
                 wantedPosition = 5;
                 Log.i(TAG, "User picked Bottom");
                 initImageBitmaps(wantedPosition, championList);
@@ -725,50 +733,6 @@ public class MainChampions extends Fragment {
         }
     }
 
-//    public void TransitionID2Name(int id) {
-//        final int champID = id;
-//
-//        Retrofit.Builder builder = new Retrofit.Builder()
-//                .baseUrl(RIOT_URL)
-//                .addConverterFactory(GsonConverterFactory.create());
-//
-//        Retrofit retrofit = builder.build();
-//
-//        ChampionRiotAPI riotclient = retrofit.create(ChampionRiotAPI.class);
-//        Call<ChampionDTO> riotCall = riotclient.getChampionById(champID);
-//
-//        riotCall.enqueue(new Callback<ChampionDTO>() {
-//            @Override
-//            public void onResponse(Call<ChampionDTO> call, Response<ChampionDTO> response) {
-//                currentChamp = response.body();
-//                Log.d(TAG, "ChampID: " + champID + " | ChampName: " + currentChamp.getName());
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ChampionDTO> call, Throwable t) {
-//
-//            }
-//        });
-
-
-
-
-
-//        riotCall.enqueue(new Callback<ChampionDTO>() {
-//            @Override
-//            public void onResponse(Call<ChampionDTO> call, Response<ChampionDTO> response) {
-//                allChamps = response.body();
-//                Log.d(TAG, "ChampID: " + champID + " | ChampName: " + currentChamp.getChampionName());
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ChampionDTO> call, Throwable t) {
-//
-//            }
-//        });
-
-
-
     public void buttonAnimation(final Button button) { // Timing and animation effects
         Animation btn = new AlphaAnimation(1.00f, 0.00f);
         btn.setDuration(3000);
@@ -816,6 +780,7 @@ public class MainChampions extends Fragment {
             String tempRateString;
             String splitRateString;
             int m = mWinRates.size();
+            String tempRank;
 
             if (m != 0)
             {
@@ -825,6 +790,7 @@ public class MainChampions extends Fragment {
                     mNames.remove(i);
                     mWinRates.remove(i);
                     mChampionPosition.remove(i);
+                    mRankPosition.remove(i);
                     m--;
                     i--;
                 }
@@ -832,7 +798,7 @@ public class MainChampions extends Fragment {
 
             for (int i = 0; i < rates.size()-1; i++)
             {
-
+                tempRank = Integer.toString(i + 1);
                 tempRate = Float.parseFloat(rates.get(i).getWinRate()) * 100;
                 tempRateString = Float.toString(tempRate);
                 splitRateString = tempRateString.substring(0, 5);
@@ -841,21 +807,21 @@ public class MainChampions extends Fragment {
                 String tempImage = "https://www.mobafire.com/images/champion/icon/" + rates.get(i).getChampionId().toLowerCase()
                         .replaceAll("\\s+","-")
                         .replaceAll("'", "")
-                        .replaceAll(". ", "-") + ".png";
+                        .replaceAll("\\.", "") + ".png";
                 mImageUrls.add(tempImage);
                 mNames.add(rates.get(i).getChampionId());
                 mWinRates.add(splitRateString);
                 mChampionPosition.add(tempPosition);
+                mRankPosition.add(tempRank);
             }
         }
 
         if (wantedRating == 1) {
-
-
             float tempRate;
             String tempRateString;
             String splitRateString;
             int m = mWinRates.size();
+            String tempRank;
 
             if (m != 0)
             {
@@ -865,6 +831,7 @@ public class MainChampions extends Fragment {
                     mNames.remove(i);
                     mWinRates.remove(i);
                     mChampionPosition.remove(i);
+                    mRankPosition.remove(i);
                     m--;
                     i--;
                 }
@@ -872,7 +839,7 @@ public class MainChampions extends Fragment {
 
             for (int i = 0; i < rates.size()-1; i++)
             {
-
+                tempRank = Integer.toString(i + 1);
                 tempRate = Float.parseFloat(rates.get(i).getPlayRate()) * 100;
                 tempRateString = Float.toString(tempRate);
                 splitRateString = tempRateString.substring(0, 5);
@@ -881,11 +848,12 @@ public class MainChampions extends Fragment {
                 String tempImage = "https://www.mobafire.com/images/champion/icon/" + rates.get(i).getChampionId().toLowerCase()
                         .replaceAll("\\s+","-")
                         .replaceAll("'", "")
-                        .replaceAll(". ", "-") + ".png";
+                        .replaceAll("\\.", "") + ".png";
                 mImageUrls.add(tempImage);
                 mNames.add(rates.get(i).getChampionId());
                 mWinRates.add(splitRateString);
                 mChampionPosition.add(tempPosition);
+                mRankPosition.add(tempRank);
             }
         }
 
@@ -894,6 +862,7 @@ public class MainChampions extends Fragment {
             String tempRateString;
             String splitRateString;
             int m = mWinRates.size();
+            String tempRank;
 
             if (m != 0)
             {
@@ -903,6 +872,7 @@ public class MainChampions extends Fragment {
                     mNames.remove(i);
                     mWinRates.remove(i);
                     mChampionPosition.remove(i);
+                    mRankPosition.remove(i);
                     m--;
                     i--;
                 }
@@ -910,7 +880,7 @@ public class MainChampions extends Fragment {
 
             for (int i = 0; i < rates.size()-1; i++)
             {
-
+                tempRank = Integer.toString(i + 1);
                 tempRate = Float.parseFloat(rates.get(i).getBanRate()) * 100;
                 tempRateString = Float.toString(tempRate);
                 splitRateString = tempRateString.substring(0, 5);
@@ -919,15 +889,18 @@ public class MainChampions extends Fragment {
                 String tempImage = "https://www.mobafire.com/images/champion/icon/" + rates.get(i).getChampionId().toLowerCase()
                         .replaceAll("\\s+","-")
                         .replaceAll("'", "")
-                        .replaceAll(". ", "-") + ".png";
+                        .replaceAll("\\.", "") + ".png";
                 mImageUrls.add(tempImage);
                 mNames.add(rates.get(i).getChampionId());
                 mWinRates.add(splitRateString);
                 mChampionPosition.add(tempPosition);
+                mRankPosition.add(tempRank);
             }
         }
-
         int m = mWinRates.size();
+
+
+
 
         switch (wantedPosition)
         {
@@ -944,6 +917,7 @@ public class MainChampions extends Fragment {
                         mNames.remove(i);
                         mWinRates.remove(i);
                         mChampionPosition.remove(i);
+                        mRankPosition.remove(i);
                         m--;
                         i--;
                     }
@@ -961,6 +935,7 @@ public class MainChampions extends Fragment {
                         mNames.remove(i);
                         mWinRates.remove(i);
                         mChampionPosition.remove(i);
+                        mRankPosition.remove(i);
                         m--;
                         i--;
                     }
@@ -978,6 +953,7 @@ public class MainChampions extends Fragment {
                         mNames.remove(i);
                         mWinRates.remove(i);
                         mChampionPosition.remove(i);
+                        mRankPosition.remove(i);
                         m--;
                         i--;
                     }
@@ -995,6 +971,7 @@ public class MainChampions extends Fragment {
                         mNames.remove(i);
                         mWinRates.remove(i);
                         mChampionPosition.remove(i);
+                        mRankPosition.remove(i);
                         m--;
                         i--;
                     }
@@ -1013,6 +990,7 @@ public class MainChampions extends Fragment {
                         mNames.remove(i);
                         mWinRates.remove(i);
                         mChampionPosition.remove(i);
+                        mRankPosition.remove(i);
                         m--;
                         i--;
                         Log.v(TAG, String.valueOf(mWinRates.size()));
@@ -1024,6 +1002,9 @@ public class MainChampions extends Fragment {
                 break;
 
         }
+//
+
+        //FINISH LATER, SORT FOR ALL RANK POSITIONS OF DIFFERENT LANES
 
         int n = mWinRates.size();
 
@@ -1052,9 +1033,33 @@ public class MainChampions extends Fragment {
                     mChampionPosition.set(j, mChampionPosition.get(rep));
                     mChampionPosition.set(rep, tempPosition);
 
+
                 }
             }
 
+        }
+
+        //Work on this next
+//
+//        for (int i = 0; i < mWinRates.size()-1; i++)
+//        {
+//            mRankPosition.remove(i);
+//            mRankPosition.add(Integer.toString(i+1));
+//        }
+
+        for (int i = n-1; i > 0; i--)
+        {
+
+            for (int j = n-i-1; j < 0; j--)
+            {
+                if (Integer.valueOf(mRankPosition.get(j)) < Integer.valueOf(mRankPosition.get(j + 1))) {
+                    int rep = j+1;
+
+                    String tempRankPosition = mRankPosition.get(j);
+                    mRankPosition.set(j, mRankPosition.get(rep));
+                    mRankPosition.set(rep, tempRankPosition);
+                }
+            }
         }
 
         initChampList(rView);
@@ -1062,7 +1067,7 @@ public class MainChampions extends Fragment {
 
     private void initChampList(RecyclerView rView){
         Log.d(TAG, "initChampList: initialized RecyclerView");
-        RecyclerViewAdapter adapter = new RecyclerViewAdapter(getContext(), mNames, mImageUrls, mWinRates, mChampionPosition);
+        RecyclerViewAdapter adapter = new RecyclerViewAdapter(getContext(), mNames, mImageUrls, mWinRates, mChampionPosition, mRankPosition);
         rView.setAdapter(adapter);
         rView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
