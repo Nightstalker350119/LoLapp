@@ -81,11 +81,18 @@ public class MainFragment
         return view;
     }
 
+    private void showSignIn() {
+        LoginActivity.autoShowSignIn(getActivity());
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         auth = FirebaseAuth.getInstance();
+
+        if (auth.getCurrentUser() == null)
+            showSignIn();
 
         recentSearchesItemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
             @Override
@@ -130,15 +137,7 @@ public class MainFragment
         // Start fetching icon data and stuff while the user types their search
         apiService = RiotAPI.getInstance(view.getContext());
 
-        if (auth.getCurrentUser() == null)
-            showSignIn();
-
         updateNoResults();
-    }
-
-    private void showSignIn() {
-        Intent intent = new Intent(getContext(), LoginActivity.class);
-        startActivity(intent);
     }
 
     @Override
@@ -184,8 +183,7 @@ public class MainFragment
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sign_in:
-                Intent intent = new Intent(getContext(), LoginActivity.class);
-                startActivity(intent);
+                LoginActivity.startSignIn(getActivity());
                 return true;
 
             case R.id.sign_out:
@@ -389,24 +387,33 @@ public class MainFragment
                                 }
                             }
 
-                            if (rs5v5 == null)
+                            if (rs5v5 != null) {
+                                tierIcon.setImageResource(RiotAPI.tierNameToResourceId(
+                                        rs5v5.tier, rs5v5.rank));
+
+                                rank.setText(RiotAPI.beautifyTierName(rs5v5.tier) +
+                                        " " + rs5v5.rank);
+
+                                leaguePoints.setText(String.valueOf(rs5v5.leaguePoints) + " LP");
+                            } else {
+                                tierIcon.setImageResource(RiotAPI.tierNameToResourceId(
+                                        "PROVISIONAL", "I"));
+
+                                rank.setText("Unranked");
+
+                                leaguePoints.setText("- LP");
+                            }
+
+                            if (rs5v5 == null) {
+                                winLoss.setVisibility(View.GONE);
                                 return;
-
-                            tierIcon.setImageResource(RiotAPI.tierNameToResourceId(
-                                    rs5v5 != null ? rs5v5.tier : "PROVISIONAL", rs5v5.rank));
-
-                            rank.setText(rs5v5 != null
-                                    ? RiotAPI.beautifyTierName(rs5v5.tier) +
-                                    " " + rs5v5.rank
-                                    : "Unranked");
-
-                            leaguePoints.setText(rs5v5 != null
-                                    ? String.valueOf(rs5v5.leaguePoints) +
-                                    " LP" : "- LP");
+                            }
 
                             int winPercent = 100 * rs5v5.wins / (rs5v5.wins + rs5v5.losses);
                             winLoss.setText(getResources().getString(R.string.win_loss,
                                     rs5v5.wins, rs5v5.losses, winPercent));
+
+                            winLoss.setVisibility(View.VISIBLE);
                         }
                     });
                 }

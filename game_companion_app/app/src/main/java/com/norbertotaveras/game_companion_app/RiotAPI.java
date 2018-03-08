@@ -18,6 +18,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.norbertotaveras.game_companion_app.DTO.ChampionMastery.ChampionMasteryDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.MatchDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantIdentityDTO;
@@ -37,6 +38,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -59,7 +61,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RiotAPI {
     private static RiotAPI instance;
-    private static final String riotApiKey = "RGAPI-b6859377-c628-4783-86a0-ab0757ec339d";
+    private static final String riotApiKey = "RGAPI-4a9bd339-71b8-4874-b848-b884f28aea70";
     private static final String rootEndpoint = "https://na1.api.riotgames.com/";
     private static final String staticCdn = "http://ddragon.leagueoflegends.com/cdn";
 
@@ -812,8 +814,8 @@ public class RiotAPI {
             return;
         }
 
-        DatabaseReference dbMatch = firebaseDB.child("match").child(gameIdStr);
-        dbMatch.addListenerForSingleValueEvent(new ValueEventListener() {
+        firebaseDB.child("match").child(gameIdStr).addListenerForSingleValueEvent(
+                new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -1011,26 +1013,102 @@ public class RiotAPI {
         return null;
     }
 
-    public static String queueIdToQueueName(int queueId) {
-        switch (queueId) {
-            case 400:
-                return "Normal";
+    // Singleton uses double checked lock to lazily
+    // asynchronously initialize id->champion lookup table
+    public static class ChampionLookup {
+        static volatile HashMap<Long, ChampionDTO> lookup;
+        static Object lock = new Object();
 
-            case 420:
-                return "Ranked Solo";
+        static ChampionDTO championById(long id) {
+            if (lookup == null) {
+                synchronized (lock) {
+                    if (lookup == null) {
+                        RiotAPI.getChampionList(new RiotAPI.AsyncCallback<ChampionListDTO>() {
+                            @Override
+                            public void invoke(ChampionListDTO item) {
+                                HashMap<Long, ChampionDTO> lookupInit =
+                                        new HashMap<>(item.data.size());
 
-            case 440:
-                return "Ranked Flex";
+                                for (Map.Entry<String, ChampionDTO> entry : item.data.entrySet())
+                                    lookupInit.put(entry.getValue().id, entry.getValue());
 
-            case 450:
-                return "ARAM";
+                                lookup = lookupInit;
+                                lock.notify();
+                            }
+                        });
 
-            case 1010:
-                return "Snow Urf";
+                        // Stall first call until asynchronous callback completes
+                        try {
+                            while (lookup == null)
+                                lock.wait();
+                        } catch (InterruptedException ex) {
+                        }
+                    }
+                }
+            }
 
-            default:
-                return "queueId=" + queueId;
+            return lookup.get(id);
         }
+    }
+
+    public static class ChampionMasteryComparators {
+        public static final Comparator<ChampionMasteryDTO> byChampion =
+                new Comparator<ChampionMasteryDTO>() {
+                    @Override
+                    public int compare(ChampionMasteryDTO lhs, ChampionMasteryDTO rhs) {
+                        ChampionDTO lhsChamp = RiotAPI.ChampionLookup.championById(lhs.championId);
+                        ChampionDTO rhsChamp = RiotAPI.ChampionLookup.championById(rhs.championId);
+
+                        return lhsChamp.name.compareTo(rhsChamp.name);
+                    }
+                };
+
+        public static final Comparator<ChampionMasteryDTO> byPoints =
+                new Comparator<ChampionMasteryDTO>() {
+                    @Override
+                    public int compare(ChampionMasteryDTO lhs, ChampionMasteryDTO rhs) {
+                        return -Long.compare(lhs.championPoints, rhs.championPoints);
+                    }
+                };
+
+        public static final Comparator<ChampionMasteryDTO> byLevel =
+                new Comparator<ChampionMasteryDTO>() {
+                    @Override
+                    public int compare(ChampionMasteryDTO lhs, ChampionMasteryDTO rhs) {
+                        return -Integer.compare(lhs.championLevel, rhs.championLevel);
+                    }
+                };
+    }
+
+    public enum QueueId {
+        all(-1, "All"),
+        normal(400, "Normal"),
+        rankedSolo(420, "Ranked Solo"),
+        rankedFlex(440, "Ranked Flex"),
+        aram(450, "ARAM"),
+        snowUrf(1010, "Snow Urf");
+
+        public final int queueId;
+        public final String text;
+
+        QueueId(int id, String text) {
+            this.queueId = id;
+            this.text = text;
+        }
+
+        public static String textFromInt(int queueId) {
+            if (queueId == all.queueId) return all.text;
+            if (queueId == normal.queueId) return normal.text;
+            if (queueId == rankedSolo.queueId) return rankedSolo.text;
+            if (queueId == rankedFlex.queueId) return rankedFlex.text;
+            if (queueId == aram.queueId) return aram.text;
+            if (queueId == snowUrf.queueId) return snowUrf.text;
+            return "queueId=" + queueId;
+        }
+    }
+
+    public static String queueIdToQueueName(int queueId) {
+        return QueueId.textFromInt(queueId);
     }
 
     public static class RequestCache {

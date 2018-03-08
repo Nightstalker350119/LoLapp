@@ -92,6 +92,7 @@ public class MatchesFragment
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_matches, container, false);
+
         matchListLayoutManager = new LinearLayoutManager(getActivity());
 
         matchList = view.findViewById(R.id.match_list);
@@ -147,7 +148,7 @@ public class MatchesFragment
 
         Call<MatchlistDTO> getMatchlistRequest;
 
-        if (currentFilter.queueId < 0) {
+        if (currentFilter == null || currentFilter.queueId < 0) {
             getMatchlistRequest = apiService.getMatchList(
                     summoner.accountId, beginIndex, beginIndex + matchBatchSize);
         } else {
@@ -216,9 +217,9 @@ public class MatchesFragment
         });
     }
 
-    private MatchFilterMenuItem currentFilter;
+    private RiotAPI.QueueId currentFilter;
 
-    public void setMatchFilter(final MatchFilterMenuItem filter) {
+    public void setMatchFilter(final RiotAPI.QueueId filter) {
         uiThreadHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -229,27 +230,9 @@ public class MatchesFragment
                 matchListAtEnd = false;
                 matchListAdapter.reset();
                 matchListAdapter.notifyDataSetChanged();
+                getMoreMatches();
             }
         });
-    }
-
-    public static MatchFilterMenuItem[] getFilterMenuItems() {
-        return new MatchFilterMenuItem[] {
-                new MatchFilterMenuItem(R.id.match_filter_all, -1),
-                new MatchFilterMenuItem(R.id.match_filter_ranked_solo, 420),
-                new MatchFilterMenuItem(R.id.match_filter_ranked_flex, 440),
-                new MatchFilterMenuItem(R.id.match_filter_normal, 400),
-                new MatchFilterMenuItem(R.id.match_filter_aram, 450),
-                new MatchFilterMenuItem(R.id.match_filter_event, 1010),
-        };
-    }
-
-    public void initMatchFilter(MatchFilterMenuItem matchFilterMenuItem) {
-        currentFilter = matchFilterMenuItem;
-    }
-
-    public MatchFilterMenuItem getCurrentFilter() {
-        return currentFilter;
     }
 
     @Override
@@ -525,7 +508,6 @@ public class MatchesFragment
             this.queueId = queueId;
         }
     }
-
 }
 
 interface MatchClickListener {

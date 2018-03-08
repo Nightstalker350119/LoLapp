@@ -9,22 +9,15 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gordonwong.materialsheetfab.AnimatedFab;
-import com.gordonwong.materialsheetfab.MaterialSheetFab;
+import com.norbertotaveras.game_companion_app.DTO.ChampionMastery.ChampionMasteryDTO;
 import com.norbertotaveras.game_companion_app.DTO.League.LeaguePositionDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.MatchDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.MatchReferenceDTO;
@@ -36,6 +29,7 @@ import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -51,7 +45,8 @@ import retrofit2.Response;
 
 public class SummonerSearchResultsActivity
         extends AppCompatActivity
-        implements TabLayout.OnTabSelectedListener, ViewPager.OnPageChangeListener {
+        implements View.OnClickListener {
+    private final SummonerSearchResultsActivity activity = this;
     private RiotGamesService apiService;
 
     private String searchName;
@@ -79,29 +74,13 @@ public class SummonerSearchResultsActivity
     private TextView[] seasonNums;
     private TextView[] seasonAchieved;
 
-    private AnimatedFab summonerFab;
-    private AnimatedFab champsFab;
-
-    //FAB Button stuff
-
-//    FloatingActionButton fabPlus, fabSolo, fabName, fabFlex, fabPoints, fabNormal, fabLevel, fabARAM, fabEvent, fabFilter;
-//    Animation FabOpen, FabClose, FabRotateClockWise, FabRotateCounterClockWise;
-//    int wantedPosition = 0; //0=all | 1=Solo | 2=Flex | 3=Normals | 4=ARAM | 5=event | 6=Name | 7=Points | 8=Level
-//    boolean isOpen = false;
-
-    //FAB Button stuff
+    private FabMenu filterMenu;
+    private FabMenu sortMenu;
+    private FabMenu.TabSwitcher menuSwitcher;
 
     private RiotAPI.DeferredRequest<SummonerDTO> deferredSummoner;
 
     private final LeagueInfo leagueInfo;
-
-    private final MatchesFragment.MatchFilterMenuItem[] matchFilterMenuItems =
-            MatchesFragment.getFilterMenuItems();
-    private final ChampsFragment.ChampSortMenuItem[] champSortMenuItems =
-            ChampsFragment.getSortMenuItems();
-
-    private MaterialSheetFab<AnimatedMenuFab> matchFilterSheet;
-    private MaterialSheetFab<AnimatedMenuFab> champSortSheet;
 
     public SummonerSearchResultsActivity() {
         leagueInfo = new LeagueInfo();
@@ -112,130 +91,37 @@ public class SummonerSearchResultsActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_summoner_search_results);
 
+        View view = findViewById(android.R.id.content);
 
-        //Button Functionality below
-//        //Button functionality() {
-//        fabPlus = findViewById(R.id.summoner_fab); //MainFAB
-//        fabSolo = findViewById(R.id.match_filter_ranked_solo); //Sort by SoloQ
-//        fabFlex = findViewById(R.id.match_filter_ranked_flex); //Sort by FlexQ
-//        fabNormal = findViewById(R.id.match_filter_normal); //Sort by Normals
-//        fabARAM = findViewById(R.id.match_filter_aram); //Sort by ARAM
-//        fabEvent = findViewById(R.id.match_filter_event); //Sort by event
-//        fabFilter = findViewById(R.id.match_filter_all); //Sort, filter back to all
-//        fabName = findViewById(R.id.champ_sort_by_champion); //Sort by champion name
-//        FabOpen = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open); //OpenAnimationOnFAB
-//        FabClose = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close); //CloseAnimationOnFAB
-//        FabRotateClockWise = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_clockwise); //FABRotate
-//        FabRotateCounterClockWise = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_counterclockwise); //FABRotateCCWise
-//
-//
-//        //Button Events start here
-//        fabPlus.setOnClickListener(new View.OnClickListener() { //Sorting buttons
-//            @Override
-//            public void onClick(View v) {
-//                fabOpenClose();
-//            }
-//        });
-//
-//        fabFilter.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                fabOpenClose();
-//
-//                wantedPosition = 0;
-//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//        fabSolo.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                fabOpenClose();
-//
-//                wantedPosition = 1;
-//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//        fabFlex.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                fabOpenClose();
-//
-//                wantedPosition = 2;
-//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//        fabNormal.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                fabOpenClose();
-//
-//                wantedPosition = 3;
-//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//        fabARAM.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                fabOpenClose();
-//
-//                wantedPosition = 4;
-//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//        fabEvent.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                fabOpenClose();
-//
-//                wantedPosition = 5;
-//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//        fabName.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                fabOpenClose();
-//
-//                wantedPosition = 6;
-//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//        fabPoints.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                fabOpenClose();
-//
-//                wantedPosition = 7;
-//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//        fabLevel.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                fabOpenClose();
-//
-//                wantedPosition = 8;
-//                Toast.makeText(SummonerSearchResultsActivity.this, "All roles", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//
-//
+        filterMenu = new FabMenu(view, R.id.fab_filter_container);
+
+        filterMenu.setActivateButton(new FabMenu.FabButtonShowMenu(filterMenu, R.id.fab_filter));
+
+        filterMenu.setButtons(new FabMenu.FabButton[] {
+                new FabButtonFilter(filterMenu, R.id.fab_filter_all, RiotAPI.QueueId.all),
+                new FabButtonFilter(filterMenu, R.id.fab_filter_normal, RiotAPI.QueueId.normal),
+                new FabButtonFilter(filterMenu, R.id.fab_filter_solo, RiotAPI.QueueId.rankedSolo),
+                new FabButtonFilter(filterMenu, R.id.fab_filter_flex, RiotAPI.QueueId.rankedFlex),
+                new FabButtonFilter(filterMenu, R.id.fab_filter_aram, RiotAPI.QueueId.aram),
+                new FabButtonFilter(filterMenu, R.id.fab_filter_snow, RiotAPI.QueueId.snowUrf)
+        });
+
+        filterMenu.setSelectedIndex(0);
+
+        sortMenu = new FabMenu(view, R.id.fab_sort_container);
+
+        sortMenu.setActivateButton(new FabMenu.FabButtonShowMenu(sortMenu, R.id.fab_sort));
+
+        sortMenu.setButtons(new FabMenu.FabButton[]{
+                new FabButtonSort(sortMenu, R.id.fab_sort_name,
+                        RiotAPI.ChampionMasteryComparators.byChampion),
+                new FabButtonSort(sortMenu, R.id.fab_sort_points,
+                        RiotAPI.ChampionMasteryComparators.byPoints),
+                new FabButtonSort(sortMenu, R.id.fab_sort_level,
+                        RiotAPI.ChampionMasteryComparators.byLevel)
+        });
+
+        sortMenu.setSelectedButton(null);
 
         Intent intent = getIntent();
         searchName = intent.getStringExtra("searchName");
@@ -244,12 +130,17 @@ public class SummonerSearchResultsActivity
         tabLayout = findViewById(R.id.tabs);
         tabPager = findViewById(R.id.tab_pager);
         tabPagerAdapter = new TabPagerAdapter(getSupportFragmentManager());
-        tabPager.addOnPageChangeListener(this);
+
+        // Set up automatic switching between FabMenu instances based on tab
+        menuSwitcher = new FabMenu.TabSwitcher();
 
         matchesFragment = MatchesFragment.newInstance();
         champsFragment = ChampsFragment.newInstance();
         tabPagerAdapter.addFragment("Matches", matchesFragment);
         tabPagerAdapter.addFragment("Champs", champsFragment);
+        menuSwitcher.addMenuToTab(filterMenu);
+        menuSwitcher.addMenuToTab(sortMenu);
+        menuSwitcher.setViewPager(tabPager);
 
         tabPager.setAdapter(tabPagerAdapter);
         tabLayout.setupWithViewPager(tabPager);
@@ -262,9 +153,6 @@ public class SummonerSearchResultsActivity
         summonerSummary = findViewById(R.id.summoner_summary);
         profileIcon = findViewById(R.id.profile_icon);
         tierIcon = findViewById(R.id.tier_icon_0);
-
-        summonerFab = findViewById(R.id.summoner_fab);
-        champsFab = findViewById(R.id.champs_fab);
 
         seasonCards = new View[] {
                 findViewById(R.id.season_card_0),
@@ -293,16 +181,9 @@ public class SummonerSearchResultsActivity
         for (View clr : seasonCards)
             clr.setVisibility(View.GONE);
 
-        tabLayout.addOnTabSelectedListener(this);
-
         apiService = RiotAPI.getInstance(getApplicationContext());
 
         uiThreadHandler = UIHelper.createRunnableLooper();
-
-        initMatchFilterMenu();
-        initChampSortMenu();
-
-        enableFab(R.id.summoner_fab);
 
         search();
     }
@@ -360,56 +241,6 @@ public class SummonerSearchResultsActivity
 //            isOpen = true;
 //        }
 //    }
-
-    public void buttonAnimation(final Button button) { // Timing and animation effects
-        Animation btn = new AlphaAnimation(1.00f, 0.00f);
-        btn.setDuration(3000);
-        btn.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                button.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                button.setVisibility(View.INVISIBLE);
-                button.setEnabled(false);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
-        button.startAnimation(btn);
-    }
-
-    public void buttonEventHandler(int wantedPosition)
-    {
-        switch (wantedPosition) {
-            case 0: //Filter
-                break;
-            case 1: //Solo Results
-                break;
-            case 2: //Flex Results
-                break;
-            case 3: //Normal Results
-                break;
-            case 4: //ARAM Results
-                break;
-            case 5: //Event Results
-                break;
-            case 6: //Name Results
-                break;
-            case 7: //Points Results
-                break;
-            case 8: //Level Results
-                break;
-        }
-    }
-
-    // End of Button Stuff
 
     private void search() {
         if (searchName != null) {
@@ -556,173 +387,17 @@ public class SummonerSearchResultsActivity
         matchesFragment.getMatchList(summoner);
     }
 
-    private MaterialSheetFab<AnimatedMenuFab> initFabMenu(int fabId, int sheetId) {
-        AnimatedMenuFab fab = findViewById(fabId);
-        View sheetView = findViewById(sheetId);
-        View overlay = findViewById(R.id.dim_overlay);
-        final int colorPrimary = ContextCompat.getColor(this, R.color.colorPrimary);
-        final int sheetColor = colorPrimary;
-        final int fabColor = colorPrimary;
-
-        // Initialize material sheet FAB
-        MaterialSheetFab<AnimatedMenuFab> sheet = new MaterialSheetFab<>(
-                fab, sheetView, overlay, sheetColor, fabColor);
-
-        return sheet;
-    }
-
-    private void enableFab(int id) {
-        summonerFab.hide();
-        champsFab.hide();
-
-        switch (id) {
-            case R.id.summoner_fab:
-                summonerFab.show();
-                break;
-
-            case R.id.champs_fab:
-                champsFab.show();
-                break;
-        }
-    }
-
-    private void initMatchFilterMenu() {
-        matchFilterSheet = initFabMenu(R.id.summoner_fab, R.id.summoner_filter_sheet);
-
-        for (MatchesFragment.MatchFilterMenuItem item : matchFilterMenuItems) {
-            item.item = findViewById(item.id);
-            item.item.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    for (MatchesFragment.MatchFilterMenuItem menuItem : matchFilterMenuItems) {
-                        if (menuItem.item == view) {
-                            setMatchFilter(menuItem);
-                            break;
-                        }
-                    }
-                }
-            });
-        }
-        matchesFragment.initMatchFilter(matchFilterMenuItems[0]);
-        updateMatchFilterMenu();
-    }
-
-    private void initChampSortMenu() {
-        champSortSheet = initFabMenu(R.id.champs_fab, R.id.champ_sort_sheet);
-
-        for (ChampsFragment.ChampSortMenuItem item : champSortMenuItems) {
-            item.item = findViewById(item.id);
-            item.item.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    for (ChampsFragment.ChampSortMenuItem menuItem : champSortMenuItems) {
-                        if (menuItem.item == view) {
-                            setChampSort(menuItem);
-                            break;
-                        }
-                    }
-                }
-            });
-        }
-    }
-
-    void setMatchFilter(final MatchesFragment.MatchFilterMenuItem filter) {
-        matchesFragment.setMatchFilter(filter);
-        uiThreadHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                updateMatchFilterMenu();
-                matchFilterSheet.hideSheet();
-                matchesFragment.getMoreMatches();
-            }
-        });
-    }
-
-    private void setChampSort(ChampsFragment.ChampSortMenuItem menuItem) {
-        champsFragment.setSortOrder(menuItem);
-        uiThreadHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                updateChampSortMenu();
-                champSortSheet.hideSheet();
-            }
-        });
-    }
-
-    private void updateMatchFilterMenu() {
-        MatchesFragment.MatchFilterMenuItem currentFilter = matchesFragment.getCurrentFilter();
-        for (MatchesFragment.MatchFilterMenuItem item : matchFilterMenuItems) {
-            if (item != currentFilter) {
-                item.item.setBackgroundColor(ContextCompat.getColor(
-                        this, R.color.colorPrimary));
-            } else {
-                item.item.setBackgroundColor(ContextCompat.getColor(
-                        this, R.color.highlight));
-            }
-        }
-    }
-
-    private void updateChampSortMenu() {
-        ChampsFragment.ChampSortMenuItem currentSort = champsFragment.getCurrentSort();
-        for (ChampsFragment.ChampSortMenuItem item : champSortMenuItems) {
-            if (item != currentSort) {
-                item.item.setBackgroundColor(ContextCompat.getColor(
-                        this, R.color.colorPrimary));
-            } else {
-                item.item.setBackgroundColor(ContextCompat.getColor(
-                        this, R.color.highlight));
-            }
-        }
-    }
-
     @Override
     public void onBackPressed() {
-        // Close the match filter menu on back press if it is visible
-        // otherwise, do default back behavior
-        if (matchFilterSheet.isSheetVisible())
-            matchFilterSheet.hideSheet();
-        else if (champSortSheet.isSheetVisible())
-            champSortSheet.hideSheet();
-        else
+        if (!menuSwitcher.onBackPressed())
             super.onBackPressed();
     }
 
-    // Enables the FloatingActionButton between tabs (Matches and Fragment)
     @Override
-    public void onTabSelected(TabLayout.Tab tab) {
-        int pos = tab.getPosition();
-        Fragment fragment = tabPagerAdapter.getItem(pos);
+    public void onClick(View view) {
+        switch (view.getId()) {
 
-        if (fragment == matchesFragment) {
-            enableFab(R.id.summoner_fab);
-        } else if (fragment == champsFragment) {
-            enableFab(R.id.champs_fab);
         }
-    }
-
-    @Override
-    public void onTabUnselected(TabLayout.Tab tab) {
-    }
-
-    @Override
-    public void onTabReselected(TabLayout.Tab tab) {
-    }
-
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-    }
-
-    @Override
-    public void onPageSelected(int position) {
-        if (champSortSheet.isSheetVisible())
-            champSortSheet.hideSheet();
-        if (matchFilterSheet.isSheetVisible())
-            matchFilterSheet.hideSheet();
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
-
     }
 
     public class LeagueInfo implements Serializable {
@@ -813,6 +488,38 @@ public class SummonerSearchResultsActivity
                 this.title = title;
                 this.fragment = fragment;
             }
+        }
+    }
+
+    private class FabButtonSort extends FabMenu.FabButton {
+        public final Comparator<ChampionMasteryDTO> comparator;
+
+        public FabButtonSort(FabMenu owner, int id, Comparator<ChampionMasteryDTO> comparator) {
+            super(owner, id);
+            this.comparator = comparator;
+        }
+
+        @Override
+        public boolean onClick() {
+            Log.v("FabMenu", "Clicked champs sort option");
+            champsFragment.setSortOrder(comparator);
+            return false;
+        }
+    }
+
+    private class FabButtonFilter extends FabMenu.FabButton {
+        public final RiotAPI.QueueId queueId;
+
+        public FabButtonFilter(FabMenu owner, int id, RiotAPI.QueueId queueId) {
+            super(owner, id);
+            this.queueId = queueId;
+        }
+
+        @Override
+        public boolean onClick() {
+            matchesFragment.setMatchFilter(queueId);
+            Log.v("FabMenu", "Clicked queueId filter option");
+            return false;
         }
     }
 }

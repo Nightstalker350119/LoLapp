@@ -98,7 +98,6 @@
                         android:text="Challenger"/>
                 </LinearLayout>
             </LinearLayout>
-
         </android.support.design.widget.CollapsingToolbarLayout>
 
         <LinearLayout
@@ -210,312 +209,386 @@
         android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
-    <!--Summoner FAB-->
-    <!--<android.support.design.widget.FloatingActionButton-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="bottom|end"-->
-    <!--android:layout_marginRight="@dimen/fab_margin_right"-->
-    <!--android:layout_marginBottom="16dp"-->
-    <!--android:src="@drawable/ic_action_plus"-->
-    <!--android:elevation="6dp"-->
-    <!--android:id="@+id/summoner_fab"-->
-    <!--app:pressedTranslationZ="12dp"-->
-    <!--android:backgroundTint="@color/colorPrimary"-->
-    <!--android:tooltipText="Roles"-->
-    <!--/>-->
-    <!--Champion FAB NOT REALLY NECESSARY-->
-    <!--<android.support.design.widget.FloatingActionButton-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="bottom|end"-->
-    <!--android:layout_marginRight="@dimen/fab_margin_right"-->
-    <!--android:layout_marginBottom="16dp"-->
-    <!--android:src="@drawable/ic_action_plus"-->
-    <!--android:elevation="6dp"-->
-    <!--android:id="@+id/champs_fab"-->
-    <!--app:pressedTranslationZ="12dp"-->
-    <!--android:backgroundTint="@color/colorPrimary"-->
-    <!--android:tooltipText="Roles"-->
-    <!--/>-->
-    <!--Normals Button-->
-    <!--<android.support.design.widget.FloatingActionButton-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="bottom|end"-->
-    <!--android:layout_marginRight="@dimen/fab_margin_right"-->
-    <!--android:layout_marginBottom="71dp"-->
-    <!--android:src="@drawable/ic_action_bottom"-->
-    <!--android:elevation="6dp"-->
-    <!--android:id="@+id/match_filter_normal"-->
-    <!--app:pressedTranslationZ="12dp"-->
-    <!--android:backgroundTint="@color/colorButtons"-->
-    <!--android:visibility="invisible"-->
-    <!--android:tooltipText="Bottom"-->
-    <!--/>-->
-    <!--Level Button-->
-    <!--<android.support.design.widget.FloatingActionButton-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="bottom|end"-->
-    <!--android:layout_marginRight="@dimen/fab_margin_right"-->
-    <!--android:layout_marginBottom="71dp"-->
-    <!--android:src="@drawable/ic_action_bottom"-->
-    <!--android:elevation="6dp"-->
-    <!--android:id="@+id/champ_sort_by_level"-->
-    <!--app:pressedTranslationZ="12dp"-->
-    <!--android:backgroundTint="@color/colorButtons"-->
-    <!--android:visibility="invisible"-->
-    <!--android:tooltipText="Bottom"-->
-    <!--/>-->
-    <!--Flex Button-->
-    <!--<android.support.design.widget.FloatingActionButton-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="bottom|end"-->
-    <!--android:layout_marginRight="@dimen/fab_margin_right"-->
-    <!--android:layout_marginBottom="121dp"-->
-    <!--android:src="@drawable/ic_action_middle"-->
-    <!--android:elevation="6dp"-->
-    <!--android:id="@+id/match_filter_ranked_flex"-->
-    <!--app:pressedTranslationZ="12dp"-->
-    <!--android:backgroundTint="@color/colorButtons"-->
-    <!--android:visibility="invisible"-->
-    <!--android:tooltipText="Middle"-->
-    <!--/>-->
-    <!--Points Button-->
-    <!--<android.support.design.widget.FloatingActionButton-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="bottom|end"-->
-    <!--android:layout_marginRight="@dimen/fab_margin_right"-->
-    <!--android:layout_marginBottom="121dp"-->
-    <!--android:src="@drawable/ic_action_middle"-->
-    <!--android:elevation="6dp"-->
-    <!--android:id="@+id/champ_sort_by_points"-->
-    <!--app:pressedTranslationZ="12dp"-->
-    <!--android:backgroundTint="@color/colorButtons"-->
-    <!--android:visibility="invisible"-->
-    <!--android:tooltipText="Middle"-->
-    <!--/>-->
-    <!--Solo Button-->
-    <!--<android.support.design.widget.FloatingActionButton-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="bottom|end"-->
-    <!--android:layout_marginRight="@dimen/fab_margin_right"-->
-    <!--android:layout_marginBottom="171dp"-->
-    <!--android:src="@drawable/ic_action_top"-->
-    <!--android:elevation="6dp"-->
-    <!--android:id="@+id/match_filter_ranked_solo"-->
-    <!--app:pressedTranslationZ="12dp"-->
-    <!--android:backgroundTint="@color/colorButtons"-->
-    <!--android:visibility="invisible"-->
-    <!--android:tooltipText="Top"-->
-    <!--/>-->
-    <!--Champion Name Button-->
-    <!--<android.support.design.widget.FloatingActionButton-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="bottom|end"-->
-    <!--android:layout_marginRight="@dimen/fab_margin_right"-->
-    <!--android:layout_marginBottom="171dp"-->
-    <!--android:src="@drawable/ic_action_top"-->
-    <!--android:elevation="6dp"-->
-    <!--android:id="@+id/champ_sort_by_champion"-->
-    <!--app:pressedTranslationZ="12dp"-->
-    <!--android:backgroundTint="@color/colorButtons"-->
-    <!--android:visibility="invisible"-->
-    <!--android:tooltipText="Top"-->
-    <!--/>-->
-    <!--ARAM Button-->
-    <!--<android.support.design.widget.FloatingActionButton-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="bottom|end"-->
-    <!--android:layout_marginRight="71dp"-->
-    <!--android:layout_marginBottom="16dp"-->
-    <!--android:src="@drawable/ic_action_support"-->
-    <!--android:elevation="6dp"-->
-    <!--android:id="@+id/match_filter_aram"-->
-    <!--app:pressedTranslationZ="12dp"-->
-    <!--android:backgroundTint="@color/colorButtons"-->
-    <!--android:visibility="invisible"-->
-    <!--android:tooltipText="Support"-->
-    <!--/>-->
-    <!--Event Button-->
-    <!--<android.support.design.widget.FloatingActionButton-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="bottom|end"-->
-    <!--android:layout_marginRight="121dp"-->
-    <!--android:layout_marginBottom="16dp"-->
-    <!--android:src="@drawable/ic_action_jungle"-->
-    <!--android:elevation="6dp"-->
-    <!--android:id="@+id/match_filter_event"-->
-    <!--app:pressedTranslationZ="12dp"-->
-    <!--android:backgroundTint="@color/colorButtons"-->
-    <!--android:visibility="invisible"-->
-    <!--android:tooltipText="Jungle"/>-->
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:id="@+id/fab_filter_container">
 
-    <!--All Button-->
-    <!--<android.support.design.widget.FloatingActionButton-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="bottom|end"-->
-    <!--android:layout_marginRight="71dp"-->
-    <!--android:layout_marginBottom="71dp"-->
-    <!--android:src="@drawable/ic_action_filter"-->
-    <!--android:elevation="6dp"-->
-    <!--android:id="@+id/match_filter_all"-->
-    <!--app:pressedTranslationZ="12dp"-->
-    <!--android:backgroundTint="@color/colorPrimary"-->
-    <!--android:visibility="invisible"-->
-    <!--android:tooltipText="All"-->
-    <!--/>-->
-
-    <!--<com.gordonwong.materialsheetfab.DimOverlayFrameLayout-->
-    <!--android:id="@+id/dim_overlay"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:visibility="gone"/>-->
-
-
-    <RelativeLayout
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools">
-
-        <com.norbertotaveras.game_companion_app.AnimatedMenuFab
-            android:id="@+id/summoner_fab"
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_filter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginBottom="12dp"
-            android:layout_marginEnd="12dp"
-            android:src="@drawable/icons8_filter_24"
-            android:tint="@color/textColorPrimary"
-            app:backgroundTint="@color/colorPrimary"/>
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="@dimen/fab_margin_right"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_action_plus"
+            android:elevation="6dp"
+            app:pressedTranslationZ="12dp"
+            android:scaleType="center"
+            android:backgroundTint="@color/colorPrimary"
+            android:tooltipText="Roles" />
 
-        <com.norbertotaveras.game_companion_app.AnimatedMenuFab
-            android:id="@+id/champs_fab"
+        <FrameLayout
+            android:id="@+id/fab_filter_all"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginBottom="12dp"
-            android:layout_marginEnd="12dp"
-            android:src="@drawable/icons8_filter_24"
-            android:tint="@color/textColorPrimary"
-            app:backgroundTint="@color/colorPrimary"/>
-
-        <com.gordonwong.materialsheetfab.DimOverlayFrameLayout
-            android:id="@+id/dim_overlay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"/>
-
-        <io.codetail.widget.RevealLinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="end|bottom"
-            android:orientation="vertical">
-
-            <android.support.v7.widget.CardView
-                android:id="@+id/summoner_filter_sheet"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="@dimen/fab_margin_right"
+            android:layout_marginBottom="71dp"
+            android:visibility="invisible">
+            <android.support.design.widget.FloatingActionButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:layout_marginEnd="12dp">
-
-                <LinearLayout
-                    android:id="@+id/match_filter_menu"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:background="@color/colorPrimary">
-                    <TextView
-                        android:id="@+id/match_filter_all"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="All"
-                        android:padding="12dp"/>
-
-                    <TextView
-                        android:id="@+id/match_filter_ranked_solo"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Ranked Solo"
-                        android:padding="12dp"/>
-
-                    <TextView
-                        android:id="@+id/match_filter_ranked_flex"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Ranked Flex"
-                        android:padding="12dp"/>
-
-                    <TextView
-                        android:id="@+id/match_filter_normal"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Normal"
-                        android:padding="12dp"/>
-
-                    <TextView
-                        android:id="@+id/match_filter_aram"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="ARAM"
-                        android:padding="12dp"/>
-
-                    <TextView
-                        android:id="@+id/match_filter_event"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Event"
-                        android:padding="12dp"/>
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                android:id="@+id/champ_sort_sheet"
+                app:pressedTranslationZ="12dp"
+                android:tooltipText="Bottom" />
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:layout_marginEnd="12dp">
+                android:elevation="8dp"
+                android:text="All"
+                android:textColor="#FFFFFFFF"
+                android:layout_gravity="center"/>
+        </FrameLayout>
+        <FrameLayout
+            android:id="@+id/fab_filter_solo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="@dimen/fab_margin_right"
+            android:layout_marginBottom="121dp"
+            android:visibility="invisible">
+            <android.support.design.widget.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:pressedTranslationZ="12dp"
+                android:tooltipText="Bottom" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="8dp"
+                android:text="Solo"
+                android:textColor="#FFFFFFFF"
+                android:layout_gravity="center"/>
+        </FrameLayout>
+        <!-- Top Button -->
+        <FrameLayout
+            android:id="@+id/fab_filter_flex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="@dimen/fab_margin_right"
+            android:layout_marginBottom="171dp"
+            android:visibility="invisible">
+            <android.support.design.widget.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:pressedTranslationZ="12dp"
+                android:tooltipText="Bottom" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="8dp"
+                android:text="Flex"
+                android:textColor="#FFFFFFFF"
+                android:layout_gravity="center"/>
+        </FrameLayout>
+        <FrameLayout
+            android:id="@+id/fab_filter_normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="71dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="invisible">
+            <android.support.design.widget.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:pressedTranslationZ="12dp"
+                android:tooltipText="Bottom" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="8dp"
+                android:text="Norm"
+                android:textColor="#FFFFFFFF"
+                android:layout_gravity="center"/>
+        </FrameLayout>
+        <FrameLayout
+            android:id="@+id/fab_filter_aram"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="121dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="invisible">
+            <android.support.design.widget.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:pressedTranslationZ="12dp"
+                android:tooltipText="Bottom" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="8dp"
+                android:text="Aram"
+                android:textColor="#FFFFFFFF"
+                android:layout_gravity="center"/>
+        </FrameLayout>
+        <FrameLayout
+            android:id="@+id/fab_filter_snow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="71dp"
+            android:layout_marginBottom="71dp"
+            android:visibility="invisible">
+            <android.support.design.widget.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:pressedTranslationZ="12dp"
+                android:tooltipText="Bottom" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="8dp"
+                android:text="Snow"
+                android:textColor="#FFFFFFFF"
+                android:layout_gravity="center"/>
+        </FrameLayout>
+    </FrameLayout>
 
-                <LinearLayout
-                    android:id="@+id/champ_sort_menu"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:background="@color/colorPrimary">
-                    <TextView
-                        android:id="@+id/champ_sort_by_champion"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Sort by name"
-                        android:padding="12dp"/>
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:id="@+id/fab_sort_container">
 
-                    <TextView
-                        android:id="@+id/champ_sort_by_points"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Sort by points"
-                        android:padding="12dp"/>
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_sort"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="@dimen/fab_margin_right"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_action_plus"
+            android:elevation="6dp"
+            app:pressedTranslationZ="12dp"
+            android:scaleType="center"
+            android:backgroundTint="@color/colorPrimary"
+            android:tooltipText="Roles" />
 
-                    <TextView
-                        android:id="@+id/champ_sort_by_level"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Sort by level"
-                        android:padding="12dp"/>
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-        </io.codetail.widget.RevealLinearLayout>
-    </RelativeLayout>
+        <FrameLayout
+            android:id="@+id/fab_sort_points"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="@dimen/fab_margin_right"
+            android:layout_marginBottom="121dp"
+            android:visibility="invisible"
+            android:clickable="true"
+            android:focusable="true">
+            <android.support.design.widget.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:pressedTranslationZ="12dp"
+                android:tooltipText="Bottom"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="8dp"
+                android:text="Points"
+                android:textColor="#FFFFFFFF"
+                android:layout_gravity="center"/>
+        </FrameLayout>
+        <FrameLayout
+            android:id="@+id/fab_sort_level"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="@dimen/fab_margin_right"
+            android:layout_marginBottom="171dp"
+            android:visibility="invisible"
+            android:clickable="true"
+            android:focusable="true">
+            <android.support.design.widget.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:pressedTranslationZ="12dp"
+                android:tooltipText="Bottom"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="8dp"
+                android:text="Level"
+                android:textColor="#FFFFFFFF"
+                android:layout_gravity="center"/>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/fab_sort_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="71dp"
+            android:layout_marginEnd="@dimen/fab_margin_right"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="invisible">
+
+            <android.support.design.widget.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="true"
+                android:tooltipText="Bottom"
+                app:pressedTranslationZ="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:elevation="8dp"
+                android:enabled="true"
+                android:text="Name"
+                android:textColor="#FFFFFFFF" />
+        </FrameLayout>
+    </FrameLayout>
+
+    <!--<RelativeLayout-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_width="match_parent"-->
+        <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+        <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+        <!--xmlns:tools="http://schemas.android.com/tools">-->
+
+        <!--<com.norbertotaveras.game_companion_app.AnimatedMenuFab-->
+            <!--android:id="@+id/summoner_fab"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_alignParentEnd="true"-->
+            <!--android:layout_marginBottom="12dp"-->
+            <!--android:layout_marginEnd="12dp"-->
+            <!--android:src="@drawable/icons8_filter_24"-->
+            <!--android:tint="@color/textColorPrimary"-->
+            <!--app:backgroundTint="@color/colorPrimary"/>-->
+
+        <!--<com.norbertotaveras.game_companion_app.AnimatedMenuFab-->
+            <!--android:id="@+id/champs_fab"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_alignParentEnd="true"-->
+            <!--android:layout_marginBottom="12dp"-->
+            <!--android:layout_marginEnd="12dp"-->
+            <!--android:src="@drawable/icons8_filter_24"-->
+            <!--android:tint="@color/textColorPrimary"-->
+            <!--app:backgroundTint="@color/colorPrimary"/>-->
+
+        <!--<com.gordonwong.materialsheetfab.DimOverlayFrameLayout-->
+            <!--android:id="@+id/dim_overlay"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:visibility="gone"/>-->
+
+        <!--<io.codetail.widget.RevealLinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:gravity="end|bottom"-->
+            <!--android:orientation="vertical">-->
+
+            <!--<android.support.v7.widget.CardView-->
+                <!--android:id="@+id/summoner_filter_sheet"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginBottom="12dp"-->
+                <!--android:layout_marginEnd="12dp">-->
+
+                <!--<LinearLayout-->
+                    <!--android:id="@+id/match_filter_menu"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:orientation="vertical"-->
+                    <!--android:background="@color/colorPrimary">-->
+                    <!--<TextView-->
+                        <!--android:id="@+id/match_filter_all"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="All"-->
+                        <!--android:padding="12dp"/>-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/match_filter_ranked_solo"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="Ranked Solo"-->
+                        <!--android:padding="12dp"/>-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/match_filter_ranked_flex"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="Ranked Flex"-->
+                        <!--android:padding="12dp"/>-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/match_filter_normal"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="Normal"-->
+                        <!--android:padding="12dp"/>-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/match_filter_aram"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="ARAM"-->
+                        <!--android:padding="12dp"/>-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/match_filter_event"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="Event"-->
+                        <!--android:padding="12dp"/>-->
+                <!--</LinearLayout>-->
+            <!--</android.support.v7.widget.CardView>-->
+
+            <!--<android.support.v7.widget.CardView-->
+                <!--android:id="@+id/champ_sort_sheet"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginBottom="12dp"-->
+                <!--android:layout_marginEnd="12dp">-->
+
+                <!--<LinearLayout-->
+                    <!--android:id="@+id/champ_sort_menu"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:orientation="vertical"-->
+                    <!--android:background="@color/colorPrimary">-->
+                    <!--<TextView-->
+                        <!--android:id="@+id/champ_sort_by_champion"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="Sort by name"-->
+                        <!--android:padding="12dp"/>-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/champ_sort_by_points"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="Sort by points"-->
+                        <!--android:padding="12dp"/>-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/champ_sort_by_level"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="Sort by level"-->
+                        <!--android:padding="12dp"/>-->
+                <!--</LinearLayout>-->
+            <!--</android.support.v7.widget.CardView>-->
+        <!--</io.codetail.widget.RevealLinearLayout>-->
+    <!--</RelativeLayout>-->
 </android.support.design.widget.CoordinatorLayout>

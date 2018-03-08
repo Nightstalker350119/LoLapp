@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,42 +43,6 @@ public class ChampsFragment extends Fragment {
     private SummonerDTO summoner;
     private RiotAPI.DeferredRequest<List<ChampionMasteryDTO>> deferredChampions;
     private RiotGamesService apiService;
-
-    private static final Comparator<ChampionMasteryDTO> sortByChampion =
-            new Comparator<ChampionMasteryDTO>() {
-        @Override
-        public int compare(ChampionMasteryDTO lhs, ChampionMasteryDTO rhs) {
-            ChampionDTO lhsChamp = ChampionLookup.championById(lhs.championId);
-            ChampionDTO rhsChamp = ChampionLookup.championById(rhs.championId);
-
-            return lhsChamp.name.compareTo(rhsChamp.name);
-        }
-    };
-
-    private static final Comparator<ChampionMasteryDTO> sortByPoints =
-            new Comparator<ChampionMasteryDTO>() {
-        @Override
-        public int compare(ChampionMasteryDTO lhs, ChampionMasteryDTO rhs) {
-            return -Long.compare(lhs.championPoints, rhs.championPoints);
-        }
-    };
-
-    private static final Comparator<ChampionMasteryDTO> sortByLevel =
-            new Comparator<ChampionMasteryDTO>() {
-        @Override
-        public int compare(ChampionMasteryDTO lhs, ChampionMasteryDTO rhs) {
-            return -Integer.compare(lhs.championLevel, rhs.championLevel);
-        }
-    };
-
-    private static final ChampSortMenuItem[] sortMenuItems = new ChampSortMenuItem[] {
-            new ChampSortMenuItem(R.id.champ_sort_by_champion, sortByChampion),
-            new ChampSortMenuItem(R.id.champ_sort_by_points, sortByPoints),
-            new ChampSortMenuItem(R.id.champ_sort_by_level, sortByLevel),
-    };
-
-    private ChampSortMenuItem currentSort = sortMenuItems[0];
-    private Comparator<ChampionMasteryDTO> currentSortComparator = sortMenuItems[0].comparator;
 
     public ChampsFragment() {
     }
@@ -134,18 +99,8 @@ public class ChampsFragment extends Fragment {
         });
     }
 
-    public void setSortOrder(ChampSortMenuItem menuItem) {
-        currentSortComparator = menuItem.comparator;
-        currentSort = menuItem;
-        champListAdapter.setSortOrder(currentSortComparator);
-    }
-
-    public static ChampSortMenuItem[] getSortMenuItems() {
-        return sortMenuItems;
-    }
-
-    public ChampSortMenuItem getCurrentSort() {
-        return null;
+    public void setSortOrder(Comparator<ChampionMasteryDTO> comparator) {
+        champListAdapter.setSortOrder(comparator);
     }
 
     class ChampionListItem extends RecyclerView.ViewHolder {
@@ -248,7 +203,6 @@ public class ChampsFragment extends Fragment {
                     champions.clear();
                     champions.addAll(items);
                     notifyItemRangeInserted(0, champions.size());
-                    //notifyDataSetChanged();
                 }
             });
         }
@@ -275,58 +229,8 @@ public class ChampsFragment extends Fragment {
             champions.toArray(temp);
             Arrays.sort(temp, comparator);
             champions.clear();
-            for (ChampionMasteryDTO item : temp)
-                champions.add(item);
-            notifyDataSetChanged();
-        }
-    }
-
-    public static class ChampSortMenuItem {
-        public final int id;
-        public final Comparator<ChampionMasteryDTO> comparator;
-        public TextView item;
-
-        public ChampSortMenuItem(int id, Comparator<ChampionMasteryDTO> comparator) {
-            this.id = id;
-            this.comparator = comparator;
-        }
-    }
-
-    // Singleton uses double checked lock to lazily
-    // asynchronously initialize id->champion lookup table
-    private static class ChampionLookup {
-        static volatile HashMap<Long, ChampionDTO> lookup;
-        static Object lock = new Object();
-
-        static ChampionDTO championById(long id) {
-            if (lookup == null) {
-                synchronized (lock) {
-                    if (lookup == null) {
-                        RiotAPI.getChampionList(new RiotAPI.AsyncCallback<ChampionListDTO>() {
-                            @Override
-                            public void invoke(ChampionListDTO item) {
-                                HashMap<Long, ChampionDTO> lookupInit =
-                                        new HashMap<>(item.data.size());
-
-                                for (Map.Entry<String, ChampionDTO> entry : item.data.entrySet())
-                                    lookupInit.put(entry.getValue().id, entry.getValue());
-
-                                lookup = lookupInit;
-                                lock.notify();
-                            }
-                        });
-
-                        // Stall first call until asynchronous callback completes
-                        try {
-                            while (lookup == null)
-                                lock.wait();
-                        } catch (InterruptedException ex) {
-                        }
-                    }
-                }
-            }
-
-            return lookup.get(id);
+            champions.addAll(Arrays.asList(temp));
+            notifyItemRangeChanged(0, champions.size());
         }
     }
 }
