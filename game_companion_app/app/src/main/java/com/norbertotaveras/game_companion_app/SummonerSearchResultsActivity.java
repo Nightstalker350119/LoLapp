@@ -188,60 +188,6 @@ public class SummonerSearchResultsActivity
         search();
     }
 
-    //Button Stuff Below
-    // BUTTON STUFF! LOGAN
-//    public void fabOpenClose()
-//    {
-//        if(isOpen)
-//        {
-//            fabSolo.startAnimation(FabClose);
-//            fabName.startAnimation(FabClose);
-//            fabFlex.startAnimation(FabClose);
-//            fabPoints.startAnimation(FabClose);
-//            fabNormal.startAnimation(FabClose);
-//            fabLevel.startAnimation(FabClose);
-//            fabARAM.startAnimation(FabClose);
-//            fabEvent.startAnimation(FabClose);
-//            fabFilter.startAnimation(FabClose);
-//            fabPlus.startAnimation(FabRotateCounterClockWise);
-//            fabSolo.setClickable(false);
-//            fabName.setClickable(false);
-//            fabFlex.setClickable(false);
-//            fabPoints.setClickable(false);
-//            fabNormal.setClickable(false);
-//            fabLevel.setClickable(false);
-//            fabARAM.setClickable(false);
-//            fabEvent.setClickable(false);
-//            fabFilter.setClickable(false);
-//            isOpen = false;
-//        }
-//
-//        else
-//        {
-//            //Animate buttons coming out of our FAB and get them working
-//            fabSolo.startAnimation(FabOpen);
-//            fabName.startAnimation(FabOpen);
-//            fabFlex.startAnimation(FabOpen);
-//            fabPoints.startAnimation(FabOpen);
-//            fabNormal.startAnimation(FabOpen);
-//            fabLevel.startAnimation(FabOpen);
-//            fabARAM.startAnimation(FabOpen);
-//            fabEvent.startAnimation(FabOpen);
-//            fabFilter.startAnimation(FabOpen);
-//            fabPlus.startAnimation(FabRotateClockWise);
-//            fabSolo.setClickable(true);
-//            fabName.setClickable(true);
-//            fabFlex.setClickable(true);
-//            fabPoints.setClickable(true);
-//            fabNormal.setClickable(true);
-//            fabLevel.setClickable(true);
-//            fabARAM.setClickable(true);
-//            fabEvent.setClickable(true);
-//            fabFilter.setClickable(true);
-//            isOpen = true;
-//        }
-//    }
-
     private void search() {
         if (searchName != null) {
             deferredSummoner = new RiotAPI.DeferredRequest<>(
