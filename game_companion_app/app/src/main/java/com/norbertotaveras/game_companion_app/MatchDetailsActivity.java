@@ -25,6 +25,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Created by Norberto Taveras on 1/30/2018.
+ */
+
 public class MatchDetailsActivity extends AppCompatActivity {
     private SummonerDTO summoner;
     private MatchDTO match;

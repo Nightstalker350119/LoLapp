@@ -9,6 +9,10 @@ import android.view.MenuItem;
 
 import com.norbertotaveras.game_companion_app.ChampionPage.MainChampions;
 
+/**
+ * Created by Norberto Taveras on 1/30/2018.
+ */
+
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {

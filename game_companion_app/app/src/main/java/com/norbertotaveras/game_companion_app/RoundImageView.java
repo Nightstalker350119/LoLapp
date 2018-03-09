@@ -11,7 +11,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
 
 /**
- * Created by Norberto on 1/29/2018.
+ * Created by Norberto Taveras on 1/29/2018.
  */
 
 public class RoundImageView extends android.support.v7.widget.AppCompatImageView {

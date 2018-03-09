@@ -16,7 +16,7 @@ import android.widget.TextView;
 import com.norbertotaveras.game_companion_app.R;
 
 /**
- * Created by Norberto on 2/21/2018.
+ * Created by Norberto Taveras on 2/21/2018.
  */
 
 public class RoundTextView extends android.support.v7.widget.AppCompatTextView {

@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 /**
- * Created by Norberto on 1/30/2018.
+ * Created by Norberto Taveras on 1/30/2018.
  */
 
 public class AutoSizeListView extends ListView {

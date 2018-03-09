@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Norberto on 1/16/2018.
+ * Created by Norberto Taveras on 1/16/2018.
  */
 
 class RecentSearchStorage {

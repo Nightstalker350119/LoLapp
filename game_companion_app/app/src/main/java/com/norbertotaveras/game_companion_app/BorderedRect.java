@@ -10,6 +10,10 @@ import android.util.AttributeSet;
 import android.view.View;
 
 /**
+ * Created by Norberto Taveras on 1/30/2018.
+ */
+
+/**
  * Draw a view with a border that has the given dash pattern, width, and color
  */
 public class BorderedRect extends View {

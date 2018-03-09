@@ -11,7 +11,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 
 /**
- * Created by Norberto on 1/11/2018.
+ * Created by Norberto Taveras on 1/11/2018.
  */
 
 public class RateLimiter {

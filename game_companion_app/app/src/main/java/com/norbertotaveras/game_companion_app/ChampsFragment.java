@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import retrofit2.Call;
 
 /**
- * Created by Norberto on 2/7/2018.
+ * Created by Norberto Taveras on 2/7/2018.
  */
 
 public class ChampsFragment extends Fragment {
