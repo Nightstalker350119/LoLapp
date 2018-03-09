@@ -1,10 +1,9 @@
 package com.norbertotaveras.game_companion_app.ChampionPage;
 
 import android.app.Fragment;
-import android.content.res.ColorStateList;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -21,12 +20,8 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.ChampionGGService;
-import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.ChampionRiotAPI;
-import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.RetroClasses.ChampionDTO;
-import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.RetroClasses.ChampionName;
 import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.RetroClasses.ChampionRates;
 import com.norbertotaveras.game_companion_app.R;
-import com.spark.submitbutton.SubmitButton;
 
 import java.util.ArrayList;
 import java.util.List;
