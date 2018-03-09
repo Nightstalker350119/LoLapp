@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-//import com.norbertotaveras.game_companion_app.ChampionPage.ChampionsActivity;
 import com.norbertotaveras.game_companion_app.ChampionPage.MainChampions;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
