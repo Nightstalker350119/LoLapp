@@ -1,6 +1,7 @@
 package com.norbertotaveras.game_companion_app.ChampionPage;
 
 import android.app.Fragment;
+import android.content.res.ColorStateList;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.os.Bundle;
@@ -373,6 +374,9 @@ public class MainChampions extends Fragment {
                 break;
             case 86:
                 championName = "Garen"; //
+                break;
+            case 145:
+                championName = "Kai'Sa"; //New Champ 95jung 11adc
                 break;
             case 127:
                 championName = "Lissandra"; // //184top
