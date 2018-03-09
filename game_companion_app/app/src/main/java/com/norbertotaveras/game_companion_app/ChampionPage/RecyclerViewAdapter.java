@@ -29,14 +29,18 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private ArrayList<String> mImages = new ArrayList<>();
     private ArrayList<String> mWinRates = new ArrayList<>(); //Needs api calls, use placeholders atm
     private ArrayList<String> mChampionPosition = new ArrayList<>(); //
+    private ArrayList<String> mRankPosition = new ArrayList<>();
     private Context mContext;
 
-    public RecyclerViewAdapter(Context mContext, ArrayList<String> mImageNames, ArrayList<String> mImages, ArrayList<String> mWinRates, ArrayList<String> mChampionPosition) {
+    public RecyclerViewAdapter(Context mContext, ArrayList<String> mImageNames, ArrayList<String> mImages,
+                               ArrayList<String> mWinRates, ArrayList<String> mChampionPosition, ArrayList<String> mRankPosition) {
+
         this.mImageNames = mImageNames;
         this.mImages = mImages;
         this.mWinRates = mWinRates;
         this.mChampionPosition = mChampionPosition;
         this.mContext = mContext;
+        this.mRankPosition = mRankPosition;
 
     }
 
@@ -58,6 +62,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         holder.imageName.setText(mImageNames.get(position));
         holder.winRate.setText(mWinRates.get(position));
         holder.champPosition.setText(mChampionPosition.get(position));
+        holder.RankPosition.setText(mRankPosition.get(position));
 
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,6 +85,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         TextView imageName;
         TextView winRate;
         TextView champPosition;
+        TextView RankPosition;
         RelativeLayout parentLayout;
 
         public ViewHolder(View itemView) {
@@ -88,6 +94,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             imageName = itemView.findViewById(R.id.imagename);
             winRate = itemView.findViewById(R.id.winrate);
             champPosition = itemView.findViewById(R.id.position);
+            RankPosition = itemView.findViewById(R.id.rankPosition);
             parentLayout = itemView.findViewById(R.id.parent_layout);
         }
     }

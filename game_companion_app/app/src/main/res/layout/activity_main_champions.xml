@@ -30,6 +30,18 @@
         android:layout_gravity="center|top"
         />
 
+    <!--<com.spark.submitbutton.SubmitButton-->
+        <!--android:id="@+id/topButton"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:text="To The Top!"-->
+        <!--android:textColor="@color/gray"-->
+        <!--app:sub_btn_background="@color/white"-->
+        <!--app:sub_btn_duration="3000"-->
+        <!--app:sub_btn_line_color="@color/colorPrimary"-->
+        <!--app:sub_btn_ripple_color="@color/colorPrimary"-->
+        <!--app:sub_btn_tick_color="@color/white" />-->
+
     <!-- Change lane button -->
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"

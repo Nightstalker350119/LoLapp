@@ -11,6 +11,8 @@
         android:id="@+id/image"
         android:src="@mipmap/ic_launcher"/>
 
+
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -19,6 +21,8 @@
         android:layout_centerVertical="true"
         android:layout_marginStart="30dp"
         >
+
+
 
         <TextView
             android:layout_width="wrap_content"
@@ -39,6 +43,19 @@
 
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/rankPosition"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="152dp"
+        android:text="rankPosition"
+        android:textColor="@color/victoryColor"
+        android:textSize="14sp"
+        android:alpha="00"/>
+
     <TextView
         android:id="@+id/winrate"
         android:layout_width="wrap_content"
@@ -48,6 +65,6 @@
         android:layout_marginEnd="27dp"
         android:text="WinRate"
         android:textColor="#000"
-        android:textSize="17sp" />
+        android:textSize="14sp" />
 
 </RelativeLayout>

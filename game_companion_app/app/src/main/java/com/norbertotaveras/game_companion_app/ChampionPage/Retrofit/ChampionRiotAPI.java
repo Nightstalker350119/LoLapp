@@ -14,7 +14,7 @@ import retrofit2.http.Path;
  */
 
 public interface ChampionRiotAPI {
-    @GET("lol/static-data/v3/champions/{id}?api_key=RGAPI-737af915-de6b-4538-b7a1-da43b856bbea")
+    @GET("lol/static-data/v3/champions/{id}?api_key=RGAPI-33c93b29-1395-49c4-9a60-d8b1f2ca79e3")
     Call<ChampionDTO> getChampionById(@Path("id") int id);
 
     @GET("lol/static-data/v3/champions?api_key=RGAPI-737af915-de6b-4538-b7a1-da43b856bbea")
