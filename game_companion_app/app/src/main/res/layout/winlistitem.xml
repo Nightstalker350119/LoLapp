@@ -53,8 +53,8 @@
         android:layout_marginEnd="152dp"
         android:text="rankPosition"
         android:textColor="@color/victoryColor"
-        android:textSize="14sp"
-        android:alpha="00"/>
+        android:textSize="14sp" />
+        <!--android:alpha="00"/>-->
 
     <TextView
         android:id="@+id/winrate"

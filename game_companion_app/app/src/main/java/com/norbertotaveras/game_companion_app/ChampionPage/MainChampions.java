@@ -152,6 +152,7 @@ public class MainChampions extends Fragment {
                 wantedPosition = 0;
                 Log.i(TAG, "User picked Filter");
                 initImageBitmaps(wantedPosition, championList);
+                Toast.makeText(getActivity(), "All Lanes", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -169,6 +170,7 @@ public class MainChampions extends Fragment {
                 wantedPosition = 1;
                 Log.i(TAG, "User picked Top");
                 initImageBitmaps(wantedPosition, championList);
+                Toast.makeText(getActivity(), "Top", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -185,6 +187,7 @@ public class MainChampions extends Fragment {
                 wantedPosition = 2;
                 Log.i(TAG, "User picked Jungle");
                 initImageBitmaps(wantedPosition, championList);
+                Toast.makeText(getActivity(), "Jungle", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -202,6 +205,7 @@ public class MainChampions extends Fragment {
                 wantedPosition = 3;
                 Log.i(TAG, "User picked Middle");
                 initImageBitmaps(wantedPosition, championList);
+                Toast.makeText(getActivity(), "Mid", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -219,6 +223,7 @@ public class MainChampions extends Fragment {
                 wantedPosition = 4;
                 Log.i(TAG, "User picked Support");
                 initImageBitmaps(wantedPosition, championList);
+                Toast.makeText(getActivity(), "Support", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -236,6 +241,7 @@ public class MainChampions extends Fragment {
                 wantedPosition = 5;
                 Log.i(TAG, "User picked Bottom");
                 initImageBitmaps(wantedPosition, championList);
+                Toast.makeText(getActivity(), "ADC", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -783,7 +789,7 @@ public class MainChampions extends Fragment {
 
             if (m != 0)
             {
-                for (int i = 0; i < m - 1; i++)
+                for (int i = 0; i < m; i++)
                 {
                     mImageUrls.remove(i);
                     mNames.remove(i);
@@ -824,7 +830,7 @@ public class MainChampions extends Fragment {
 
             if (m != 0)
             {
-                for (int i = 0; i < m - 1; i++)
+                for (int i = 0; i < m; i++)
                 {
                     mImageUrls.remove(i);
                     mNames.remove(i);
@@ -865,7 +871,7 @@ public class MainChampions extends Fragment {
 
             if (m != 0)
             {
-                for (int i = 0; i < m - 1; i++)
+                for (int i = 0; i < m; i++)
                 {
                     mImageUrls.remove(i);
                     mNames.remove(i);
@@ -896,10 +902,9 @@ public class MainChampions extends Fragment {
                 mRankPosition.add(tempRank);
             }
         }
+
+
         int m = mWinRates.size();
-
-
-
 
         switch (wantedPosition)
         {
@@ -921,6 +926,24 @@ public class MainChampions extends Fragment {
                         i--;
                     }
                 }
+
+                for (int i = 0; i < mWinRates.size(); i++)
+                {
+                    if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("kennen"))
+                    {
+                        mImageUrls.remove(i);
+                        mNames.remove(i);
+                        mWinRates.remove(i);
+                        mChampionPosition.remove(i);
+                        mRankPosition.remove(i);
+                    }
+                }
+                //Sort Top Champion RankPositions
+                for (int i = 0; i < mWinRates.size(); i++)
+                {
+                    mRankPosition.set(i, Integer.toString(i+1));
+                }
+
                 break;
 
             case 2:
@@ -939,6 +962,24 @@ public class MainChampions extends Fragment {
                         i--;
                     }
                 }
+
+                for (int i = 0; i < mWinRates.size(); i++)
+                {
+                    if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("kennen"))
+                    {
+                        mImageUrls.remove(i);
+                        mNames.remove(i);
+                        mWinRates.remove(i);
+                        mChampionPosition.remove(i);
+                        mRankPosition.remove(i);
+                    }
+                }
+                //Sort Jungle Champion RankPositions
+                for (int i = 0; i < mWinRates.size(); i++)
+                {
+                    mRankPosition.set(i, Integer.toString(i+1));
+                }
+
                 break;
 
             case 3:
@@ -957,6 +998,24 @@ public class MainChampions extends Fragment {
                         i--;
                     }
                 }
+
+                for (int i = 0; i < mWinRates.size(); i++)
+                {
+                    if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("kennen"))
+                    {
+                        mImageUrls.remove(i);
+                        mNames.remove(i);
+                        mWinRates.remove(i);
+                        mChampionPosition.remove(i);
+                        mRankPosition.remove(i);
+                    }
+                }
+                //Sort Mid Champion RankPositions
+                for (int i = 0; i < mWinRates.size(); i++)
+                {
+                    mRankPosition.set(i, Integer.toString(i+1));
+                }
+
                 break;
 
             case 4:
@@ -975,6 +1034,12 @@ public class MainChampions extends Fragment {
                         i--;
                     }
                 }
+                //Sort Support Champion RankPositions
+                for (int i = 0; i < mWinRates.size(); i++)
+                {
+                    mRankPosition.set(i, Integer.toString(i+1));
+                }
+
                 break;
 
             case 5:
@@ -995,6 +1060,24 @@ public class MainChampions extends Fragment {
                         Log.v(TAG, String.valueOf(mWinRates.size()));
                     }
                 }
+                for (int i = 0; i < mWinRates.size(); i++)
+                {
+                    if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("kennen"))
+                    {
+                        mImageUrls.remove(i);
+                        mNames.remove(i);
+                        mWinRates.remove(i);
+                        mChampionPosition.remove(i);
+                        mRankPosition.remove(i);
+                    }
+                }
+
+                //Sort ADC Champion RankPositions
+                for (int i = 0; i < mWinRates.size(); i++)
+                {
+                    mRankPosition.set(i, Integer.toString(i+1));
+                }
+
                 break;
 
             default:
@@ -1038,13 +1121,7 @@ public class MainChampions extends Fragment {
 
         }
 
-        //Work on this next
-//
-//        for (int i = 0; i < mWinRates.size()-1; i++)
-//        {
-//            mRankPosition.remove(i);
-//            mRankPosition.add(Integer.toString(i+1));
-//        }
+
 
         for (int i = n-1; i > 0; i--)
         {
