@@ -32,12 +32,14 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:layout_margin="2dp"/>
-                    com.norbertotaveras.game_companion_app.RoundTextViewView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Test"
+                    <com.norbertotaveras.game_companion_app.RoundTextView
+                        android:id="@+id/champion_level"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:textColor="@color/colorPrimary"
-                        android:background="@color/textColorDim"/-->
+                        android:background="@color/textColorDim"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
                 </android.support.constraint.ConstraintLayout>
 
                 <LinearLayout

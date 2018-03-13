@@ -96,12 +96,12 @@ public class MatchDetailsActivity extends AppCompatActivity {
     private class SummonerListItem
             extends RecyclerView.ViewHolder
             implements View.OnClickListener {
-        final View view;
+        private final View view;
 
-        ParticipantDTO participant;
-        ParticipantIdentityDTO participantIdentity;
+        private ParticipantDTO participant;
 
         private final ImageView championIcon;
+        private final TextView championLevel;
         private final TextView summonerName;
         private final TextView kda;
         private final TextView minionKills;
@@ -116,7 +116,7 @@ public class MatchDetailsActivity extends AppCompatActivity {
 
         private final View playerDetails;
 
-        final HashSet<ParticipantDTO> expandedViews;
+        private final HashSet<ParticipantDTO> expandedViews;
 
         public SummonerListItem(final View view, HashSet<ParticipantDTO> expandedViews) {
             super(view);
@@ -124,6 +124,7 @@ public class MatchDetailsActivity extends AppCompatActivity {
             this.expandedViews = expandedViews;
 
             championIcon = view.findViewById(R.id.champion_icon);
+            championLevel = view.findViewById(R.id.champion_level);
             summonerName = view.findViewById(R.id.summoner_name);
             kda = view.findViewById(R.id.kda);
             minionKills = view.findViewById(R.id.minion_kills);
@@ -162,7 +163,6 @@ public class MatchDetailsActivity extends AppCompatActivity {
             view.setTag(rowId);
 
             this.participant = participant;
-            this.participantIdentity = participantIdentity;
 
             summonerName.setText(participantIdentity.player.summonerName);
             kda.setText(RiotAPI.formatKda(participant));
@@ -184,6 +184,8 @@ public class MatchDetailsActivity extends AppCompatActivity {
             RiotAPI.populateSpellIcons(view, rowId, uiHandler, spells, participant);
             RiotAPI.populateItemIcons(view, rowId, uiHandler, items, participant);
             RiotAPI.populateRuneIcons(view, rowId, uiHandler, runes, participant);
+
+            championLevel.setText(String.valueOf(participant.stats.champLevel));
 
             damageDone.setText(getResources().getString(R.string.damage_done,
                     participant.stats.totalDamageDealt));

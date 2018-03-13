@@ -359,23 +359,21 @@ public class MatchesFragment
     }
 
     private class MatchListItem extends RecyclerView.ViewHolder implements View.OnClickListener {
-        final MatchListAdapter owner;
-        final View view;
+        private final MatchListAdapter owner;
+        private final View view;
 
-        final View summaryContainer;
-        final View playerDetail;
+        private final ImageView championIcon;
+        private final TextView championLevel;
+        private final ImageView[] spellIcons;
+        private final ImageView[] runeIcons;
 
-        final ImageView championIcon;
-        final ImageView[] spellIcons;
-        final ImageView[] runeIcons;
-
-        final TextView kda;
-        final TextView kdaRatio;
-        final TextView specialKills;
-        final TextView gameType;
-        final TextView gameDuration;
-        final TextView gameDate;
-        final TextView gameId;
+        private final TextView kda;
+        private final TextView kdaRatio;
+        private final TextView specialKills;
+        private final TextView gameType;
+        private final TextView gameDuration;
+        private final TextView gameDate;
+        private final TextView gameId;
 
         final AtomicInteger uniqueId;
 
@@ -388,10 +386,9 @@ public class MatchesFragment
             this.view = view;
             uniqueId = new AtomicInteger(0);
 
-            summaryContainer = view.findViewById(R.id.summary_container);
-            playerDetail = view.findViewById(R.id.player_detail);
-
             championIcon = view.findViewById(R.id.champion_icon);
+
+            championLevel = view.findViewById(R.id.champion_level);
 
             spellIcons = new ImageView[]{
                     view.findViewById(R.id.spell0),
@@ -456,6 +453,8 @@ public class MatchesFragment
                     final ParticipantDTO participant = participantFind;
 
                     final String kdaText = RiotAPI.formatKda(participant);
+
+                    championLevel.setText(String.valueOf(participant.stats.champLevel));
 
                     RiotAPI.populateChampionIcon(view, rowId, uiThreadHandler, championIcon,
                             participant);
