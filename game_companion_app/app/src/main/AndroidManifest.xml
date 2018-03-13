@@ -33,6 +33,7 @@
         <activity
             android:name=".MatchDetailsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+
     </application>
 
 </manifest>
