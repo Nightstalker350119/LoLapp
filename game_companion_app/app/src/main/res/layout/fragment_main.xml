@@ -38,7 +38,9 @@
             android:layout_marginBottom="@dimen/design_bottom_navigation_height"
             android:divider="#00000000"
             android:dividerHeight="8dp"
-            android:layout_gravity="fill"/>
+            android:layout_gravity="fill">
+            <requestFocus />
+        </android.support.v7.widget.RecyclerView>
 
         <LinearLayout
             android:id="@+id/no_results"
