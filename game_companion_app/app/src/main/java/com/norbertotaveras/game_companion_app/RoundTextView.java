@@ -20,9 +20,11 @@ import com.norbertotaveras.game_companion_app.R;
  */
 
 public class RoundTextView extends android.support.v7.widget.AppCompatTextView {
-    Paint backgroundPaint;
-    Paint textPaint;
-    Rect textBounds;
+    private Paint backgroundPaint;
+    private Paint textPaint;
+    private Rect textBounds;
+    private String text;
+    private Paint.FontMetrics fontMetrics;
 
     public RoundTextView(Context context) {
         super(context);
@@ -44,7 +46,11 @@ public class RoundTextView extends android.support.v7.widget.AppCompatTextView {
         textPaint = new Paint();
         textPaint.setTextAlign(Paint.Align.CENTER);
         textBounds = new Rect();
+        text = getText().toString();
+        textPaint.getTextBounds(text, 0, text.length(), textBounds);
         textPaint.setTextSize(getTextSize());
+        fontMetrics = textPaint.getFontMetrics();
+
         setTextColor(getCurrentTextColor());
     }
 
@@ -67,10 +73,13 @@ public class RoundTextView extends android.support.v7.widget.AppCompatTextView {
         int height = getHeight();
 
         //textPaint.getTextBounds(text.toString(), 0, text.length(), textBounds);
-        backgroundPaint.setColor(0xff123456);
+        backgroundPaint.setColor(0x80000000);
         textPaint.setColor(0xFFFECDBA);
 
-        canvas.drawCircle(width / 2, height / 2, Math.min(width, height)/2, backgroundPaint);
-        canvas.drawText(text, 0, text.length(), width / 2, height / 2, textPaint);
+        canvas.drawCircle(width / 2, height / 2,
+                Math.min(width, height)/2, backgroundPaint);
+        canvas.drawText(text, 0, text.length(),
+                width / 2, height / 2 + (-fontMetrics.ascent) / 2 - 2,
+                textPaint);
     }
 }
