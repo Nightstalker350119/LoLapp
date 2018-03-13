@@ -21,6 +21,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:statusBarColor">@color/statusBarColor</item>
     </style>
 
     <style name="DarkTextOnLight" parent="Theme.AppCompat.Light.NoActionBar">
