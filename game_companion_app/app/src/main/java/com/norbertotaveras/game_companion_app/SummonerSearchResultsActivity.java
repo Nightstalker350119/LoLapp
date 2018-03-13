@@ -5,6 +5,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -45,7 +47,7 @@ import retrofit2.Response;
 
 public class SummonerSearchResultsActivity
         extends AppCompatActivity
-        implements View.OnClickListener {
+        implements View.OnClickListener, ScrollRequest {
     private final SummonerSearchResultsActivity activity = this;
     private RiotGamesService apiService;
 
@@ -57,6 +59,9 @@ public class SummonerSearchResultsActivity
     private long profileIconId;
 
     private Handler uiThreadHandler;
+
+    private CoordinatorLayout mainContent;
+    private AppBarLayout appBarLayout;
 
     private TabLayout tabLayout;
     private ViewPager tabPager;
@@ -92,6 +97,9 @@ public class SummonerSearchResultsActivity
         setContentView(R.layout.activity_summoner_search_results);
 
         View view = findViewById(android.R.id.content);
+
+        mainContent = view.findViewById(R.id.main_content);
+        appBarLayout = view.findViewById(R.id.appbar);
 
         filterMenu = new FabMenu(view, R.id.fab_filter_container);
 
@@ -141,6 +149,8 @@ public class SummonerSearchResultsActivity
         menuSwitcher.addMenuToTab(filterMenu);
         menuSwitcher.addMenuToTab(sortMenu);
         menuSwitcher.setViewPager(tabPager);
+
+        matchesFragment.setParentScroll(this);
 
         tabPager.setAdapter(tabPagerAdapter);
         tabLayout.setupWithViewPager(tabPager);
@@ -346,6 +356,17 @@ public class SummonerSearchResultsActivity
         }
     }
 
+    @Override
+    public void scrollToTop() {
+        CoordinatorLayout.LayoutParams params =
+                (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+        AppBarLayout.Behavior behavior = (AppBarLayout.Behavior) params.getBehavior();
+        if (behavior != null) {
+            behavior.onNestedFling(mainContent, appBarLayout, null,
+                    0, 10000, true);
+        }
+    }
+
     public class LeagueInfo implements Serializable {
         SummonerDTO summoner;
 
@@ -469,3 +490,4 @@ public class SummonerSearchResultsActivity
         }
     }
 }
+

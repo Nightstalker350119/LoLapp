@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -43,8 +44,7 @@ import retrofit2.Response;
  */
 public class MatchesFragment
         extends Fragment
-        implements View.OnScrollChangeListener, MatchClickListener
-{
+        implements View.OnScrollChangeListener, MatchClickListener, View.OnClickListener {
     private LinearLayoutManager matchListLayoutManager;
     private RecyclerView matchList;
     private View matchListNoResults;
@@ -52,6 +52,9 @@ public class MatchesFragment
     private Handler uiThreadHandler;
     private ProgressBar progressBar;
     private ProgressBarManager progressBarManager;
+
+    private Button gotoTop;
+    private ScrollRequest parentScroll;
 
     private ArrayList<Long> matchIds;
     private ConcurrentHashMap<Long, MatchDTO> matchResults;
@@ -114,6 +117,8 @@ public class MatchesFragment
         matchListAdapter.setMatchClickListener(this);
 
         matchListNoResults = view.findViewById(R.id.no_results);
+        gotoTop = view.findViewById(R.id.goto_top);
+        gotoTop.setOnClickListener(this);
 
         return view;
     }
@@ -128,6 +133,9 @@ public class MatchesFragment
     {
         switch (view.getId()) {
             case R.id.match_list:
+                gotoTop.setVisibility(matchList.canScrollVertically(-1)
+                        ? View.VISIBLE : View.GONE);
+
                 if (!matchListAtEnd && !matchList.canScrollVertically(1)) {
                     getMoreMatches();
                 }
@@ -265,6 +273,20 @@ public class MatchesFragment
                 MatchDetailsActivity.start(getActivity(), summoner, match);
             }
         });
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.goto_top:
+                if (parentScroll != null)
+                    parentScroll.scrollToTop();
+                break;
+        }
+    }
+
+    public void setParentScroll(ScrollRequest parentScroll) {
+        this.parentScroll = parentScroll;
     }
 
     private class MatchListAdapter 
