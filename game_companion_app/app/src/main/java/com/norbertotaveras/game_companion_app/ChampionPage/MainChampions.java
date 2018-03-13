@@ -738,6 +738,7 @@ public class MainChampions extends Fragment {
         }
     }
 
+
     public void buttonAnimation(final Button button) { // Timing and animation effects
         Animation btn = new AlphaAnimation(1.00f, 0.00f);
         btn.setDuration(3000);
@@ -780,7 +781,7 @@ public class MainChampions extends Fragment {
 
         Log.d(TAG, "initImageBitmaps: preparing bitmaps.");
 
-        if (wantedRating == 0) {
+        if (wantedRating == 0) { //WinRate Checked
             float tempRate;
             String tempRateString;
             String splitRateString;
@@ -789,16 +790,21 @@ public class MainChampions extends Fragment {
 
             if (m != 0)
             {
-                for (int i = 0; i < m; i++)
-                {
-                    mImageUrls.remove(i);
-                    mNames.remove(i);
-                    mWinRates.remove(i);
-                    mChampionPosition.remove(i);
-                    mRankPosition.remove(i);
-                    m--;
-                    i--;
-                }
+                mImageUrls.clear();
+                mNames.clear();
+                mWinRates.clear();
+                mChampionPosition.clear();
+                mRankPosition.clear();
+//                for (int i = 0; i < m; i++)
+//                {
+//                    mImageUrls.remove(i);
+//                    mNames.remove(i);
+//                    mWinRates.remove(i);
+//                    mChampionPosition.remove(i);
+//                    mRankPosition.remove(i);
+//                    m--;
+//                    i--;
+//                }
             }
 
             for (int i = 0; i < rates.size()-1; i++)
@@ -821,7 +827,7 @@ public class MainChampions extends Fragment {
             }
         }
 
-        if (wantedRating == 1) {
+        if (wantedRating == 1) { //PickRate Checked
             float tempRate;
             String tempRateString;
             String splitRateString;
@@ -830,16 +836,21 @@ public class MainChampions extends Fragment {
 
             if (m != 0)
             {
-                for (int i = 0; i < m; i++)
-                {
-                    mImageUrls.remove(i);
-                    mNames.remove(i);
-                    mWinRates.remove(i);
-                    mChampionPosition.remove(i);
-                    mRankPosition.remove(i);
-                    m--;
-                    i--;
-                }
+                mImageUrls.clear();
+                mNames.clear();
+                mWinRates.clear();
+                mChampionPosition.clear();
+                mRankPosition.clear();
+//                for (int i = 0; i < m; i++)
+//                {
+//                    mImageUrls.remove(i);
+//                    mNames.remove(i);
+//                    mWinRates.remove(i);
+//                    mChampionPosition.remove(i);
+//                    mRankPosition.remove(i);
+//                    m--;
+//                    i--;
+//                }
             }
 
             for (int i = 0; i < rates.size()-1; i++)
@@ -862,7 +873,7 @@ public class MainChampions extends Fragment {
             }
         }
 
-        if (wantedRating == 2) {
+        if (wantedRating == 2) { //BanRate checked
             float tempRate;
             String tempRateString;
             String splitRateString;
@@ -871,16 +882,21 @@ public class MainChampions extends Fragment {
 
             if (m != 0)
             {
-                for (int i = 0; i < m; i++)
-                {
-                    mImageUrls.remove(i);
-                    mNames.remove(i);
-                    mWinRates.remove(i);
-                    mChampionPosition.remove(i);
-                    mRankPosition.remove(i);
-                    m--;
-                    i--;
-                }
+                mImageUrls.clear();
+                mNames.clear();
+                mWinRates.clear();
+                mChampionPosition.clear();
+                mRankPosition.clear();
+//                for (int i = 0; i < m; i++)
+//                {
+//                    mImageUrls.remove(i);
+//                    mNames.remove(i);
+//                    mWinRates.remove(i);
+//                    mChampionPosition.remove(i);
+//                    mRankPosition.remove(i);
+//                    m--;
+//                    i--;
+//                }
             }
 
             for (int i = 0; i < rates.size()-1; i++)
@@ -927,6 +943,7 @@ public class MainChampions extends Fragment {
                     }
                 }
 
+                //Sort Top Champion RankPositions
                 for (int i = 0; i < mWinRates.size(); i++)
                 {
                     if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("kennen"))
@@ -937,10 +954,7 @@ public class MainChampions extends Fragment {
                         mChampionPosition.remove(i);
                         mRankPosition.remove(i);
                     }
-                }
-                //Sort Top Champion RankPositions
-                for (int i = 0; i < mWinRates.size(); i++)
-                {
+
                     mRankPosition.set(i, Integer.toString(i+1));
                 }
 
@@ -963,6 +977,7 @@ public class MainChampions extends Fragment {
                     }
                 }
 
+                //Sort Jungle Champion RankPositions
                 for (int i = 0; i < mWinRates.size(); i++)
                 {
                     if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("kennen"))
@@ -973,10 +988,6 @@ public class MainChampions extends Fragment {
                         mChampionPosition.remove(i);
                         mRankPosition.remove(i);
                     }
-                }
-                //Sort Jungle Champion RankPositions
-                for (int i = 0; i < mWinRates.size(); i++)
-                {
                     mRankPosition.set(i, Integer.toString(i+1));
                 }
 
@@ -999,6 +1010,7 @@ public class MainChampions extends Fragment {
                     }
                 }
 
+                //Sort Mid Champion RankPositions
                 for (int i = 0; i < mWinRates.size(); i++)
                 {
                     if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("kennen"))
@@ -1009,10 +1021,6 @@ public class MainChampions extends Fragment {
                         mChampionPosition.remove(i);
                         mRankPosition.remove(i);
                     }
-                }
-                //Sort Mid Champion RankPositions
-                for (int i = 0; i < mWinRates.size(); i++)
-                {
                     mRankPosition.set(i, Integer.toString(i+1));
                 }
 
@@ -1060,6 +1068,8 @@ public class MainChampions extends Fragment {
                         Log.v(TAG, String.valueOf(mWinRates.size()));
                     }
                 }
+
+                //Sort ADC Champion RankPositions
                 for (int i = 0; i < mWinRates.size(); i++)
                 {
                     if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("kennen"))
@@ -1070,11 +1080,7 @@ public class MainChampions extends Fragment {
                         mChampionPosition.remove(i);
                         mRankPosition.remove(i);
                     }
-                }
 
-                //Sort ADC Champion RankPositions
-                for (int i = 0; i < mWinRates.size(); i++)
-                {
                     mRankPosition.set(i, Integer.toString(i+1));
                 }
 
