@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.norbertotaveras.game_companion_app.DTO.Match.MatchDTO;
@@ -49,6 +50,8 @@ public class MatchesFragment
     private View matchListNoResults;
     private MatchListAdapter matchListAdapter;
     private Handler uiThreadHandler;
+    private ProgressBar progressBar;
+    private ProgressBarManager progressBarManager;
 
     private ArrayList<Long> matchIds;
     private ConcurrentHashMap<Long, MatchDTO> matchResults;
@@ -96,6 +99,9 @@ public class MatchesFragment
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_matches, container, false);
+
+        progressBar = view.findViewById(R.id.progress_bar);
+        progressBarManager = new ProgressBarManager(uiThreadHandler, progressBar);
 
         matchListLayoutManager = new LinearLayoutManager(getActivity());
 
@@ -161,9 +167,12 @@ public class MatchesFragment
                     String.valueOf(currentFilter.queueId));
         }
 
+        progressBarManager.started(1);
+
         RiotAPI.rateLimitRequest(getMatchlistRequest, new Callback<MatchlistDTO>() {
             @Override
             public void onResponse(Call<MatchlistDTO> call, Response<MatchlistDTO> response) {
+
                 final MatchlistDTO matchList = response.body();
 
                 if (matchList == null || matchList.matches.isEmpty()) {
@@ -177,6 +186,8 @@ public class MatchesFragment
                         }
                     });
 
+                    // Match list request completed
+                    progressBarManager.completed(1);
                     return;
                 }
 
@@ -186,6 +197,11 @@ public class MatchesFragment
                 for (MatchReferenceDTO match : matchList.matches)
                     matchIds.add(match.gameId);
 
+                progressBarManager.started(matchList.matches.size());
+
+                // Delay completing the matchlist request to avoid an animation glitch
+                progressBarManager.completed(1);
+
                 for (MatchReferenceDTO match : matchList.matches) {
                     Log.v("MatchList", "Requesting match id=" +
                             String.valueOf(match.gameId));
@@ -193,6 +209,8 @@ public class MatchesFragment
                     RiotAPI.getCachedMatch(match.gameId, new RiotAPI.AsyncCallback<MatchDTO>() {
                         @Override
                         public void invoke(MatchDTO match) {
+                            progressBarManager.completed(1);
+
                             assert(match != null);
                             matchResults.put(match.gameId, match);
 
