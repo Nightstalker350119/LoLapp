@@ -61,7 +61,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RiotAPI {
     private static RiotAPI instance;
-    private static final String riotApiKey = "RGAPI-5e69fd38-757b-4f87-9242-1c8f4cb1148f";
+    private static final String riotApiKey = "RGAPI-fa48945f-1cf2-4f8f-88ce-a08fb212db4a";
     private static final String rootEndpoint = "https://na1.api.riotgames.com/";
     private static final String staticCdn = "http://ddragon.leagueoflegends.com/cdn";
 
