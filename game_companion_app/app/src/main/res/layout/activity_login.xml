@@ -13,7 +13,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
-        android:text="Codex.GG"
+        android:text="LolApp"
         android:textColor="#FF000000"
         android:textSize="40sp"
         android:textStyle="bold"
