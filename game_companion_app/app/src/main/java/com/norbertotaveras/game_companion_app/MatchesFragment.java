@@ -54,7 +54,6 @@ public class MatchesFragment
     private ProgressBarManager progressBarManager;
 
     private Button gotoTop;
-    private ScrollRequest parentScroll;
 
     private ArrayList<Long> matchIds;
     private ConcurrentHashMap<Long, MatchDTO> matchResults;
@@ -279,17 +278,12 @@ public class MatchesFragment
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.goto_top:
-                if (parentScroll != null)
-                    parentScroll.scrollToTop();
+                matchList.smoothScrollToPosition(0);
                 break;
         }
     }
 
-    public void setParentScroll(ScrollRequest parentScroll) {
-        this.parentScroll = parentScroll;
-    }
-
-    private class MatchListAdapter 
+    private class MatchListAdapter
             extends RecyclerView.Adapter<MatchListItem> {
         private final ArrayList<Long> allMatches;
         private MatchDTO[] matches;

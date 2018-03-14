@@ -47,7 +47,7 @@ import retrofit2.Response;
 
 public class SummonerSearchResultsActivity
         extends AppCompatActivity
-        implements View.OnClickListener, ScrollRequest {
+        implements View.OnClickListener {
     private final SummonerSearchResultsActivity activity = this;
     private RiotGamesService apiService;
 
@@ -149,8 +149,6 @@ public class SummonerSearchResultsActivity
         menuSwitcher.addMenuToTab(filterMenu);
         menuSwitcher.addMenuToTab(sortMenu);
         menuSwitcher.setViewPager(tabPager);
-
-        matchesFragment.setParentScroll(this);
 
         tabPager.setAdapter(tabPagerAdapter);
         tabLayout.setupWithViewPager(tabPager);
@@ -353,17 +351,6 @@ public class SummonerSearchResultsActivity
     public void onClick(View view) {
         switch (view.getId()) {
 
-        }
-    }
-
-    @Override
-    public void scrollToTop() {
-        CoordinatorLayout.LayoutParams params =
-                (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
-        AppBarLayout.Behavior behavior = (AppBarLayout.Behavior) params.getBehavior();
-        if (behavior != null) {
-            behavior.onNestedFling(mainContent, appBarLayout, null,
-                    0, 10000, true);
         }
     }
 
