@@ -69,7 +69,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             public void onClick(View v) {
                 Log.d(TAG, "onClick: clicked: " + mImageNames.get(position));
 
-                Toast.makeText(mContext, mImageNames.get(position), Toast.LENGTH_SHORT).show();
+        //        Toast.makeText(mContext, mImageNames.get(position), Toast.LENGTH_SHORT).show();
             }
         });
     }
