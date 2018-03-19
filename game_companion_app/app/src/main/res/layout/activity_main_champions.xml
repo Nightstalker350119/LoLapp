@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginBottom="@dimen/navigation_bar_height"
-    tools:context="com.norbertotaveras.game_companion_app.ChampionPage.MainChampions">
+    tools:context="com.norbertotaveras.game_companion_app.MainChampions">
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
@@ -21,14 +21,21 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <ProgressBar
+        android:id="@+id/progress_bar_champions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center"
+        android:layout_marginBottom="16dp"/>
+
     <Button
         android:id="@+id/topButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="To the top!"
-        android:layout_gravity="center|top"
-        android:background="@drawable/rounded_button_background"
-        />
+        android:layout_height="32dp"
+        android:layout_gravity="top|center"
+        android:layout_marginTop="8dp"
+        android:text="Go to top"
+        android:background="@drawable/rounded_button_background"/>
 
     <!--<com.spark.submitbutton.SubmitButton-->
         <!--android:id="@+id/topButton"-->

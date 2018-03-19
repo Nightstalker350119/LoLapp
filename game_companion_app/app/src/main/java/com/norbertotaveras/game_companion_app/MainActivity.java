@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import com.norbertotaveras.game_companion_app.ChampionPage.MainChampions;
+import com.norbertotaveras.game_companion_app.MainChampions;
 
 /**
  * Created by Norberto Taveras on 1/30/2018.
