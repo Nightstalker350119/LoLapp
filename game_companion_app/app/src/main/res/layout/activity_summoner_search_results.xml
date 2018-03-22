@@ -200,7 +200,8 @@
             android:layout_height="wrap_content"
             app:tabTextColor="@color/textColorDim"
             app:tabIndicatorColor="#FF2794D2"
-            app:tabSelectedTextColor="#FF2794D2"/>
+            app:tabSelectedTextColor="#FF2794D2"
+            android:background="#801F3240"/>
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
