@@ -1,6 +1,7 @@
 package com.norbertotaveras.game_companion_app;
 
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -21,6 +22,9 @@ import com.norbertotaveras.game_companion_app.DTO.Match.MatchReferenceDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.MatchlistDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantIdentityDTO;
+import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionDTO;
+import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionListDTO;
+import com.norbertotaveras.game_companion_app.DTO.StaticData.SkinDTO;
 import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
 
 import java.text.SimpleDateFormat;
@@ -52,6 +56,7 @@ public class MatchesFragment
     private Handler uiThreadHandler;
     private ProgressBar progressBar;
     private ProgressBarManager progressBarManager;
+    private Drawable background;
 
     private Button gotoTop;
 
@@ -64,6 +69,7 @@ public class MatchesFragment
     private int currentMatchIndex = 0;
     private RiotGamesService apiService;
     private RiotAPI.DeferredRequest<SummonerDTO> deferredSummoner;
+    private BackgroundNotify backgroundNotify;
 
     public MatchesFragment() {
         // Required empty public constructor
@@ -283,6 +289,13 @@ public class MatchesFragment
         }
     }
 
+    public void setBackgroundNotify(BackgroundNotify activity) {
+        backgroundNotify = activity;
+
+        if (background != null)
+            backgroundNotify.setBackground(background);
+    }
+
     private class MatchListAdapter
             extends RecyclerView.Adapter<MatchListItem> {
         private final ArrayList<Long> allMatches;
@@ -356,6 +369,35 @@ public class MatchesFragment
             notifyItemRangeInserted(oldLength, matches.length - oldLength);
 
             matchListNoResults.setVisibility(matches.length != 0 ? View.GONE : View.VISIBLE);
+
+            if (matches.length > 0 && background == null) {
+                // Get the artwork for the champion used in the first match
+                final MatchDTO firstMatch = matches[0];
+
+                deferredSummoner.getData(new RiotAPI.AsyncCallback<SummonerDTO>() {
+                    @Override
+                    public void invoke(SummonerDTO summoner) {
+                        final ParticipantIdentityDTO participantIdentity =
+                                RiotAPI.participantIdentityFromSummoner(
+                                firstMatch.participantIdentities, summoner);
+                        final ParticipantDTO participant =
+                                RiotAPI.participantFromParticipantId(
+                                        firstMatch.participants,
+                                        participantIdentity.participantId);
+
+                        RiotAPI.fetchChampionSplash(participant.championId,
+                                new RiotAPI.AsyncCallback<Drawable>() {
+                            @Override
+                            public void invoke(Drawable item) {
+                                background = item;
+                                if (backgroundNotify != null)
+                                    backgroundNotify.setBackground(item);
+                            }
+                        });
+                    }
+                });
+            }
+
         }
 
         @Override
