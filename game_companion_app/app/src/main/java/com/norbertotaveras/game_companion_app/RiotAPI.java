@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.util.LongSparseArray;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -26,6 +27,7 @@ import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionListDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.ProfileIconDataDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.RealmDTO;
+import com.norbertotaveras.game_companion_app.DTO.StaticData.SkinDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.SummonerSpellDTO;
 import com.norbertotaveras.game_companion_app.DTO.StaticData.SummonerSpellListDTO;
 import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
@@ -660,7 +662,8 @@ public class RiotAPI {
                 new StaticCacheFetcher<ChampionListDTO>() {
                     @Override
                     public DeferredRequest<ChampionListDTO> fetch() {
-                        return new RiotAPI.DeferredRequest<>(apiService.getChampionList());
+                        return new RiotAPI.DeferredRequest<>(apiService.getChampionList(
+                                "all", "all"));
                     }
                 }, new TypeToken<ChampionListDTO>(){}.getType());
     }
@@ -1013,41 +1016,84 @@ public class RiotAPI {
         return null;
     }
 
+    public static void fetchChampionSplash(final long championId,
+                                           final AsyncCallback<Drawable> callback) {
+        ChampionDTO champion = ChampionLookup.championById(championId);
+
+        if (champion.skins.isEmpty()) {
+            callback.invoke(null);
+            return;
+        }
+
+        SkinDTO skin = champion.skins.get(0);
+
+        String url = String.format(Locale.ENGLISH,
+                "%s/img/champion/splash/%s_%d.jpg",
+                staticCdn, champion.key, skin.num);
+
+        drawableFromUrl(url, callback);
+    }
+
     // Singleton uses double checked lock to lazily
     // asynchronously initialize id->champion lookup table
     public static class ChampionLookup {
-        static volatile HashMap<Long, ChampionDTO> lookup;
-        static Object lock = new Object();
+        private LongSparseArray<ChampionDTO> lookup;
+        private String version;
 
-        static ChampionDTO championById(long id) {
-            if (lookup == null) {
+        private static Object lock = new Object();
+        private static volatile ChampionLookup instance;
+
+        // Double checked locked singleton
+        public static ChampionLookup getInstance() {
+            if (instance == null || instance.lookup == null) {
                 synchronized (lock) {
-                    if (lookup == null) {
-                        RiotAPI.getChampionList(new RiotAPI.AsyncCallback<ChampionListDTO>() {
-                            @Override
-                            public void invoke(ChampionListDTO item) {
-                                HashMap<Long, ChampionDTO> lookupInit =
-                                        new HashMap<>(item.data.size());
+                    // Create the instance, if it has not been created yet
+                    if (instance == null)
+                        instance = new ChampionLookup();
 
-                                for (Map.Entry<String, ChampionDTO> entry : item.data.entrySet())
-                                    lookupInit.put(entry.getValue().id, entry.getValue());
-
-                                lookup = lookupInit;
-                                lock.notify();
-                            }
-                        });
-
-                        // Stall first call until asynchronous callback completes
-                        try {
-                            while (lookup == null)
-                                lock.wait();
-                        } catch (InterruptedException ex) {
-                        }
+                    // The lookup table is populated asynchronously,
+                    // wait for that the first time, too
+                    try {
+                        while (instance.lookup == null)
+                            lock.wait();
+                    }
+                    catch (InterruptedException ex) {
+                        return null;
                     }
                 }
             }
+            return instance;
+        }
 
-            return lookup.get(id);
+        static String getVersion() {
+            ChampionLookup inst = getInstance();
+            if (inst != null)
+                return inst.version;
+            return null;
+        }
+
+        static ChampionDTO championById(long id) {
+            ChampionLookup inst = getInstance();
+            if (inst != null)
+                return inst.lookup.get(id);
+            return null;
+        }
+
+        private ChampionLookup() {
+            RiotAPI.getChampionList(new RiotAPI.AsyncCallback<ChampionListDTO>() {
+                @Override
+                public void invoke(ChampionListDTO item) {
+                    version = item.version;
+                    LongSparseArray<ChampionDTO> lookupInit =
+                            new LongSparseArray<>(item.data.size());
+
+                    for (Map.Entry<String, ChampionDTO> entry : item.data.entrySet())
+                        lookupInit.put(entry.getValue().id, entry.getValue());
+
+                    lookup = lookupInit;
+                    lock.notify();
+                }
+            });
         }
     }
 
