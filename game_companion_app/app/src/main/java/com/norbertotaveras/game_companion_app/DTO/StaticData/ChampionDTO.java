@@ -25,7 +25,7 @@ public class ChampionDTO implements Serializable {
     public boolean freeToPlay; // Indicates if the champion is free to play. Free to play champions are rotated periodically.
     public long id;
     public int championid;
-    public List<SkinsDTO> skins;
+    public List<SkinDTO> skins;
     public List<RecommendedDTO> recommended;
     public List<ChampionSpellDTO> spells;
     public InfoDTO info;
