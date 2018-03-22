@@ -1,6 +1,11 @@
 package com.norbertotaveras.game_companion_app;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,6 +16,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -47,7 +53,7 @@ import retrofit2.Response;
 
 public class SummonerSearchResultsActivity
         extends AppCompatActivity
-        implements View.OnClickListener {
+        implements View.OnClickListener, BackgroundNotify {
     private final SummonerSearchResultsActivity activity = this;
     private RiotGamesService apiService;
 
@@ -206,6 +212,7 @@ public class SummonerSearchResultsActivity
         }
 
         matchesFragment.setDeferredSummoner(deferredSummoner);
+        matchesFragment.setBackgroundNotify(this);
 
         deferredSummoner.getData(new RiotAPI.AsyncCallback<SummonerDTO>() {
             @Override
@@ -352,6 +359,25 @@ public class SummonerSearchResultsActivity
         switch (view.getId()) {
 
         }
+    }
+
+    @Override
+    public void setBackground(final Drawable background) {
+//        Bitmap.Config config = Bitmap.Config.ARGB_8888;
+//        Bitmap result = Bitmap.createBitmap(
+//                background.getIntrinsicWidth(), background.getIntrinsicHeight(), config);
+//        Canvas canvas = new Canvas(result);
+//        background.setColorFilter();
+        final Context context = this;
+        uiThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                background.setAlpha(96);
+                background.setColorFilter(ContextCompat.getColor(context, R.color.colorPrimary),
+                        PorterDuff.Mode.ADD);
+                appBarLayout.setBackground(background);
+            }
+        });
     }
 
     public class LeagueInfo implements Serializable {
