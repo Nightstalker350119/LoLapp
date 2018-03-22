@@ -29,7 +29,9 @@ public interface RiotGamesService {
 
     // Retrieves champion list.
     @GET("/lol/static-data/v3/champions")
-    Call<ChampionListDTO> getChampionList();
+    Call<ChampionListDTO> getChampionList(
+            @Query("champListData") String champListData,
+            @Query("tags") String tags);
 
     // Retrieve current patch version.
     @GET("/lol/static-data/v3/versions")
