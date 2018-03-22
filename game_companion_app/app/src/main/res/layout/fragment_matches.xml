@@ -26,6 +26,7 @@
         android:layout_gravity="top|center"
         android:layout_marginTop="8dp"
         android:text="Go to top"
+        android:visibility="gone"
         android:background="@drawable/rounded_button_background"/>
 
     <ProgressBar
@@ -39,16 +40,16 @@
         android:id="@+id/no_results"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:visibility="visible">
+        android:visibility="visible"
+        android:layout_gravity="center_vertical"
+        android:paddingBottom="56dp">
         <TextView
             android:id="@+id/match_list_no_results_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:textSize="24dp"
+            android:textSize="32dp"
             android:text=" &#x26a0; "/>
         <TextView
             android:layout_width="wrap_content"
@@ -56,7 +57,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/match_list_no_results_icon"
-            android:textSize="12dp"
+            android:textSize="16dp"
             android:text=" There are no results "/>
     </android.support.constraint.ConstraintLayout>
 
