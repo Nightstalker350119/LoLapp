@@ -1,7 +1,8 @@
-package com.norbertotaveras.game_companion_app.ChampionPage;
+package com.norbertotaveras.game_companion_app;
 
 import android.app.Fragment;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,11 +18,12 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.norbertotaveras.game_companion_app.ChampionPage.RecyclerViewAdapter;
 import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.ChampionGGService;
 import com.norbertotaveras.game_companion_app.ChampionPage.Retrofit.RetroClasses.ChampionRates;
-import com.norbertotaveras.game_companion_app.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +50,9 @@ public class MainChampions extends Fragment {
     boolean isOpen = false;
     int wantedPosition = 0; //0=all | 1=top | 2=jungle | 3=middle | 4=support | 5=bottom
     int wantedRating = 0; //0=all | 1=win | 2=pick | 3=ban
+    ProgressBar progressBar;
+    ProgressBarManager progressBarManager;
+    private Handler uiThreadHandler;
 
     private ArrayList<String> mNames = new ArrayList<>();
     private ArrayList<String> mImageUrls = new ArrayList<>();
@@ -58,11 +63,16 @@ public class MainChampions extends Fragment {
     private String championName;
 
 
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.activity_main_champions, container, false);
         setHasOptionsMenu(true);
+
+        uiThreadHandler = UIHelper.createRunnableLooper();
+        progressBar = view.findViewById(R.id.progress_bar_champions);
+        progressBarManager = new ProgressBarManager(uiThreadHandler, progressBar);
 
         //Sorting buttons
         fabPlus = view.findViewById(R.id.fab_plus);
@@ -82,6 +92,8 @@ public class MainChampions extends Fragment {
         };
 
         btnTop = view.findViewById(R.id.topButton);
+        btnTop.setEnabled(false);
+        btnTop.setVisibility(View.INVISIBLE);
         championList = view.findViewById(R.id.champ_list);
 
         return view;
@@ -117,8 +129,9 @@ public class MainChampions extends Fragment {
                     Log.v(TAG, "ChampID(" + i + ") = " + rates.get(i).getChampionId());
                     Log.v(TAG, "winRate(" + i + ") = " + rates.get(i).getWinRate());
                 }
-
+                progressBarManager.started(1);
                 initImageBitmaps(wantedPosition, championList);
+                progressBarManager.completed(1);
 
             }
 
@@ -129,7 +142,7 @@ public class MainChampions extends Fragment {
             }
         });
 
-        btnTop.setEnabled(false);
+
 
 
         fabPlus.setOnClickListener(new View.OnClickListener() { //Sorting buttons
@@ -254,7 +267,6 @@ public class MainChampions extends Fragment {
                 int firstVisiblePosition = layoutManager.findFirstVisibleItemPosition();
                 btnTop.setEnabled(true);
                 btnTop.setVisibility(View.VISIBLE);
-                btnTop.setAlpha(0.50f);
 
                 if (firstVisiblePosition > 1) // && ScrollAmount < dy // Scroll has to be less than current y in order for us to realize it's scrolling up
                 {
@@ -946,6 +958,8 @@ public class MainChampions extends Fragment {
                 //Sort Top Champion RankPositions
                 for (int i = 0; i < mWinRates.size(); i++)
                 {
+                    mRankPosition.set(i, Integer.toString(i+1));
+
                     if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("kennen"))
                     {
                         mImageUrls.remove(i);
@@ -954,8 +968,6 @@ public class MainChampions extends Fragment {
                         mChampionPosition.remove(i);
                         mRankPosition.remove(i);
                     }
-
-                    mRankPosition.set(i, Integer.toString(i+1));
                 }
 
                 break;
@@ -980,6 +992,8 @@ public class MainChampions extends Fragment {
                 //Sort Jungle Champion RankPositions
                 for (int i = 0; i < mWinRates.size(); i++)
                 {
+                    mRankPosition.set(i, Integer.toString(i+1));
+
                     if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("kennen"))
                     {
                         mImageUrls.remove(i);
@@ -988,7 +1002,6 @@ public class MainChampions extends Fragment {
                         mChampionPosition.remove(i);
                         mRankPosition.remove(i);
                     }
-                    mRankPosition.set(i, Integer.toString(i+1));
                 }
 
                 break;
@@ -1013,6 +1026,8 @@ public class MainChampions extends Fragment {
                 //Sort Mid Champion RankPositions
                 for (int i = 0; i < mWinRates.size(); i++)
                 {
+                    mRankPosition.set(i, Integer.toString(i+1));
+
                     if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("kennen"))
                     {
                         mImageUrls.remove(i);
@@ -1021,7 +1036,6 @@ public class MainChampions extends Fragment {
                         mChampionPosition.remove(i);
                         mRankPosition.remove(i);
                     }
-                    mRankPosition.set(i, Integer.toString(i+1));
                 }
 
                 break;
@@ -1072,6 +1086,8 @@ public class MainChampions extends Fragment {
                 //Sort ADC Champion RankPositions
                 for (int i = 0; i < mWinRates.size(); i++)
                 {
+                    mRankPosition.set(i, Integer.toString(i+1));
+
                     if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("kennen"))
                     {
                         mImageUrls.remove(i);
@@ -1080,8 +1096,6 @@ public class MainChampions extends Fragment {
                         mChampionPosition.remove(i);
                         mRankPosition.remove(i);
                     }
-
-                    mRankPosition.set(i, Integer.toString(i+1));
                 }
 
                 break;
