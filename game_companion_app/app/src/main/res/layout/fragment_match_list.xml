@@ -83,19 +83,22 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:text="K / D / A"
-                    android:textColor="#FF000000"/>
+                    android:textColor="@color/textColorBold"
+                    android:textStyle="bold"/>
                 <TextView
                     android:id="@+id/kda_ratio"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="X:X"
-                    android:textColor="#FF000000" />
+                    android:textColor="@color/textColorBold"
+                    android:textStyle="bold"/>
                 <TextView
                     android:id="@+id/special_kills"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="specialkills"
-                    android:textColor="#FF000000"/>
+                    android:textColor="@color/textColorBold"
+                    android:textStyle="bold"/>
             </LinearLayout>
         </LinearLayout>
         <LinearLayout
@@ -116,25 +119,29 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Game mode"
-                    android:textColor="#FF0000EE"/>
+                    android:textColor="@color/textColorBold"
+                    android:textStyle="bold"/>
                 <TextView
                     android:id="@+id/game_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Date"
-                    android:textColor="#FF000000"/>
+                    android:textColor="@color/textColorBold"
+                    android:textStyle="bold"/>
                 <TextView
                     android:id="@+id/game_id"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#555555"
-                    android:text="#nnnn"/>
+                    android:text="#nnnn"
+                    android:visibility="gone"/>
                 <TextView
                     android:id="@+id/game_duration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Duration"
-                    android:textColor="#FF000000" />
+                    android:textColor="@color/textColorBold"
+                    android:textStyle="bold"/>
             </LinearLayout>
         </LinearLayout>
     </android.support.constraint.ConstraintLayout>
