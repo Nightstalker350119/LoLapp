@@ -22,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,9 +54,16 @@ import retrofit2.Response;
 
 public class SummonerSearchResultsActivity
         extends AppCompatActivity
-        implements View.OnClickListener, BackgroundNotify {
+        implements View.OnClickListener, BackgroundNotify, IProgressBarManagerOwner {
     private final SummonerSearchResultsActivity activity = this;
     private RiotGamesService apiService;
+
+    private ProgressBar progressBar;
+    private ProgressBarManager progressBarManager;
+    private Handler uiThreadHandler;
+
+    private CoordinatorLayout mainContent;
+    private AppBarLayout appBarLayout;
 
     private String searchName;
     private long searchAccountId;
@@ -63,11 +71,6 @@ public class SummonerSearchResultsActivity
     private ImageView profileIcon;
     private ImageView tierIcon;
     private long profileIconId;
-
-    private Handler uiThreadHandler;
-
-    private CoordinatorLayout mainContent;
-    private AppBarLayout appBarLayout;
 
     private TabLayout tabLayout;
     private ViewPager tabPager;
@@ -106,6 +109,11 @@ public class SummonerSearchResultsActivity
 
         mainContent = view.findViewById(R.id.main_content);
         appBarLayout = view.findViewById(R.id.appbar);
+
+        uiThreadHandler = UIHelper.createRunnableLooper();
+
+        progressBar = findViewById(R.id.progress_bar);
+        progressBarManager = new ProgressBarManager(uiThreadHandler, progressBar);
 
         filterMenu = new FabMenu(view, R.id.fab_filter_container);
 
@@ -150,6 +158,7 @@ public class SummonerSearchResultsActivity
 
         matchesFragment = MatchesFragment.newInstance();
         champsFragment = ChampsFragment.newInstance();
+
         tabPagerAdapter.addFragment("Matches", matchesFragment);
         tabPagerAdapter.addFragment("Champs", champsFragment);
         menuSwitcher.addMenuToTab(filterMenu);
@@ -197,12 +206,12 @@ public class SummonerSearchResultsActivity
 
         apiService = RiotAPI.getInstance(getApplicationContext());
 
-        uiThreadHandler = UIHelper.createRunnableLooper();
-
         search();
     }
 
     private void search() {
+        progressBarManager.started(1);
+
         if (searchName != null) {
             deferredSummoner = new RiotAPI.DeferredRequest<>(
                     apiService.getSummonerByName(searchName));
@@ -219,6 +228,8 @@ public class SummonerSearchResultsActivity
             public void invoke(SummonerDTO summoner) {
                 handleGetSummonerResponse(summoner);
                 getRecentSeasonAchievements(summoner);
+
+                progressBarManager.completed(1);
             }
         });
     }
@@ -239,21 +250,35 @@ public class SummonerSearchResultsActivity
             final Call<MatchlistDTO> matchListRequest = apiService.getMatchListBySeasonId(
                     summoner.accountId, 0, 1, seasonId);
 
+            progressBarManager.started(1);
+
             RiotAPI.cachedRequest(matchListRequest, new RiotAPI.AsyncCallback<MatchlistDTO>() {
                 @Override
                 public void invoke(MatchlistDTO matchList) {
                     if (matchList == null || matchList.matches == null ||
-                            matchList.matches.isEmpty())
+                            matchList.matches.isEmpty()) {
+                        // Completing matchListRequest
+                        progressBarManager.completed(1);
                         return;
+                    }
 
                     final MatchReferenceDTO firstMatch = matchList.matches.get(0);
 
                     final long firstMatchId = firstMatch.gameId;
 
+                    // Starting getCachedMatch
+                    progressBarManager.started(1);
+
+                    // Completing matchListRequest
+                    progressBarManager.completed(1);
+
                     RiotAPI.getCachedMatch(firstMatchId, new RiotAPI.AsyncCallback<MatchDTO>() {
                         @Override
                         public void invoke(MatchDTO match) {
                             Log.v("PastTier", "firstMatchId=" + firstMatchId);
+
+                            // Completing getCachedMatch
+                            progressBarManager.completed(1);
 
                             // Find the participant identity for the summoner in this match
                             final ParticipantIdentityDTO identity =
@@ -332,15 +357,24 @@ public class SummonerSearchResultsActivity
         final Call<List<LeaguePositionDTO>> getLeaguePositionRequest =
                 apiService.getLeaguePositionsBySummonerId(summoner.id);
 
+        // Starting getLeaguePositionRequest
+        progressBarManager.started(1);
+
         RiotAPI.rateLimitRequest(getLeaguePositionRequest, new Callback<List<LeaguePositionDTO>>() {
             @Override
             public void onResponse(Call<List<LeaguePositionDTO>> call,
                                    Response<List<LeaguePositionDTO>> response) {
+                // Completing getLeaguePositionRequest
+                progressBarManager.completed(1);
+
                 leagueInfo.setLeaguePositionDTO(response.body());
             }
 
             @Override
             public void onFailure(Call<List<LeaguePositionDTO>> call, Throwable t) {
+                // Completing getLeaguePositionRequest
+                progressBarManager.completed(1);
+
                 Log.e("RiotAPI", "getLeaguePositionsBySummonerId failed");
             }
         });
@@ -363,21 +397,12 @@ public class SummonerSearchResultsActivity
 
     @Override
     public void setBackground(final Drawable background) {
-//        Bitmap.Config config = Bitmap.Config.ARGB_8888;
-//        Bitmap result = Bitmap.createBitmap(
-//                background.getIntrinsicWidth(), background.getIntrinsicHeight(), config);
-//        Canvas canvas = new Canvas(result);
-//        background.setColorFilter();
-        final Context context = this;
-        uiThreadHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                background.setAlpha(96);
-                background.setColorFilter(ContextCompat.getColor(context, R.color.colorPrimary),
-                        PorterDuff.Mode.ADD);
-                appBarLayout.setBackground(background);
-            }
-        });
+        RiotAPI.setChampionSplashBackground(
+                this, uiThreadHandler, appBarLayout, background);    }
+
+    @Override
+    public ProgressBarManager getProgressBarManager() {
+        return progressBarManager;
     }
 
     public class LeagueInfo implements Serializable {
