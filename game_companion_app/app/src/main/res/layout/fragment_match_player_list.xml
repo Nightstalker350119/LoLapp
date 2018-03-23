@@ -50,7 +50,9 @@
                 android:id="@+id/summoner_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="name"/>
+                android:text="name"
+                android:textColor="@color/textColorBold"
+                android:textStyle="bold"/>
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -59,13 +61,17 @@
                     android:id="@+id/kda"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="kda"/>
+                    android:text="kda"
+                    android:textColor="@color/textColorBold"
+                    android:textStyle="bold"/>
                 <TextView
                     android:id="@+id/kda_ratio"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
-                    android:text="0:0"/>
+                    android:text="0:0"
+                    android:textColor="@color/textColorBold"
+                    android:textStyle="bold"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
@@ -124,18 +130,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
-                android:text="unk"/>
+                android:text="unk"
+                android:textColor="@color/textColorBold"
+                android:textStyle="bold"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
-                android:text="/"/>
+                android:text="/"
+                android:textColor="@color/textColorBold"
+                android:textStyle="bold"/>
             <TextView
                 android:id="@+id/gold_earned"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
-                android:text="$$$"/>
+                android:text="$$$"
+                android:textColor="@color/textColorBold"
+                android:textStyle="bold"/>
         </LinearLayout>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
