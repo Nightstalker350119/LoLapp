@@ -73,12 +73,14 @@
                 android:id="@+id/league_points_0"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="LP"/>
+                android:text="LP"
+                android:textStyle="bold"/>
             <TextView
                 android:id="@+id/win_loss"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="999"/>
+                android:text="999"
+                android:textStyle="bold"/>
         </LinearLayout>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
