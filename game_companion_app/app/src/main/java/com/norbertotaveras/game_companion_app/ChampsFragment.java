@@ -36,6 +36,7 @@ import retrofit2.Call;
  */
 
 public class ChampsFragment extends Fragment {
+    private ProgressBarManager progressBarManager;
     private RecyclerView.LayoutManager champListLayoutManager;
     private RecyclerView champList;
     private ChampionListAdapter champListAdapter;
@@ -64,6 +65,9 @@ public class ChampsFragment extends Fragment {
     {
         View view = getActivity().getLayoutInflater().inflate(
                 R.layout.fragment_champs, container, false);
+
+        IProgressBarManagerOwner owner = (IProgressBarManagerOwner)getActivity();
+        progressBarManager = owner.getProgressBarManager();
 
         champList = view.findViewById(R.id.champ_list);
 
