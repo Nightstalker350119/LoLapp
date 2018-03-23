@@ -2,8 +2,13 @@ package com.norbertotaveras.game_companion_app;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.os.PersistableBundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -43,7 +48,10 @@ public class MatchDetailsActivity extends AppCompatActivity {
     private SummonerListAdapter summonerListAdapter;
     private LinearLayoutManager summonerListLayoutManager;
 
-    Handler uiHandler;
+    private Handler uiHandler;
+    private AppBarLayout appBarLayout;
+
+    private boolean backgroundSet = false;
 
     public static void start(Context context, SummonerDTO summoner, MatchDTO match) {
         Intent intent = new Intent(context, MatchDetailsActivity.class);
@@ -61,11 +69,15 @@ public class MatchDetailsActivity extends AppCompatActivity {
         summoner = (SummonerDTO)intent.getSerializableExtra("summoner");
         match = (MatchDTO)intent.getSerializableExtra("match");
 
+        uiHandler = UIHelper.createRunnableLooper();
+
         participantIdentity = RiotAPI.participantIdentityFromSummoner(
                 match.participantIdentities, summoner);
 
         participant = RiotAPI.participantFromParticipantId(
                 match.participants, participantIdentity.participantId);
+
+        appBarLayout = findViewById(R.id.appbar);
 
         gameMode = findViewById(R.id.game_mode);
         gameDate = findViewById(R.id.game_date);
@@ -80,8 +92,6 @@ public class MatchDetailsActivity extends AppCompatActivity {
         summonerList.setLayoutManager(summonerListLayoutManager);
         summonerList.setHasFixedSize(false);
 
-        uiHandler = UIHelper.createRunnableLooper();
-
         gameMode.setText(RiotAPI.queueIdToQueueName(match.queueId));
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -91,6 +101,26 @@ public class MatchDetailsActivity extends AppCompatActivity {
 
         boolean isRemake = RiotAPI.durationIsRemake(match.gameDuration);
         winLoss.setText(isRemake ? "Remake" : participant.stats.win ? "Victory" : "Defeat");
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (!backgroundSet) {
+            setBackground(participant);
+            backgroundSet = true;
+        }
+    }
+
+    private void setBackground(final ParticipantDTO participant) {
+        final Context context = this;
+        uiHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                RiotAPI.setChampionSplashBackgroundByChampionId(context, uiHandler,
+                        appBarLayout, participant.championId);
+            }
+        });
     }
 
     private class SummonerListItem
