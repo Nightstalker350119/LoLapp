@@ -968,6 +968,15 @@ public class MainChampions extends Fragment {
                         mChampionPosition.remove(i);
                         mRankPosition.remove(i);
                     }
+
+                    if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("taliyah"))
+                    {
+                        mImageUrls.remove(i);
+                        mNames.remove(i);
+                        mWinRates.remove(i);
+                        mChampionPosition.remove(i);
+                        mRankPosition.remove(i);
+                    }
                 }
 
                 break;
@@ -1002,6 +1011,15 @@ public class MainChampions extends Fragment {
                         mChampionPosition.remove(i);
                         mRankPosition.remove(i);
                     }
+
+                    if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("taliyah"))
+                    {
+                        mImageUrls.remove(i);
+                        mNames.remove(i);
+                        mWinRates.remove(i);
+                        mChampionPosition.remove(i);
+                        mRankPosition.remove(i);
+                    }
                 }
 
                 break;
@@ -1029,6 +1047,15 @@ public class MainChampions extends Fragment {
                     mRankPosition.set(i, Integer.toString(i+1));
 
                     if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("kennen"))
+                    {
+                        mImageUrls.remove(i);
+                        mNames.remove(i);
+                        mWinRates.remove(i);
+                        mChampionPosition.remove(i);
+                        mRankPosition.remove(i);
+                    }
+
+                    if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("taliyah"))
                     {
                         mImageUrls.remove(i);
                         mNames.remove(i);
@@ -1089,6 +1116,15 @@ public class MainChampions extends Fragment {
                     mRankPosition.set(i, Integer.toString(i+1));
 
                     if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("kennen"))
+                    {
+                        mImageUrls.remove(i);
+                        mNames.remove(i);
+                        mWinRates.remove(i);
+                        mChampionPosition.remove(i);
+                        mRankPosition.remove(i);
+                    }
+
+                    if (mChampionPosition.get(i).toLowerCase().contains("sup") && mNames.get(i).toLowerCase().contains("taliyah"))
                     {
                         mImageUrls.remove(i);
                         mNames.remove(i);
