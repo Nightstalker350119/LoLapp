@@ -5,6 +5,7 @@
     <color name="textColorPrimary">#CCCCCC</color>
     <color name="textColorDim">#888888</color>
     <color name="textColorHighlight">#FFFFFF</color>
+    <color name="textColorBold">#000000</color>
     <color name="colorPrimary">#1F3240</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#000000</color>
