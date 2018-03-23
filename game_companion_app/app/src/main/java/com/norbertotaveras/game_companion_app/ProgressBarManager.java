@@ -7,7 +7,7 @@ import android.widget.ProgressBar;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Created by Norberto on 3/12/2018.
+ * Created by Norberto Taveras on 3/12/2018.
  */
 
 // This class keeps track of the number of outstanding operations and shows the ProgressBar
@@ -55,3 +55,4 @@ public class ProgressBarManager {
             uiHandler.post(hideProgressBar);
     }
 }
+
