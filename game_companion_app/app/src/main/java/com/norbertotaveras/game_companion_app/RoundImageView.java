@@ -8,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 
 /**
@@ -42,18 +43,21 @@ public class RoundImageView extends android.support.v7.widget.AppCompatImageView
 
     @Override
     protected void onDraw(Canvas canvas) {
-        BitmapDrawable drawable = (BitmapDrawable)getDrawable();
-        if (drawable == null)
+        Drawable original = getDrawable();
+
+        if (original == null || !(original instanceof  BitmapDrawable))
             return;
+
+        BitmapDrawable drawable = (BitmapDrawable)original;
 
         int width = getWidth();
         int height = getHeight();
         int minDim = Math.min(width, height);
         float minDimD2 = minDim / 2.0f;
 
-        if (tempBitmap == null) {
+        if (tempBitmap == null)
             tempBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        }
+
         Canvas tempCanvas = new Canvas(tempBitmap);
 
         paint.setXfermode(null);
