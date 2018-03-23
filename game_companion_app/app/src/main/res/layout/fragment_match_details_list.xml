@@ -93,14 +93,18 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="1dp"
-                        android:text="player"/>
+                        android:text="player"
+                        android:textColor="@color/textColorBold"
+                        android:textStyle="bold"/>
 
                     <TextView
                         android:id="@+id/kda"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="1dp"
-                        android:text="kda"/>
+                        android:text="kda"
+                        android:textColor="@color/textColorBold"
+                        android:textStyle="bold"/>
 
                 </LinearLayout>
             </LinearLayout>
@@ -121,14 +125,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="1dp"
-                android:text="MinionKills"/>
+                android:text="MinionKills"
+                android:textColor="@color/textColorBold"
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/participation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="1dp"
-                android:text="Participation"/>
+                android:text="Participation"
+                android:textColor="@color/textColorBold"
+                android:textStyle="bold"/>
 
         </LinearLayout>
     </android.support.constraint.ConstraintLayout>
@@ -192,14 +200,18 @@
                 android:layout_height="wrap_content"
                 android:text="Damage"
                 android:textAlignment="center"
-                android:layout_margin="8dp"/>
+                android:layout_margin="8dp"
+                android:textColor="@color/textColorBold"
+                android:textStyle="bold"/>
             <TextView
                 android:id="@+id/gold_earned"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
-                android:text="gold"
-                android:layout_margin="8dp"/>
+                android:text="Gold Earned"
+                android:layout_margin="8dp"
+                android:textColor="@color/textColorBold"
+                android:textStyle="bold"/>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
