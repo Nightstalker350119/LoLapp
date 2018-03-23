@@ -2,10 +2,16 @@ package com.norbertotaveras.game_companion_app;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.LongSparseArray;
 import android.view.View;
@@ -1032,6 +1038,85 @@ public class RiotAPI {
                 staticCdn, champion.key, skin.num);
 
         drawableFromUrl(url, callback);
+    }
+
+    public static void setChampionSplashBackgroundByChampionId(
+            final Context context, final Handler uiHandler,
+            final View view, int championId) {
+        RiotAPI.fetchChampionSplash(championId, new RiotAPI.AsyncCallback<Drawable>() {
+            @Override
+            public void invoke(final Drawable background) {
+                setChampionSplashBackground(context, uiHandler, view, background);
+            }
+        });
+    }
+
+    public static void setChampionSplashBackground(
+            final Context context, Handler uiHandler, final View view,
+            Drawable immutableBackground) {
+        // Create a clone of the drawable because we are going to modify it
+        //final Drawable background = immutableBackground.getConstantState().newDrawable();
+
+        Bitmap background = ((BitmapDrawable)immutableBackground).getBitmap();
+
+        int imgW = background.getWidth();
+        int imgMidX = imgW / 2;
+        int imgH = background.getHeight();
+        int imgMidY = imgH / 2;
+        int viewW = view.getWidth();
+        int viewMidX = viewW / 2;
+        int viewH = view.getHeight();
+        int viewMidY = viewH / 2;
+
+        // The source rectangle
+        Rect rect = new Rect();
+
+        float imgAspect = (float)imgW / imgH;
+        float viewAspect = (float)viewW / viewH;
+
+        if (imgAspect >= viewAspect) {
+            // Must crop left and right edges of background
+            int visW = (int)(imgW / imgAspect * viewAspect);
+
+            rect.left = imgMidX - visW/2;
+            rect.right = imgMidX + visW/2;
+            rect.top = 0;
+            rect.bottom = imgH;
+        } else {
+            // Must crop top and bottom edges of background
+            int visH = (int)(imgH * imgAspect / viewAspect);
+
+            rect.left = 0;
+            rect.right = imgW;
+            rect.top = imgMidY - visH/2;
+            rect.bottom = imgMidY + visH/2;
+        }
+
+//        rect.top = 0;
+//        rect.left = 0;
+//        rect.right = imgW;
+//        rect.bottom = imgH;
+
+        Bitmap canvasBitmap = Bitmap.createBitmap(viewW, viewH, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(canvasBitmap);
+        Rect viewRect = new Rect(0, 0, viewW, viewH);
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setFilterBitmap(true);
+        paint.setDither(true);
+        canvas.drawBitmap(background, rect, viewRect, paint);
+        final BitmapDrawable croppedBackground =
+                new BitmapDrawable(context.getResources(), canvasBitmap);
+        croppedBackground.setAlpha(96);
+        int tint = ContextCompat.getColor(context, R.color.colorPrimary);
+        croppedBackground.setColorFilter(tint, PorterDuff.Mode.ADD);
+
+        uiHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                view.setBackground(croppedBackground);
+            }
+        });
     }
 
     // Singleton uses double checked lock to lazily
