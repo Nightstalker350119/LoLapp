@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.norbertotaveras.game_companion_app.DTO.Match.MatchDTO;
@@ -22,9 +21,6 @@ import com.norbertotaveras.game_companion_app.DTO.Match.MatchReferenceDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.MatchlistDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantDTO;
 import com.norbertotaveras.game_companion_app.DTO.Match.ParticipantIdentityDTO;
-import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionDTO;
-import com.norbertotaveras.game_companion_app.DTO.StaticData.ChampionListDTO;
-import com.norbertotaveras.game_companion_app.DTO.StaticData.SkinDTO;
 import com.norbertotaveras.game_companion_app.DTO.Summoner.SummonerDTO;
 
 import java.text.SimpleDateFormat;
@@ -49,13 +45,12 @@ import retrofit2.Response;
 public class MatchesFragment
         extends Fragment
         implements View.OnScrollChangeListener, MatchClickListener, View.OnClickListener {
+    private ProgressBarManager progressBarManager;
     private LinearLayoutManager matchListLayoutManager;
     private RecyclerView matchList;
     private View matchListNoResults;
     private MatchListAdapter matchListAdapter;
     private Handler uiThreadHandler;
-    private ProgressBar progressBar;
-    private ProgressBarManager progressBarManager;
     private Drawable background;
 
     private Button gotoTop;
@@ -80,6 +75,7 @@ public class MatchesFragment
      * this fragment using the provided parameters.
      *
      * @return A new instance of fragment MatchesFragment.
+     * @param progressBarManager
      */
     // TODO: Rename and change types and number of parameters
     public static MatchesFragment newInstance() {
@@ -100,6 +96,9 @@ public class MatchesFragment
 
         apiService = RiotAPI.getInstance(getActivity());
 
+        IProgressBarManagerOwner owner = (IProgressBarManagerOwner)getActivity();
+        progressBarManager = owner.getProgressBarManager();
+
         matchIds = new ArrayList<>(matchBatchSize);
         matchResults = new ConcurrentHashMap<>(matchBatchSize);
 
@@ -107,9 +106,6 @@ public class MatchesFragment
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_matches, container, false);
-
-        progressBar = view.findViewById(R.id.progress_bar);
-        progressBarManager = new ProgressBarManager(uiThreadHandler, progressBar);
 
         matchListLayoutManager = new LinearLayoutManager(getActivity());
 
